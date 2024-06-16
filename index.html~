@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="t" xml:lang="t">
 <head>
-<!-- 2024-06-16 日 18:44 -->
+<!-- 2024-06-16 日 18:50 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Org Mode Example Site</title>
@@ -221,15 +221,15 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orgfd377f9">1. Overview</a></li>
-<li><a href="#org4cf4385">2. Links</a></li>
-<li><a href="#org7037570">3. Test</a></li>
+<li><a href="#org754c01e">1. Overview</a></li>
+<li><a href="#org25b6b15">2. Links</a></li>
+<li><a href="#orgcc83723">3. Test</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orgfd377f9" class="outline-2">
-<h2 id="orgfd377f9"><span class="section-number-2">1.</span> Overview</h2>
+<div id="outline-container-org754c01e" class="outline-2">
+<h2 id="org754c01e"><span class="section-number-2">1.</span> Overview</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 This is an <b>example</b> of a <span class="underline">website</span> written with <a href="https://orgmode.org">Org Mode</a>!
@@ -241,8 +241,8 @@ Here is a link to my <a href="./Emacs.html">Emacs configuration</a>.
 </div>
 </div>
 
-<div id="outline-container-org4cf4385" class="outline-2">
-<h2 id="org4cf4385"><span class="section-number-2">2.</span> Links</h2>
+<div id="outline-container-org25b6b15" class="outline-2">
+<h2 id="org25b6b15"><span class="section-number-2">2.</span> Links</h2>
 <div class="outline-text-2" id="text-2">
 <ul class="org-ul">
 <li><a href="https://systemcrafters.net">System Crafters Official Site</a></li>
@@ -254,12 +254,12 @@ Here is a link to my <a href="./Emacs.html">Emacs configuration</a>.
 </div>
 
 
-<div id="outline-container-org7037570" class="outline-2">
-<h2 id="org7037570"><span class="section-number-2">3.</span> Test</h2>
+<div id="outline-container-orgcc83723" class="outline-2">
+<h2 id="orgcc83723"><span class="section-number-2">3.</span> Test</h2>
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="date">Created: 2024-06-16 日 18:44</p>
+<p class="date">Created: 2024-06-16 日 18:50</p>
 <p class="creator"><a href="https://www.gnu.org/software/emacs/">Emacs</a> 29.3 (<a href="https://orgmode.org">Org</a> mode 9.6.15)</p>
 </div>
 </body>
