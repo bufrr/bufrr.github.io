@@ -1,5 +1,21 @@
 @import url("https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css");
 
-.date, .creator {
+#postamble {
     text-align:center;
+}
+
+.title {
+    height: 5rem;
+}
+
+a[href$=".html"] {
+    display:flex;
+
+    align-items: center;/*垂直居中*/
+
+    justify-content: center;/*水平居中*/
+
+    width:100%;
+
+    height:100%;
 }
