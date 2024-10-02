@@ -2,8 +2,6 @@
 #+AUTHOR: (bytenoob)
 #+OPTIONS: toc:nil num:nil
 
-* Org-based Static Site Generator
-
 This project is a simple static site generator built with Emacs Org mode. It converts Org files into HTML, providing an easy way to create and maintain a personal website or blog.
 
 ** Features

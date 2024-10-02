@@ -1,5 +1,6 @@
 #+TITLE: Sitemap
 
-- [[file:waku.org][The Waku Network]] 2024-10-02
 - [[file:index.org][Do not go gentle into that good night]] 2024-10-02
+- [[file:babylon.org][What is Babylon?]] 2024-10-02
+- [[file:waku.org][The Waku Network]] 2024-10-02
 - [[file:Emacs.org][Emacs Configuration]] 2024-10-02
