@@ -4,4 +4,4 @@
 
 [[./Emacs.org][Emacs configuration]]
 
-[[./Babylon.org][What is Babylon]]
+[[./babylon.org][What is Babylon]]
