@@ -1,5 +1,94 @@
-#+title: Org Website Example
+#+TITLE: Org-based Static Site Generator
+#+AUTHOR: (bytenoob)
+#+OPTIONS: toc:nil num:nil
 
-This repo is an example of how you can build and publish a website with [[https://orgmode.org][Org Mode]].
+* Org-based Static Site Generator
 
-Check out the [[https://systemcrafters.net/publishing-websites-with-org-mode/][Publishing Websites with Org Mode]] series to learn how this was created!
+This project is a simple static site generator built with Emacs Org mode. It converts Org files into HTML, providing an easy way to create and maintain a personal website or blog.
+
+** Features
+
+- Converts Org files to HTML
+- Generates metadata for each page (creation date, update date, author)
+- Automatically creates a sitemap
+- Provides a template for new Org files
+- Customizable HTML output
+
+** Prerequisites
+
+- Emacs (version 26.1 or later recommended)
+- Org mode (version 9.0 or later recommended)
+
+** Project Structure
+
+#+BEGIN_SRC
+.
+├── build-site.el     # Main build script
+├── content/          # Directory for Org content files
+├── public/           # Output directory for generated HTML files
+└── css/              # Directory for CSS files
+    └── style.css     # Custom CSS for the site
+#+END_SRC
+
+** Usage
+
+*** Setup
+1. Clone this repository
+2. Ensure Emacs is installed on your system
+
+*** Creating Content
+1. Open Emacs
+2. Load the =build-site.el= script: =M-x load-file= and select =build-site.el=
+3. Create a new Org file: =M-x create-new-org-file= and enter the desired filename (without .org extension)
+4. Edit the newly created file in the =content/= directory
+
+*** Building the Site
+- In Emacs, run =M-x eval-buffer= with =build-site.el= open
+- Alternatively, from the command line:
+  #+BEGIN_SRC sh
+  emacs -Q --script build-site.el
+  #+END_SRC
+
+*** Viewing the Site
+- The generated HTML files will be in the =public/= directory
+- Open =public/index.html= in a web browser to view your site
+
+** Customization
+
+- Edit =build-site.el= to modify the build process or output format
+- Modify the HTML template or CSS in =style.css= to change the site's appearance
+
+** File Template
+
+New Org files are created with the following template:
+
+#+BEGIN_SRC org
+,#+TITLE: Your Title
+,#+AUTHOR: author name
+,#+CREATED: [Current Date]
+,#+OPTIONS: toc:nil num:nil
+
+,* Your Title
+
+#+END_SRC
+
+** Metadata
+
+Each generated HTML page will include metadata at the bottom:
+
+- Updated: [Last modification date]
+- Created: [Creation date from =#+CREATED:= property]
+- Author: [Author from =#+AUTHOR:= property]
+- Emacs version used for generation
+
+** Contributing
+
+Contributions to improve the project are welcome. Please feel free to submit issues or pull requests.
+
+** License
+
+This project is licensed under the MIT License.
+
+-----
+
+For more information on Org mode, visit the [[https://orgmode.org/][official Org mode website]].
