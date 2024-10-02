@@ -214,25 +214,22 @@
 </script>
 </head>
 <body>
-<div id="preamble" class="status">
-<p class="date">Date: 2024-08-01</p><p class="author">Author: (bytenoob)</p><p class="creator"><a href="https://www.gnu.org/software/emacs/">Emacs</a> 31.0.50 (<a href="https://orgmode.org">Org</a> mode 9.7.9)</p><p class="tags">Tags: </p>
-</div>
 <div id="content" class="content">
 <h1 class="title">The Waku Network</h1>
 <div id="table-of-contents" role="doc-toc">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#orga169364">Origin</a></li>
-<li><a href="#org5ba11e5">Challenges / desired properties</a></li>
-<li><a href="#orge625c52">The Waku Network</a></li>
-<li><a href="#org1f7a0e5">Peer discovery</a></li>
-<li><a href="#orgef47a31">Message Routing - Gossipsub</a></li>
-<li><a href="#org74264d8">Message routing - sharding</a></li>
-<li><a href="#org37380be">Message Routing - RLN Relay</a></li>
-<li><a href="#org7b034e3">Servicing Mostly-offline and Resource-restricted Devices</a></li>
-<li><a href="#orgad8bced">The Waku Network's value proposition</a></li>
-<li><a href="#orgce9d224">Are we blank yet?</a></li>
+<li><a href="#orgeb3302c">Origin</a></li>
+<li><a href="#orgd2de7e2">Challenges / desired properties</a></li>
+<li><a href="#org641b7c6">The Waku Network</a></li>
+<li><a href="#org29fb00f">Peer discovery</a></li>
+<li><a href="#org1c58619">Message Routing - Gossipsub</a></li>
+<li><a href="#org8d1e5eb">Message routing - sharding</a></li>
+<li><a href="#org849ff60">Message Routing - RLN Relay</a></li>
+<li><a href="#org0ec2caa">Servicing Mostly-offline and Resource-restricted Devices</a></li>
+<li><a href="#org7d370ae">The Waku Network's value proposition</a></li>
+<li><a href="#orga4b7f0d">Are we blank yet?</a></li>
 </ul>
 </div>
 </div>
@@ -245,9 +242,9 @@ The Waku Network is a shared p2p messaging network that is open-access, useful f
 <li>Automatic shard selection based on content topic.</li>
 <li>Services for resource-restricted nodes, including historical message storage and retrieval, filtering, etc.</li>
 </ol>
-<div id="outline-container-orga169364" class="outline-2">
-<h2 id="orga169364">Origin</h2>
-<div class="outline-text-2" id="text-orga169364">
+<div id="outline-container-orgeb3302c" class="outline-2">
+<h2 id="orgeb3302c">Origin</h2>
+<div class="outline-text-2" id="text-orgeb3302c">
 <p>
 If you have been following Waku or Status, you are likely to be familiar with the origin of Waku. The Status mobile app was created to be a web3 super app, a portal to the Ethereum ecosystem that leverages the three original pillars: Ethereum for consensus, Swarm for storage and Whisper for communication.
 </p>
@@ -261,9 +258,9 @@ Waku was born as a successor of Whisper, learning from its flaws to provide a sc
 </p>
 </div>
 </div>
-<div id="outline-container-org5ba11e5" class="outline-2">
-<h2 id="org5ba11e5">Challenges / desired properties</h2>
-<div class="outline-text-2" id="text-org5ba11e5">
+<div id="outline-container-orgd2de7e2" class="outline-2">
+<h2 id="orgd2de7e2">Challenges / desired properties</h2>
+<div class="outline-text-2" id="text-orgd2de7e2">
 <p>
 Waku aims to overcome the following challenges:
 </p>
@@ -313,9 +310,9 @@ Decentralisation: Waku needs to be decentralised at several levels to enable tho
 </p>
 </div>
 </div>
-<div id="outline-container-orge625c52" class="outline-2">
-<h2 id="orge625c52">The Waku Network</h2>
-<div class="outline-text-2" id="text-orge625c52">
+<div id="outline-container-org641b7c6" class="outline-2">
+<h2 id="org641b7c6">The Waku Network</h2>
+<div class="outline-text-2" id="text-org641b7c6">
 <p>
 How does the Waku Network help deliver the properties above?
 </p>
@@ -325,48 +322,52 @@ Let us review the different Waku protocols that are combined in the network and 
 </p>
 </div>
 </div>
-<div id="outline-container-org1f7a0e5" class="outline-2">
-<h2 id="org1f7a0e5">Peer discovery</h2>
-<div class="outline-text-2" id="text-org1f7a0e5">
+<div id="outline-container-org29fb00f" class="outline-2">
+<h2 id="org29fb00f">Peer discovery</h2>
+<div class="outline-text-2" id="text-org29fb00f">
 <p>
 discv5, minor enhancements to ENR
 </p>
 </div>
 </div>
-<div id="outline-container-orgef47a31" class="outline-2">
-<h2 id="orgef47a31">Message Routing - Gossipsub</h2>
-<div class="outline-text-2" id="text-orgef47a31">
+<div id="outline-container-org1c58619" class="outline-2">
+<h2 id="org1c58619">Message Routing - Gossipsub</h2>
+<div class="outline-text-2" id="text-org1c58619">
 <p>
 Similar to Ethereum consensus layer
 </p>
 </div>
 </div>
-<div id="outline-container-org74264d8" class="outline-2">
-<h2 id="org74264d8">Message routing - sharding</h2>
+<div id="outline-container-org8d1e5eb" class="outline-2">
+<h2 id="org8d1e5eb">Message routing - sharding</h2>
 </div>
 
-<div id="outline-container-org37380be" class="outline-2">
-<h2 id="org37380be">Message Routing - RLN Relay</h2>
+<div id="outline-container-org849ff60" class="outline-2">
+<h2 id="org849ff60">Message Routing - RLN Relay</h2>
 </div>
 
-<div id="outline-container-org7b034e3" class="outline-2">
-<h2 id="org7b034e3">Servicing Mostly-offline and Resource-restricted Devices</h2>
-<div class="outline-text-2" id="text-org7b034e3">
+<div id="outline-container-org0ec2caa" class="outline-2">
+<h2 id="org0ec2caa">Servicing Mostly-offline and Resource-restricted Devices</h2>
+<div class="outline-text-2" id="text-org0ec2caa">
 <p>
 Light push
 </p>
 </div>
 </div>
-<div id="outline-container-orgad8bced" class="outline-2">
-<h2 id="orgad8bced">The Waku Network's value proposition</h2>
+<div id="outline-container-org7d370ae" class="outline-2">
+<h2 id="org7d370ae">The Waku Network's value proposition</h2>
 </div>
 
-<div id="outline-container-orgce9d224" class="outline-2">
-<h2 id="orgce9d224">Are we blank yet?</h2>
+<div id="outline-container-orga4b7f0d" class="outline-2">
+<h2 id="orga4b7f0d">Are we blank yet?</h2>
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="postamble">Last Updated 2024-08-01 Thu 04:32. Created by <a href="https://www.gnu.org/software/emacs/">Emacs</a> 31.0.50 (<a href="https://orgmode.org">Org</a> mode 9.7.9)</p>
+<div id="metadata">
+Updated: 2024-10-02<br>
+Created: 2024-06-16<br>
+<a href="https://www.gnu.org/software/emacs/">Emacs</a> 31.0.50 (<a href="https://orgmode.org">Org</a> mode 9.7.11)
+</div>
 </div>
 </body>
 </html>
