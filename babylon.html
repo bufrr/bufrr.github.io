@@ -5,7 +5,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Do not go gentle into that good night</title>
+<title>What is Babylon?</title>
 <meta name="generator" content="Org Mode" />
 <style type="text/css">
   #content { max-width: 60em; margin: auto; }
@@ -215,21 +215,47 @@
 </head>
 <body>
 <div id="content" class="content">
-<h1 class="title">Do not go gentle into that good night</h1>
+<h1 class="title">What is Babylon?</h1>
 <p>
-<a href="./waku.html">What is Waku</a>
+Babylon is designed as a Bitcoin staking protocol that allows Bitcoin holders to stake their bitcoins to help secure PoS chains that build upon  cosmos-sdk without bridging or moving their bitcoins off the Bitcoin blockchain.
 </p>
 
 <p>
-<a href="./Emacs.html">Emacs configuration</a>
+More chains, including Ethereum, turn to PoS for energy efficiency and economic security. Most of them use BFT, which requires a 2/3 majority vote from their validators to confirm a block. But the problem is that long-range attacks can attack them. The old way is slashing their staking, like Ethereum, which can not deter them from forking the chain. The malicious validators can unbond from the first fork and then create the second fork from a block height where they are still validators.
 </p>
 
 <p>
-<a href="./Babylon.html">What is Babylon</a>
+Now Babylon can secure those PoS chains by using
+</p>
+
+<ol class="org-ol">
+<li>Bitcoin timestamping</li>
+<li>Recording finality signatures</li>
+<li>Bitcoin covenant emulation</li>
+</ol>
+
+<p>
+By using Bitcoin timestamp, we put block hashes and signatures as transactions to get them recorded on the bitcoin chain. When attackers try to fork the chain, the forked block can not be accepted since it appears in the latest bitcoin block which is too new to be accepted by the majority.
+</p>
+
+<p>
+By using Recording finality signatures, a block can only considered finalized if it is both finalized by the base protocol and receives EOTS signatures from more than 2/3 of the validators
+</p>
+
+<p>
+By using Bitcoin covenant emulation, when the EOTS signatures confirm attack, the attacker's private key will exposed, and we can slash the BTC immediately
+</p>
+
+<p>
+In summary, Babylon allows PoS chains to access Bitcoin's security without relying on high inflation of their native tokens or low token value, using cosmos-sdk and IBC.
 </p>
 </div>
 <div id="postamble" class="status">
-<div id="metadata"><a href="https://www.gnu.org/software/emacs/">Emacs</a> 31.0.50 (<a href="https://orgmode.org">Org</a> mode 9.7.11)</div>
+<div id="metadata">
+Updated: 2024-10-02<br>
+Created: 2024-10-02<br>
+<a href="https://www.gnu.org/software/emacs/">Emacs</a> 31.0.50 (<a href="https://orgmode.org">Org</a> mode 9.7.11)
+</div>
 </div>
 </body>
 </html>
