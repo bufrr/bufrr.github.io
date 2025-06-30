@@ -1,0 +1,16 @@
+#+TITLE: Page Not Found
+#+AUTHOR: 
+#+DATE: 
+#+OPTIONS: toc:nil num:nil author:nil date:nil
+
+* 404 - Page Not Found
+
+Sorry, the page you're looking for doesn't exist.
+
+[[file:index.org][← Back to Home]]
+
+** You might be interested in:
+
+- [[file:2024-01-29-getting-started-with-emacs.org][Getting Started with Emacs: A Modern Approach]]
+- [[file:2024-06-16-waku.org][The Waku Network]]
+- [[file:2024-10-02-babylon.org][What is Babylon?]]

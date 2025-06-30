@@ -1,0 +1,74 @@
+#+TITLE: The Waku Network
+#+DATE: <2024-06-16 Sun>
+#+AUTHOR: bytenoob
+#+DESCRIPTION: An introduction to the Waku Network - a shared p2p messaging network that is open-access, privacy-preserving, and scalable
+#+KEYWORDS: waku, p2p, messaging, privacy, decentralized
+#+FILETAGS: :networking:p2p:privacy:
+#+LASTMOD: <2025-06-30 Mon>
+#+OPTIONS: toc:t num:nil
+
+
+* Waku
+The Waku Network is a shared p2p messaging network that is open-access, useful for generalized messaging, privacy-preserving, scalable and accessible even to resource-restricted devices. Some of the most prominent features include:
+1. DoS/spam protection with privacy-preserving Rate-Limiting Nullifiers.
+2. Scalability by sharding traffic into 8 pubsub topics.
+3. Automatic shard selection based on content topic.
+4. Services for resource-restricted nodes, including historical message storage and retrieval, filtering, etc.
+
+
+* Origin
+
+If you have been following Waku or Status, you are likely to be familiar with the origin of Waku. The Status mobile app was created to be a web3 super app, a portal to the Ethereum ecosystem that leverages the three original pillars: Ethereum for consensus, Swarm for storage and Whisper for communication.
+
+The Status development team attempted to build Status with Whisper, but this protocol had fundamental limitations, especially for resource-restricted devices, such as mobile phones.
+
+Waku was born as a successor of Whisper, learning from its flaws to provide a scalable peer-to-peer communication network fit for mobile and browsers.
+
+* Challenges / desired properties
+
+Waku aims to overcome the following challenges:
+
+Generalised messaging: Waku aims to provide protocols and a network that enables the transfer of arbitrary payloads. While Waku was originally created for a chat application, Status, the aim is to be generalised enough to build any decentralised communication or signalling application on Waku.
+
+Ephemeral messaging: Waku aims to solve the problem of real-time communication, which aims to provide fair latency to enable one or several users to exchange small data payloads. This is in contrast to IPFS or other decentralised storage systems, which provide a way to store large amounts of data at the expense of latency and responsiveness.
+
+Censorship-resistance: Waku aims to provide a censorship-resistant solution where external actors cannot block users' access to the Waku infrastructure. But also for app developers to be able to build with a cannot do evil mindset where they do not have the key to the kingdom and the ability to deplatform their users.
+
+Privacy-minded: To provide the ability for app developers to operate on a cannot do evil principle in terms of data and metadata collection of their users. This means that even if they wanted or were pressured to they, or any third party, could not collect metadata such as social graphs or activity patterns from their users.
+
+Anonymity: Similarly to privacy, this is the ability for users to not link Personal Identifiable Information (PII) to their activity on the Waku network or application using the network. PII considered here are in regards to the network (IP address), blockchain (e.g. Ethereum address), and routing (message correlation).
+
+Resource-restricted devices: as previously mentioned, when designing Waku, an effort is made to consider environments such as mobile and browser to enable developers to build DApps for these platforms and provide as many of the properties listed above as possible.
+
+Scalability: Waku aims to support millions of users while maintaining the principles above; this needs to be thoughtfully designed and tested.
+
+All the properties above mean that other problems need to be overcome when designing Waku:
+
+DOS protection: ensuring that the network cannot be flooded with messages, leading users who have fewer resources to be booted off the network.
+
+Network sustainability and incentivisation: How do we ensure enough resources in the network to enable devices such as browsers and mobile devices to access the network?
+
+Decentralisation: Waku needs to be decentralised at several levels to enable those properties. How do we maintain a fair level of decentralisation to ensure those properties remain over time?
+
+
+* The Waku Network
+How does the Waku Network help deliver the properties above?
+
+Let us review the different Waku protocols that are combined in the network and how they enable us to achieve this feat.
+
+* Peer discovery
+discv5, minor enhancements to ENR
+
+* Message Routing - Gossipsub
+Similar to Ethereum consensus layer
+
+* Message routing - sharding
+
+* Message Routing - RLN Relay
+
+* Servicing Mostly-offline and Resource-restricted Devices
+Light push
+
+* The Waku Network's value proposition
+
+* Are we blank yet?

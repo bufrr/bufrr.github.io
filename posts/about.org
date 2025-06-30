@@ -1,0 +1,51 @@
+#+TITLE: About
+#+AUTHOR: bytenoob
+#+OPTIONS: toc:nil num:nil date:nil
+
+* About This Blog
+
+Welcome to my technical blog where I share my thoughts and experiences on programming, technology, and software development.
+
+** Who Am I?
+
+I'm a software developer passionate about:
+- Open source software and the free software movement
+- Building efficient and elegant solutions
+- Exploring new technologies and programming paradigms
+- Sharing knowledge with the developer community
+
+** What You'll Find Here
+
+This blog covers a variety of topics including:
+- **Programming Languages**: Deep dives into various languages and their ecosystems
+- **Development Tools**: Particularly Emacs and command-line tools
+- **Software Architecture**: Design patterns, best practices, and system design
+- **Web Technologies**: Modern web development, protocols, and frameworks
+- **DevOps & Infrastructure**: Automation, deployment, and system administration
+
+** Technical Setup
+
+This blog is built with:
+- **Emacs Org-mode** for writing and content management
+- **Custom build system** using Emacs batch mode
+- **Modern web standards** with semantic HTML and responsive CSS
+- **GitHub Actions** for continuous deployment
+- **No JavaScript frameworks** - just vanilla JS where needed
+
+The entire blog is generated from Org-mode files, showcasing the power of Emacs as not just an editor, but a complete publishing platform.
+
+** Get in Touch
+
+Feel free to reach out:
+- **GitHub**: [[https://github.com/bufrr][github.com/bufrr]]
+- **Email**: chouyc.adam # gmail.com
+
+** License
+
+Unless otherwise noted, all content on this blog is licensed under the [[https://creativecommons.org/licenses/by-sa/4.0/][Creative Commons Attribution-ShareAlike 4.0 International License]].
+
+Code snippets are licensed under the [[https://opensource.org/licenses/MIT][MIT License]] unless otherwise specified.
+
+---
+
+/Thank you for visiting!/

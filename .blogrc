@@ -1,0 +1,31 @@
+# Blog configuration file
+# Source this file to set environment variables for the build
+
+# Blog metadata
+export BLOG_TITLE="My Blog"
+export BLOG_AUTHOR="bytenoob"
+export BLOG_EMAIL="chouyc.adam # gmail.com"
+export BLOG_URL="https://bytenoob.io"
+export BLOG_DESCRIPTION="A technical blog about programming and technology"
+
+# Build options
+export MINIFY_ASSETS="true"  # Set to true for production
+export GENERATE_RSS="true"
+export GENERATE_SITEMAP="true"
+
+# Paths (relative to blog directory)
+export POSTS_DIR="posts"
+export STATIC_DIR="static"
+export TEMPLATES_DIR="templates"
+export PUBLIC_DIR="public"
+
+# Theme/styling
+export THEME_PRIMARY_COLOR="#D4A27F"
+export THEME_FONT_FAMILY="Inter"
+
+# SEO/Social
+export GITHUB_USERNAME="bufrr"
+
+# Development
+export SERVE_PORT="8000"
+export LIVE_RELOAD="true"

@@ -1,0 +1,99 @@
+name: Publish to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  BLOG_URL: ${{ secrets.BLOG_URL || 'https://bytenoob.github.io/blog' }}
+  BLOG_AUTHOR: ${{ secrets.BLOG_AUTHOR || 'bytenoob' }}
+  BLOG_EMAIL: ${{ secrets.BLOG_EMAIL || 'blog@example.com' }}
+  MINIFY_ASSETS: 'true'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Install Node.js dependencies
+        run: |
+          if [ -f package.json ]; then
+            npm ci
+          else
+            npm install -g terser cssnano postcss postcss-cli
+          fi
+
+      - name: Cache Emacs packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.emacs.d/.local/straight
+            ~/.emacs.d/.local/cache
+          key: ${{ runner.os }}-emacs-${{ hashFiles('**/packages.el') }}
+          restore-keys: |
+            ${{ runner.os }}-emacs-
+
+      - name: Install Emacs
+        run: |
+          sudo apt-add-repository ppa:ubuntu-elisp/ppa -y
+          sudo apt update
+          sudo apt-get install emacs-snapshot -y
+          echo "Emacs version: $(emacs --version | head -n1)"
+
+      - name: Build the site
+        run: |
+          chmod +x build.sh
+          ./build.sh
+        env:
+          CI: true
+
+      - name: Generate sitemap
+        run: |
+          if [ -f generate-sitemap.sh ]; then
+            chmod +x generate-sitemap.sh
+            ./generate-sitemap.sh
+          fi
+
+      - name: Minify assets for production
+        if: github.ref == 'refs/heads/main'
+        run: |
+          if [ -f minify.sh ]; then
+            chmod +x minify.sh
+            ./minify.sh
+          fi
+
+      - name: List generated files
+        run: |
+          echo "📁 Generated files:"
+          find public -type f -name "*.html" | sort
+          echo ""
+          echo "📊 Build statistics:"
+          echo "Total HTML files: $(find public -name "*.html" | wc -l)"
+          echo "Total size: $(du -sh public | cut -f1)"
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

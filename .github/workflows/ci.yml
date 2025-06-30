@@ -1,0 +1,136 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Install Emacs
+        run: |
+          sudo apt-add-repository ppa:ubuntu-elisp/ppa -y
+          sudo apt update
+          sudo apt-get install emacs-snapshot -y
+
+      - name: Check Org files syntax
+        run: |
+          echo "🔍 Checking Org files syntax..."
+          for file in posts/*.org; do
+            if [ -f "$file" ]; then
+              echo "Checking: $file"
+              emacs --batch --eval "(progn (find-file \"$file\") (org-lint))" 2>&1 | grep -E "(Warning|Error)" || true
+            fi
+          done
+
+      - name: Validate metadata
+        run: |
+          echo "📋 Validating post metadata..."
+          for file in posts/*.org; do
+            if [ -f "$file" ] && [[ "$file" != "posts/index.org" ]] && [[ "$file" != "posts/about.org" ]] && [[ "$file" != "posts/404.org" ]]; then
+              echo "Checking: $file"
+              # Check for required metadata
+              if ! grep -q "^#\\+TITLE:" "$file"; then
+                echo "❌ Missing TITLE in $file"
+                exit 1
+              fi
+              if ! grep -q "^#\\+AUTHOR:" "$file"; then
+                echo "❌ Missing AUTHOR in $file"
+                exit 1
+              fi
+              if ! grep -q "^#\\+DATE:" "$file"; then
+                echo "❌ Missing DATE in $file"
+                exit 1
+              fi
+            fi
+          done
+          echo "✅ All metadata valid"
+
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: '.'
+          format: gcc
+          severity: warning
+
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Emacs
+        run: |
+          sudo apt-add-repository ppa:ubuntu-elisp/ppa -y
+          sudo apt update
+          sudo apt-get install emacs-snapshot -y
+
+      - name: Test build
+        run: |
+          chmod +x build.sh
+          ./build.sh
+        env:
+          CI: true
+
+      - name: Validate HTML output
+        run: |
+          echo "🔍 Validating HTML files..."
+          # Check that index.html exists
+          if [ ! -f "public/index.html" ]; then
+            echo "❌ public/index.html not found"
+            exit 1
+          fi
+          
+          # Check that all expected HTML files exist
+          for org_file in posts/*.org; do
+            if [ -f "$org_file" ] && [[ "$org_file" != "posts/404.org" ]]; then
+              base_name=$(basename "$org_file" .org)
+              html_file="public/${base_name}.html"
+              if [ ! -f "$html_file" ]; then
+                echo "❌ Expected $html_file not found"
+                exit 1
+              fi
+            fi
+          done
+          
+          echo "✅ All HTML files generated successfully"
+
+      - name: Check for broken internal links
+        run: |
+          echo "🔗 Checking for broken internal links..."
+          cd public
+          broken_links=0
+          for html_file in *.html; do
+            # Extract internal links
+            links=$(grep -oP 'href="[^"]*\.html"' "$html_file" | sed 's/href="//;s/"//' | sort -u)
+            for link in $links; do
+              if [[ ! "$link" =~ ^https?:// ]] && [ ! -f "$link" ]; then
+                echo "❌ Broken link in $html_file: $link"
+                broken_links=$((broken_links + 1))
+              fi
+            done
+          done
+          
+          if [ $broken_links -gt 0 ]; then
+            echo "❌ Found $broken_links broken links"
+            exit 1
+          else
+            echo "✅ No broken internal links found"
+          fi

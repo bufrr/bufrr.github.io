@@ -1,0 +1,27 @@
+#+TITLE: What is Babylon?
+#+DATE: <2024-10-02 Wed>
+#+AUTHOR: bytenoob
+#+DESCRIPTION: Understanding Babylon - a Bitcoin staking protocol that enhances security for PoS chains without bridging
+#+KEYWORDS: babylon, bitcoin, staking, pos, blockchain, security
+#+FILETAGS: :blockchain:bitcoin:staking:
+#+LASTMOD: <2025-06-30 Mon>
+#+OPTIONS: toc:t num:nil
+
+* Babylon
+Babylon is designed as a Bitcoin staking protocol that allows Bitcoin holders to stake their bitcoins to help secure PoS chains that build upon  cosmos-sdk without bridging or moving their bitcoins off the Bitcoin blockchain.
+
+More chains, including Ethereum, turn to PoS for energy efficiency and economic security. Most of them use BFT, which requires a 2/3 majority vote from their validators to confirm a block. But the problem is that long-range attacks can attack them. The old way is slashing their staking, like Ethereum, which can not deter them from forking the chain. The malicious validators can unbond from the first fork and then create the second fork from a block height where they are still validators.
+
+Now Babylon can secure those PoS chains by using
+
+1. Bitcoin timestamping
+2. Recording finality signatures
+3. Bitcoin covenant emulation
+
+By using Bitcoin timestamp, we put block hashes and signatures as transactions to get them recorded on the bitcoin chain. When attackers try to fork the chain, the forked block can not be accepted since it appears in the latest bitcoin block which is too new to be accepted by the majority.
+
+By using Recording finality signatures, a block can only considered finalized if it is both finalized by the base protocol and receives EOTS signatures from more than 2/3 of the validators
+
+By using Bitcoin covenant emulation, when the EOTS signatures confirm attack, the attacker's private key will exposed, and we can slash the BTC immediately
+
+In summary, Babylon allows PoS chains to access Bitcoin's security without relying on high inflation of their native tokens or low token value, using cosmos-sdk and IBC.

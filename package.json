@@ -1,0 +1,23 @@
+{
+  "name": "org-blog",
+  "version": "1.0.0",
+  "description": "Emacs Org-mode blog with modern tooling",
+  "private": true,
+  "scripts": {
+    "build": "./build.sh",
+    "build:prod": "make build-prod",
+    "serve": "cd public && python3 -m http.server",
+    "minify:js": "terser static/js/blog.js -o static/js/blog.min.js -c -m",
+    "minify:css": "postcss static/css/blog.css -o static/css/blog.min.css --use cssnano",
+    "minify": "npm run minify:js && npm run minify:css"
+  },
+  "devDependencies": {
+    "cssnano": "^6.0.1",
+    "postcss": "^8.4.31",
+    "postcss-cli": "^10.1.0",
+    "terser": "^5.24.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

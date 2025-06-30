@@ -1,0 +1,91 @@
+name: PR Preview
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+env:
+  BLOG_URL: 'https://pr-${{ github.event.pull_request.number }}.preview.example.com'
+  BLOG_AUTHOR: ${{ secrets.BLOG_AUTHOR || 'bytenoob' }}
+  BLOG_EMAIL: ${{ secrets.BLOG_EMAIL || 'blog@example.com' }}
+  MINIFY_ASSETS: 'false'
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Node.js dependencies
+        run: |
+          if [ -f package.json ]; then
+            npm ci
+          else
+            npm install -g terser cssnano postcss postcss-cli
+          fi
+
+      - name: Cache Emacs packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.emacs.d/.local/straight
+            ~/.emacs.d/.local/cache
+          key: ${{ runner.os }}-emacs-${{ hashFiles('**/packages.el') }}
+          restore-keys: |
+            ${{ runner.os }}-emacs-
+
+      - name: Install Emacs
+        run: |
+          sudo apt-add-repository ppa:ubuntu-elisp/ppa -y
+          sudo apt update
+          sudo apt-get install emacs-snapshot -y
+
+      - name: Build the site
+        run: |
+          chmod +x build.sh
+          ./build.sh
+        env:
+          CI: true
+
+      - name: Generate sitemap
+        run: |
+          if [ -f generate-sitemap.sh ]; then
+            chmod +x generate-sitemap.sh
+            ./generate-sitemap.sh
+          fi
+
+      - name: Upload preview artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview-${{ github.event.pull_request.number }}
+          path: public
+          retention-days: 7
+
+      - name: Comment PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const artifactUrl = `https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}`;
+            const comment = `## 🔍 Preview Build Complete!
+            
+            Build #${{ github.run_number }} has finished successfully.
+            
+            📦 [Download preview artifact](${artifactUrl})
+            
+            ### Build Statistics:
+            - Total HTML files: \`$(find public -name "*.html" | wc -l)\`
+            - Build size: \`$(du -sh public | cut -f1)\`
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

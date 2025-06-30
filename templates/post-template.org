@@ -1,0 +1,30 @@
+#+TITLE: 
+#+DATE: 
+#+AUTHOR: 
+#+DESCRIPTION: 
+#+KEYWORDS: 
+#+FILETAGS: 
+#+LASTMOD: 
+#+OPTIONS: toc:t num:nil
+
+* Introduction
+
+Start writing your blog post here...
+
+* Main Content
+
+** Subsection
+
+Your content goes here.
+
+** Code Example
+
+#+BEGIN_SRC python
+# Example code block
+def hello_world():
+    print("Hello, World!")
+#+END_SRC
+
+* Conclusion
+
+Wrap up your thoughts here.

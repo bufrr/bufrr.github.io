@@ -1,0 +1,110 @@
+#+TITLE: Getting Started with Emacs: A Modern Approach
+#+DATE: <2024-01-29 Mon>
+#+AUTHOR: bytenoob
+#+DESCRIPTION: A comprehensive guide to getting started with Emacs in 2025
+#+KEYWORDS: emacs, editor, programming, productivity
+#+FILETAGS: :emacs:tutorial:productivity:
+#+LASTMOD: <2025-06-30 Mon>
+#+OPTIONS: toc:t num:nil
+
+* Introduction
+
+Emacs is more than just a text editor—it's a complete computing environment that has stood the test of time. In this post, I'll share my journey of learning Emacs and how it transformed my workflow. Whether you're a complete beginner or someone who's tried Emacs before and found it overwhelming, this guide will help you get started with a modern, practical approach.
+
+* Why Emacs in 2025?
+
+You might wonder why anyone would choose Emacs when there are so many modern editors available. Here are some compelling reasons:
+
+- *Extensibility*: Emacs is infinitely customizable through Emacs Lisp
+- *Longevity*: Your investment in learning Emacs pays off for decades
+- *Integration*: Everything from email to git can be managed within Emacs
+- *Community*: A vibrant, helpful community that continues to innovate
+
+* Getting Started: The Modern Way
+
+** Installing Doom Emacs
+
+Instead of starting with vanilla Emacs, I recommend beginning with Doom Emacs, a modern configuration framework that provides sensible defaults:
+
+#+BEGIN_SRC bash
+git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
+~/.config/emacs/bin/doom install
+#+END_SRC
+
+** Essential Concepts
+
+Understanding these core concepts will make your Emacs journey much smoother:
+
+1. *Buffers*: Everything in Emacs is a buffer—files, terminals, even configuration interfaces
+2. *Major and Minor Modes*: These determine the behavior and features available in each buffer
+3. *The Minibuffer*: Where you interact with Emacs commands
+4. *Keybindings*: The secret to Emacs efficiency
+
+** Your First Configuration
+
+Here's a minimal configuration to get you started:
+
+#+BEGIN_SRC emacs-lisp
+;; Set your personal information
+(setq user-full-name "Your Name"
+      user-mail-address "your.email@example.com")
+
+;; Choose a theme
+(setq doom-theme 'doom-one)
+
+;; Enable line numbers
+(setq display-line-numbers-type t)
+
+;; Set default font
+(setq doom-font (font-spec :family "Fira Code" :size 14))
+#+END_SRC
+
+* Building Your Workflow
+
+** File Management with Dired
+
+Dired is Emacs' built-in file manager. Press =SPC .= to open a file, or =SPC f f= to browse files. Some useful Dired commands:
+
+- =d= - Mark for deletion
+- =u= - Unmark
+- =x= - Execute marked actions
+- =C= - Copy file
+- =R= - Rename/move file
+
+** Project Management with Projectile
+
+Projectile makes working with projects a breeze:
+
+- =SPC p p= - Switch between projects
+- =SPC p f= - Find file in project
+- =SPC p s= - Search in project
+
+** Version Control with Magit
+
+Magit is arguably the best Git interface ever created:
+
+- =SPC g g= - Open Magit status
+- =s= - Stage changes
+- =c c= - Commit
+- =P p= - Push
+
+* Tips for Success
+
+1. *Don't try to learn everything at once*: Focus on one feature at a time
+2. *Use the built-in help*: =SPC h= opens the help menu
+3. *Keep notes*: Document your learning journey and useful commands
+4. *Join the community*: The Emacs subreddit and Discord are great resources
+5. *Be patient*: The initial learning curve is steep, but the payoff is enormous
+
+* Resources for Learning
+
+- [[https://www.emacswiki.org/][EmacsWiki]] - Comprehensive documentation
+- [[https://www.masteringemacs.org/][Mastering Emacs]] - Excellent blog and book
+- [[https://github.com/doomemacs/doomemacs][Doom Emacs Documentation]] - For Doom-specific features
+- [[https://www.youtube.com/c/SystemCrafters][System Crafters YouTube]] - Video tutorials
+
+* Conclusion
+
+Emacs is not just an editor—it's a way of thinking about computing. While the initial investment is significant, the returns are exponential. Start small, be consistent, and before you know it, you'll wonder how you ever lived without it.
+
+Happy hacking!

@@ -1,0 +1,553 @@
+#+TITLE: Syntax Highlighting Test
+#+DATE: <2024-06-30 Sun>
+#+AUTHOR: bytenoob
+#+DESCRIPTION: Testing syntax highlighting for various programming languages
+#+KEYWORDS: code, syntax, highlighting, test
+#+FILETAGS: :programming:test:
+#+LASTMOD: <2025-06-30 Mon>
+#+OPTIONS: toc:t num:nil
+
+* Introduction
+
+This post tests syntax highlighting for various programming languages in our blog.
+
+* Emacs Lisp
+
+#+BEGIN_SRC emacs-lisp
+;; Define a function to greet the user
+(defun greet-user (name)
+  "Greet the user with NAME."
+  (interactive "sEnter your name: ")
+  (message "Hello, %s! Welcome to Emacs." name))
+
+;; Configuration example
+(setq user-full-name "John Doe"
+      user-mail-address "john@example.com")
+
+;; Using let binding
+(let ((x 10)
+      (y 20))
+  (+ x y)) ; Returns 30
+#+END_SRC
+
+* Python
+
+#+BEGIN_SRC python
+# Python example with classes and functions
+import os
+import sys
+from datetime import datetime
+
+class BlogPost:
+    """A simple blog post class."""
+    
+    def __init__(self, title, content, author="Anonymous"):
+        self.title = title
+        self.content = content
+        self.author = author
+        self.created_at = datetime.now()
+        self.tags = []
+    
+    def add_tag(self, tag):
+        """Add a tag to the post."""
+        if tag not in self.tags:
+            self.tags.append(tag)
+    
+    def __str__(self):
+        return f"{self.title} by {self.author}"
+
+# Create a new post
+post = BlogPost("Hello World", "This is my first post!")
+post.add_tag("python")
+post.add_tag("tutorial")
+
+# List comprehension example
+numbers = [1, 2, 3, 4, 5]
+squares = [n**2 for n in numbers if n % 2 == 0]
+print(f"Even squares: {squares}")
+#+END_SRC
+
+* JavaScript
+
+#+BEGIN_SRC javascript
+// Modern JavaScript with ES6+ features
+const BlogManager = {
+  posts: [],
+  
+  // Arrow function method
+  addPost: (title, content) => {
+    const post = {
+      id: Date.now(),
+      title,
+      content,
+      createdAt: new Date(),
+      tags: new Set()
+    };
+    BlogManager.posts.push(post);
+    return post;
+  },
+  
+  // Async function example
+  async fetchPosts(url) {
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      return data.posts;
+    } catch (error) {
+      console.error('Failed to fetch posts:', error);
+      return [];
+    }
+  }
+};
+
+// Destructuring and template literals
+const { posts } = BlogManager;
+const message = `Total posts: ${posts.length}`;
+
+// Class example
+class Post {
+  constructor(title, content) {
+    this.title = title;
+    this.content = content;
+  }
+  
+  get summary() {
+    return this.content.substring(0, 100) + '...';
+  }
+}
+#+END_SRC
+
+* Go
+
+#+BEGIN_SRC go
+package main
+
+import (
+    "fmt"
+    "net/http"
+    "time"
+)
+
+// BlogPost represents a blog post
+type BlogPost struct {
+    ID        int       `json:"id"`
+    Title     string    `json:"title"`
+    Content   string    `json:"content"`
+    Author    string    `json:"author"`
+    CreatedAt time.Time `json:"created_at"`
+    Tags      []string  `json:"tags"`
+}
+
+// NewBlogPost creates a new blog post
+func NewBlogPost(title, content, author string) *BlogPost {
+    return &BlogPost{
+        ID:        generateID(),
+        Title:     title,
+        Content:   content,
+        Author:    author,
+        CreatedAt: time.Now(),
+        Tags:      make([]string, 0),
+    }
+}
+
+// AddTag adds a tag to the post
+func (p *BlogPost) AddTag(tag string) {
+    p.Tags = append(p.Tags, tag)
+}
+
+func main() {
+    // Create a new post
+    post := NewBlogPost("Go Tutorial", "Learning Go is fun!", "Gopher")
+    post.AddTag("golang")
+    post.AddTag("tutorial")
+    
+    // Using defer
+    defer fmt.Println("Cleanup complete")
+    
+    // Goroutine example
+    go func() {
+        fmt.Println("Hello from goroutine!")
+    }()
+    
+    // Channel example
+    ch := make(chan string, 1)
+    ch <- "Hello, channels!"
+    msg := <-ch
+    fmt.Println(msg)
+}
+
+func generateID() int {
+    return int(time.Now().Unix())
+}
+#+END_SRC
+
+* Rust
+
+#+BEGIN_SRC rust
+use std::collections::HashMap;
+use std::fmt;
+
+// Define a struct for blog posts
+#[derive(Debug, Clone)]
+pub struct BlogPost {
+    id: u64,
+    title: String,
+    content: String,
+    author: String,
+    tags: Vec<String>,
+}
+
+impl BlogPost {
+    // Constructor method
+    pub fn new(title: String, content: String, author: String) -> Self {
+        Self {
+            id: generate_id(),
+            title,
+            content,
+            author,
+            tags: Vec::new(),
+        }
+    }
+    
+    // Add a tag to the post
+    pub fn add_tag(&mut self, tag: String) {
+        if !self.tags.contains(&tag) {
+            self.tags.push(tag);
+        }
+    }
+    
+    // Get a summary of the post
+    pub fn summary(&self) -> String {
+        let max_len = 100;
+        if self.content.len() > max_len {
+            format!("{}...", &self.content[..max_len])
+        } else {
+            self.content.clone()
+        }
+    }
+}
+
+// Implement Display trait
+impl fmt::Display for BlogPost {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{} by {}", self.title, self.author)
+    }
+}
+
+fn main() {
+    // Create a new post
+    let mut post = BlogPost::new(
+        "Rust Tutorial".to_string(),
+        "Learning Rust is exciting!".to_string(),
+        "Rustacean".to_string(),
+    );
+    
+    // Add some tags
+    post.add_tag("rust".to_string());
+    post.add_tag("systems".to_string());
+    
+    // Pattern matching
+    match post.tags.len() {
+        0 => println!("No tags"),
+        1 => println!("One tag"),
+        n => println!("{} tags", n),
+    }
+    
+    // Using Option and Result
+    let maybe_number: Option<i32> = Some(42);
+    if let Some(n) = maybe_number {
+        println!("The answer is {}", n);
+    }
+    
+    // Vector and iterator example
+    let numbers: Vec<i32> = (1..=5).collect();
+    let squares: Vec<i32> = numbers.iter().map(|n| n * n).collect();
+    println!("Squares: {:?}", squares);
+}
+
+fn generate_id() -> u64 {
+    use std::time::{SystemTime, UNIX_EPOCH};
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs()
+}
+#+END_SRC
+
+* Shell Script
+
+#+BEGIN_SRC bash
+#!/bin/bash
+
+# Blog publishing script
+BLOG_DIR="$HOME/blog"
+POSTS_DIR="$BLOG_DIR/posts"
+PUBLIC_DIR="$BLOG_DIR/public"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Function to log messages
+log() {
+    echo -e "${BLUE}[$(date +'%Y-%m-%d %H:%M:%S')]${NC} $1"
+}
+
+# Function to build the blog
+build_blog() {
+    log "Building blog..."
+    
+    # Check if directories exist
+    if [ ! -d "$POSTS_DIR" ]; then
+        echo -e "${RED}Error: Posts directory not found!${NC}"
+        exit 1
+    fi
+    
+    # Create public directory if it doesn't exist
+    mkdir -p "$PUBLIC_DIR"
+    
+    # Build with Emacs
+    emacs --batch \
+          --load ~/.config/doom/config.el \
+          --eval "(org-publish \"blog\" t)" \
+          2>&1 | tee build.log
+    
+    # Check if build was successful
+    if [ ${PIPESTATUS[0]} -eq 0 ]; then
+        echo -e "${GREEN}✓ Build successful!${NC}"
+        return 0
+    else
+        echo -e "${RED}✗ Build failed!${NC}"
+        return 1
+    fi
+}
+
+# Main execution
+main() {
+    log "Starting blog build process..."
+    
+    if build_blog; then
+        log "Blog published to $PUBLIC_DIR"
+        
+        # Count the posts
+        post_count=$(find "$POSTS_DIR" -name "*.org" | wc -l)
+        log "Total posts: $post_count"
+    else
+        log "Build failed. Check build.log for details."
+        exit 1
+    fi
+}
+
+# Run main function
+main "$@"
+#+END_SRC
+
+* HTML/CSS
+
+#+BEGIN_SRC html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Blog</title>
+    <style>
+        /* CSS styling example */
+        :root {
+            --primary-color: #D4A27F;
+            --text-color: #333;
+            --bg-color: #FDFDF7;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            line-height: 1.6;
+        }
+        
+        .blog-post {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .blog-post h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .blog-post {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <article class="blog-post">
+        <h1>Welcome to My Blog</h1>
+        <p>This is a sample blog post with syntax highlighting.</p>
+    </article>
+</body>
+</html>
+#+END_SRC
+
+* JSON
+
+#+BEGIN_SRC json
+{
+  "blog": {
+    "title": "My Technical Blog",
+    "author": "bytenoob",
+    "description": "A blog about programming and technology",
+    "posts": [
+      {
+        "id": 1,
+        "title": "Getting Started with Emacs",
+        "date": "2024-01-29",
+        "tags": ["emacs", "editor", "productivity"],
+        "published": true,
+        "metadata": {
+          "readTime": "10 minutes",
+          "views": 1523,
+          "likes": 42
+        }
+      },
+      {
+        "id": 2,
+        "title": "The Waku Network",
+        "date": "2024-06-16",
+        "tags": ["networking", "p2p", "privacy"],
+        "published": true
+      }
+    ],
+    "settings": {
+      "theme": "light",
+      "commentsEnabled": true,
+      "analyticsId": "UA-123456789"
+    }
+  }
+}
+#+END_SRC
+
+* YAML
+
+#+BEGIN_SRC yaml
+# Blog configuration
+blog:
+  title: My Technical Blog
+  author: bytenoob
+  email: blog@example.com
+  
+  # Theme settings
+  theme:
+    name: minimal
+    colors:
+      primary: "#D4A27F"
+      secondary: "#333333"
+      background: "#FDFDF7"
+    
+  # Feature flags
+  features:
+    comments: true
+    search: true
+    rss: true
+    sitemap: true
+    
+  # Categories
+  categories:
+    - name: Programming
+      slug: programming
+      description: Posts about programming languages and techniques
+    - name: DevOps
+      slug: devops
+      description: Posts about development operations
+      
+  # Social links
+  social:
+    github: https://github.com/bytenoob
+    twitter: https://twitter.com/bytenoob
+    linkedin: https://linkedin.com/in/bytenoob
+#+END_SRC
+
+* SQL
+
+#+BEGIN_SRC sql
+-- Create blog database schema
+CREATE DATABASE IF NOT EXISTS blog_db;
+USE blog_db;
+
+-- Users table
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Posts table
+CREATE TABLE posts (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    author_id INT NOT NULL,
+    title VARCHAR(200) NOT NULL,
+    slug VARCHAR(200) UNIQUE NOT NULL,
+    content TEXT NOT NULL,
+    summary VARCHAR(500),
+    published BOOLEAN DEFAULT FALSE,
+    published_at TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (author_id) REFERENCES users(id),
+    INDEX idx_published (published, published_at),
+    FULLTEXT(title, content)
+);
+
+-- Tags table
+CREATE TABLE tags (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(50) UNIQUE NOT NULL,
+    slug VARCHAR(50) UNIQUE NOT NULL
+);
+
+-- Post tags junction table
+CREATE TABLE post_tags (
+    post_id INT NOT NULL,
+    tag_id INT NOT NULL,
+    PRIMARY KEY (post_id, tag_id),
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
+);
+
+-- Sample query: Get recent posts with tags
+SELECT 
+    p.id,
+    p.title,
+    p.summary,
+    p.published_at,
+    u.username AS author,
+    GROUP_CONCAT(t.name) AS tags
+FROM posts p
+JOIN users u ON p.author_id = u.id
+LEFT JOIN post_tags pt ON p.id = pt.post_id
+LEFT JOIN tags t ON pt.tag_id = t.id
+WHERE p.published = TRUE
+GROUP BY p.id
+ORDER BY p.published_at DESC
+LIMIT 10;
+#+END_SRC
+
+* Conclusion
+
+This post demonstrates syntax highlighting for various programming languages. The highlighting quality depends on:
+
+1. Whether htmlize.el is available
+2. Whether the specific language mode is installed in Emacs
+3. The CSS classes defined for syntax highlighting
+
+Languages with built-in Emacs support (like Emacs Lisp, Python, JavaScript) should highlight well. Others may show basic or no highlighting depending on your Emacs configuration.
