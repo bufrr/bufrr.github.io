@@ -2,50 +2,73 @@
 #+AUTHOR: bytenoob
 #+OPTIONS: toc:nil num:nil date:nil
 
-* About This Blog
+* About Me
 
-Welcome to my technical blog where I share my thoughts and experiences on programming, technology, and software development.
+Hey there! I'm *bytenoob*, a software engineer based in China with a passion for building decentralized systems and exploring the frontiers of blockchain technology.
 
-** Who Am I?
+** What I Do
 
-I'm a software developer passionate about:
-- Open source software and the free software movement
-- Building efficient and elegant solutions
-- Exploring new technologies and programming paradigms
-- Sharing knowledge with the developer community
+I work at the intersection of distributed systems, cryptography, and blockchain technology. My focus areas include:
 
-** What You'll Find Here
+- **Blockchain & Decentralized Systems**: Building infrastructure for the decentralized web
+- **Network Programming**: Creating efficient networking protocols and encrypted communication systems
+- **Systems Programming**: Working with Go, Rust, and C++ to build performant, reliable software
+- **Open Source**: Contributing to and maintaining several open-source projects
 
-This blog covers a variety of topics including:
-- **Programming Languages**: Deep dives into various languages and their ecosystems
-- **Development Tools**: Particularly Emacs and command-line tools
-- **Software Architecture**: Design patterns, best practices, and system design
-- **Web Technologies**: Modern web development, protocols, and frameworks
-- **DevOps & Infrastructure**: Automation, deployment, and system administration
+** Notable Projects
 
-** Technical Setup
+*** What I Build
+Beyond open source contributions, I work on several proprietary projects focusing on:
 
-This blog is built with:
-- **Emacs Org-mode** for writing and content management
-- **Custom build system** using Emacs batch mode
-- **Modern web standards** with semantic HTML and responsive CSS
-- **GitHub Actions** for continuous deployment
-- **No JavaScript frameworks** - just vanilla JS where needed
+- **Advanced MEV Infrastructure**: Developing high-performance MEV bots in Rust that implement sophisticated strategies including:
+  - Sandwich attack detection and execution with optimal parameter calculation
+  - Multi-DEX arbitrage across Uniswap V2-style AMMs
+  - Real-time mempool monitoring with WebSocket-based transaction analysis
+  - Flashbots bundle creation and private transaction submission
+  - Integration with novel blockchain protocols for unique MEV opportunities
 
-The entire blog is generated from Org-mode files, showcasing the power of Emacs as not just an editor, but a complete publishing platform.
+- **Cross-chain Relay Systems**: Building infrastructure for seamless blockchain interoperability:
+  - Custom transaction encoding for protocol-specific chains
+  - Multi-provider architecture for concurrent chain monitoring
+  - Balance-aware transaction optimization
+  - Dynamic fee calculation across heterogeneous networks
 
-** Get in Touch
+- **Protocol-Specific Optimizations**: Creating specialized systems that leverage unique blockchain features:
+  - Custom mining mechanisms based on gas consumption patterns
+  - Integration with novel token issuance models
+  - Cost-benefit analysis with real-time price feed integration
 
-Feel free to reach out:
-- **GitHub**: [[https://github.com/bufrr][github.com/bufrr]]
-- **Email**: chouyc.adam#gmail.com
+*** Open Source Contributions
+- **[[https://github.com/nknorg/nkn][NKN (New Kind of Network)]]**: Core contributor to the official Go implementation of NKN full node
+- **[[https://github.com/nknorg/encrypted-stream][Encrypted Stream]]**: Golang library for building encrypted streaming connections
+- **[[https://github.com/nknorg/tuna][TUNA]]**: Marketplace for services leveraging NKN's decentralized network
 
-** License
+** Technical Stack
 
-Unless otherwise noted, all content on this blog is licensed under the [[https://creativecommons.org/licenses/by-sa/4.0/][Creative Commons Attribution-ShareAlike 4.0 International License]].
+My primary languages and tools:
+- **Languages**: Go (primary), Rust, C++, Emacs Lisp
+- **Interests**: Distributed systems, cryptography, blockchain protocols, network programming
+- **Editor**: Emacs (of course!)
 
-Code snippets are licensed under the [[https://opensource.org/licenses/MIT][MIT License]] unless otherwise specified.
+** Philosophy
+
+I believe in the power of decentralized systems to create a more open and resilient internet. Through my work on blockchain infrastructure and encrypted communication protocols, I'm helping build the foundation for a truly peer-to-peer digital future.
+
+** Connect
+
+- **GitHub**: [[https://github.com/bufrr][@bufrr]]
+- **Twitter/X**: [[https://twitter.com/winddyseed][@winddyseed]]
+- **Website**: [[https://bytenoob.io][bytenoob.io]]
 
 ---
 
-/Thank you for visiting!/
+#+BEGIN_QUOTE
+"Do not go gentle into that good night,
+Rage, rage against the dying of the light."
+— Dylan Thomas
+#+END_QUOTE
+
+---
+
+This blog is open source! Check out the repository: [[https://github.com/bufrr/bufrr.github.io][github.com/bufrr/bufrr.github.io]]
+
