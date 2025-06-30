@@ -35,15 +35,15 @@ jobs:
             if [ -f "$file" ] && [[ "$file" != "posts/index.org" ]] && [[ "$file" != "posts/about.org" ]] && [[ "$file" != "posts/404.org" ]]; then
               echo "Checking: $file"
               # Check for required metadata
-              if ! grep -q "^#\\+TITLE:" "$file"; then
+              if ! grep -q "^#+TITLE:" "$file"; then
                 echo "❌ Missing TITLE in $file"
                 exit 1
               fi
-              if ! grep -q "^#\\+AUTHOR:" "$file"; then
+              if ! grep -q "^#+AUTHOR:" "$file"; then
                 echo "❌ Missing AUTHOR in $file"
                 exit 1
               fi
-              if ! grep -q "^#\\+DATE:" "$file"; then
+              if ! grep -q "^#+DATE:" "$file"; then
                 echo "❌ Missing DATE in $file"
                 exit 1
               fi
