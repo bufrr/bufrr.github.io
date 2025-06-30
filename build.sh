@@ -120,9 +120,9 @@ if emacs --batch \
   ;; Custom sitemap function to exclude author
   (defun blog/sitemap-function (title list)
     \"Generate sitemap as an Org file without author metadata.\"
-    (concat \"#+TITLE: \\n\"  ; Empty title
+    (concat \"#+TITLE: Noob Notes\\n\"
             \"#+AUTHOR:\\n\"
-            \"#+OPTIONS: author:nil toc:nil num:nil\\n\\n\"
+            \"#+OPTIONS: author:nil toc:nil num:nil h:0\\n\\n\"
             (org-list-to-org list)))
   
   ;; Publishing configuration

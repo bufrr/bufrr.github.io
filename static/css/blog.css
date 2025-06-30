@@ -614,6 +614,14 @@ img {
   display: none;
 }
 
+/* Hide the h1 title when it contains "Noob Notes - Blog" */
+#content > h1.title:first-child {
+  display: none;
+}
+#content > h1.title:first-child + .org-ul {
+  margin-top: 0;
+}
+
 /* Homepage posts list */
 #content > .org-ul {
   max-width: 48rem;
