@@ -160,6 +160,29 @@ if emacs --batch \
            :sitemap-function blog/sitemap-function
            :exclude \"404\\\\.org\\\\|about\\\\.org\")
           
+          (\"blog-pages\"
+           :base-directory ,blog-posts-directory
+           :base-extension \"org\"
+           :publishing-directory ,blog-publish-directory
+           :recursive nil
+           :publishing-function org-html-publish-to-html
+           :headline-levels 4
+           :section-numbers nil
+           :with-toc t
+           :with-author t
+           :with-date t
+           :html-head ,(concat \"<link rel=\\\"icon\\\" type=\\\"image/svg+xml\\\" href=\\\"/static/favicon.svg\\\">
+<link rel=\\\"preconnect\\\" href=\\\"https://fonts.googleapis.com\\\">
+<link rel=\\\"preconnect\\\" href=\\\"https://fonts.gstatic.com\\\" crossorigin>
+<link href=\\\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap\\\" rel=\\\"stylesheet\\\">
+<link rel=\\\"stylesheet\\\" type=\\\"text/css\\\" href=\\\"/static/css/blog.css?v=\" (or (getenv \"CSS_VERSION\") \"$CSS_VERSION\") \"\\\" />
+<script src=\\\"/static/js/blog.js?v=\" (or (getenv \"JS_VERSION\") \"$JS_VERSION\") \"\\\" defer></script>\")
+           :html-preamble blog/preamble
+           :html-postamble blog/postamble
+           :html-head-include-default-style nil
+           :html-head-include-scripts nil
+           :include (\"about.org\"))
+          
           (\"blog-static\"
            :base-directory ,blog-static-directory
            :base-extension \"css\\\\|js\\\\|png\\\\|jpg\\\\|gif\\\\|pdf\\\\|mp3\\\\|ogg\\\\|swf\\\\|svg\\\\|woff\\\\|woff2\\\\|ico\\\\|webp\\\\|avif\"
@@ -167,7 +190,7 @@ if emacs --batch \
            :recursive t
            :publishing-function org-publish-attachment)
           
-          (\"blog\" :components (\"blog-posts\" \"blog-static\"))))
+          (\"blog\" :components (\"blog-posts\" \"blog-pages\" \"blog-static\"))))
   
   ;; Publish the blog
   (org-publish \"blog\" t)
