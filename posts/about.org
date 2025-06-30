@@ -46,7 +46,7 @@ Beyond open source contributions, I work on several proprietary projects focusin
 ** Technical Stack
 
 My primary languages and tools:
-- **Languages**: Go (primary), Rust, C++, Emacs Lisp
+- **Languages**: Rust, Golang, C++, Emacs Lisp
 - **Interests**: Distributed systems, cryptography, blockchain protocols, network programming
 - **Editor**: Emacs (of course!)
 
