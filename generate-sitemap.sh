@@ -4,6 +4,7 @@
 
 # Source configuration if available
 if [ -f ".blogrc" ]; then
+    # shellcheck source=/dev/null
     source .blogrc
 fi
 

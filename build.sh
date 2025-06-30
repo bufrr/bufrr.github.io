@@ -7,6 +7,7 @@ set -euo pipefail
 
 # Source configuration if available
 if [ -f ".blogrc" ]; then
+    # shellcheck source=/dev/null
     source .blogrc
 fi
 
@@ -26,7 +27,7 @@ export CSS_VERSION
 export JS_VERSION
 
 # Run Emacs in batch mode to publish the blog
-emacs --batch \
+if emacs --batch \
       --eval "
 (progn
   ;; Set up directories
@@ -171,9 +172,7 @@ emacs --batch \
   ;; Publish the blog
   (org-publish \"blog\" t)
   (message \"Blog published successfully!\"))
-"
-
-if [ $? -eq 0 ]; then
+"; then
     echo -e "${GREEN}Build complete!${NC} HTML files generated in public/"
     
     # Generate sitemap

@@ -7,7 +7,6 @@ set -euo pipefail
 # Colors
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-RED='\033[0;31m'
 NC='\033[0m'
 
 echo -e "${GREEN}Minifying assets...${NC}"
@@ -38,7 +37,7 @@ if [ -f "public/static/css/blog.css" ]; then
     mv public/static/css/blog.min.css public/static/css/blog.css
     SIZE_AFTER=$(stat -c%s "public/static/css/blog.css" 2>/dev/null || stat -f%z "public/static/css/blog.css")
     SAVED=$((SIZE_BEFORE - SIZE_AFTER))
-    if [ $SIZE_BEFORE -gt 0 ]; then
+    if [ "$SIZE_BEFORE" -gt 0 ]; then
         PERCENT=$((SAVED * 100 / SIZE_BEFORE))
         echo -e "${GREEN}CSS minified:${NC} $SIZE_BEFORE → $SIZE_AFTER bytes (saved ${PERCENT}%)"
     fi
@@ -51,7 +50,7 @@ if [ -f "public/static/js/blog.js" ]; then
     mv public/static/js/blog.min.js public/static/js/blog.js
     SIZE_AFTER=$(stat -c%s "public/static/js/blog.js" 2>/dev/null || stat -f%z "public/static/js/blog.js")
     SAVED=$((SIZE_BEFORE - SIZE_AFTER))
-    if [ $SIZE_BEFORE -gt 0 ]; then
+    if [ "$SIZE_BEFORE" -gt 0 ]; then
         PERCENT=$((SAVED * 100 / SIZE_BEFORE))
         echo -e "${GREEN}JavaScript minified:${NC} $SIZE_BEFORE → $SIZE_AFTER bytes (saved ${PERCENT}%)"
     fi
