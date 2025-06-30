@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  BLOG_URL: ${{ secrets.BLOG_URL || 'https://bytenoob.github.io/blog' }}
+  BLOG_URL: ${{ secrets.BLOG_URL || 'https://bytenoob.io' }}
   BLOG_AUTHOR: ${{ secrets.BLOG_AUTHOR || 'bytenoob' }}
   BLOG_EMAIL: ${{ secrets.BLOG_EMAIL || 'blog@example.com' }}
   MINIFY_ASSETS: 'true'
@@ -15,6 +15,9 @@ env:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     permissions:
       contents: read
       pages: write
