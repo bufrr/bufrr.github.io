@@ -86,6 +86,7 @@ jobs:
           ./build.sh
         env:
           CI: true
+          GITHUB_WORKSPACE: ${{ github.workspace }}
 
       - name: Validate HTML output
         run: |

@@ -31,7 +31,7 @@ if emacs --batch \
       --eval "
 (progn
   ;; Set up directories
-  (setq blog-directory \"~/blog/\")
+  (setq blog-directory (file-name-as-directory (or (getenv \"GITHUB_WORKSPACE\") (expand-file-name \"~/blog\"))))
   (setq blog-posts-directory (concat blog-directory \"posts/\"))
   (setq blog-publish-directory (concat blog-directory \"public/\"))
   (setq blog-static-directory (concat blog-directory \"static/\"))

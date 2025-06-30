@@ -57,9 +57,13 @@ jobs:
       - name: Build the site
         run: |
           chmod +x build.sh
+          echo "Current directory: $(pwd)"
+          echo "Directory contents:"
+          ls -la
           ./build.sh
         env:
           CI: true
+          GITHUB_WORKSPACE: ${{ github.workspace }}
 
       - name: Generate sitemap
         run: |
@@ -78,12 +82,20 @@ jobs:
 
       - name: List generated files
         run: |
-          echo "📁 Generated files:"
-          find public -type f -name "*.html" | sort
-          echo ""
-          echo "📊 Build statistics:"
-          echo "Total HTML files: $(find public -name "*.html" | wc -l)"
-          echo "Total size: $(du -sh public | cut -f1)"
+          echo "📁 Checking build output:"
+          if [ -d "public" ]; then
+            echo "✅ public directory exists"
+            find public -type f -name "*.html" | sort
+            echo ""
+            echo "📊 Build statistics:"
+            echo "Total HTML files: $(find public -name "*.html" | wc -l)"
+            echo "Total size: $(du -sh public | cut -f1)"
+          else
+            echo "❌ public directory not found!"
+            echo "Current directory contents:"
+            ls -la
+            exit 1
+          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
