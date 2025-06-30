@@ -50,9 +50,8 @@ jobs:
 
       - name: Install Emacs
         run: |
-          sudo apt-add-repository ppa:ubuntu-elisp/ppa -y
           sudo apt update
-          sudo apt-get install emacs-snapshot -y
+          sudo apt-get install -y emacs
           echo "Emacs version: $(emacs --version | head -n1)"
 
       - name: Build the site
