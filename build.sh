@@ -7,8 +7,8 @@ set -euo pipefail
 
 # Source configuration if available
 if [ -f ".blogrc" ]; then
-    # shellcheck source=/dev/null
-    source .blogrc
+  # shellcheck source=/dev/null
+  source .blogrc
 fi
 
 # Colors for output
@@ -19,8 +19,8 @@ NC='\033[0m'
 echo -e "${GREEN}Building blog...${NC}"
 
 # Get version numbers for cache busting based on file modification time
-CSS_VERSION=$(stat -c %Y static/css/blog.css 2>/dev/null || stat -f %m static/css/blog.css 2>/dev/null || echo "1")
-JS_VERSION=$(stat -c %Y static/js/blog.js 2>/dev/null || stat -f %m static/js/blog.js 2>/dev/null || echo "1")
+CSS_VERSION=$(stat -c %Y static/css/blog.css 2> /dev/null || stat -f %m static/css/blog.css 2> /dev/null || echo "1")
+JS_VERSION=$(stat -c %Y static/js/blog.js 2> /dev/null || stat -f %m static/js/blog.js 2> /dev/null || echo "1")
 
 # Export for use in Emacs
 export CSS_VERSION
@@ -28,7 +28,7 @@ export JS_VERSION
 
 # Run Emacs in batch mode to publish the blog
 if emacs --batch \
-      --eval "
+  --eval "
 (progn
   ;; Set up directories
   (setq blog-directory (file-name-as-directory (or (getenv \"GITHUB_WORKSPACE\") (expand-file-name \"~/blog\"))))
@@ -196,20 +196,20 @@ if emacs --batch \
   (org-publish \"blog\" t)
   (message \"Blog published successfully!\"))
 "; then
-    echo -e "${GREEN}Build complete!${NC} HTML files generated in public/"
-    
-    # Generate sitemap
-    if [ -x "./generate-sitemap.sh" ]; then
-        ./generate-sitemap.sh
-    fi
-    
-    # Show build statistics
-    if [ -d "public" ]; then
-        POST_COUNT=$(find public -name "*.html" -not -name "index.html" | wc -l)
-        TOTAL_SIZE=$(du -sh public | cut -f1)
-        echo -e "${GREEN}Generated:${NC} $POST_COUNT posts"
-        echo -e "${GREEN}Total size:${NC} $TOTAL_SIZE"
-    fi
+  echo -e "${GREEN}Build complete!${NC} HTML files generated in public/"
+
+  # Generate sitemap
+  if [ -x "./generate-sitemap.sh" ]; then
+    ./generate-sitemap.sh
+  fi
+
+  # Show build statistics
+  if [ -d "public" ]; then
+    POST_COUNT=$(find public -name "*.html" -not -name "index.html" | wc -l)
+    TOTAL_SIZE=$(du -sh public | cut -f1)
+    echo -e "${GREEN}Generated:${NC} $POST_COUNT posts"
+    echo -e "${GREEN}Total size:${NC} $TOTAL_SIZE"
+  fi
 else
-    echo -e "${YELLOW}Build completed with warnings${NC}"
+  echo -e "${YELLOW}Build completed with warnings${NC}"
 fi

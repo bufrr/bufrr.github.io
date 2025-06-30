@@ -5,17 +5,20 @@ This blog is configured in your Doom Emacs with the Claude Code documentation st
 ## Usage
 
 ### Create a new blog post
+
 - Use `SPC B n` (capital B) to create a new post
 - Enter the title when prompted
 - The post will be created with automatic filename and filled template
 
 ### Publish your blog
+
 - Use `SPC B p` (capital B) to publish all posts
 - Files will be generated in `~/blog/public/`
 - Run `./build.sh` for command-line building
 - Run `make build-prod` for production build with minification
 
 ### Directory Structure
+
 ```
 ~/blog/
 ├── posts/           # Your org-mode blog posts
@@ -41,14 +44,16 @@ This blog is configured in your Doom Emacs with the Claude Code documentation st
 ### Configuration
 
 The blog can be configured through environment variables in `.blogrc`:
+
 ```bash
 export BLOG_AUTHOR="your-name"
 export BLOG_EMAIL="your-email@example.com"
 export BLOG_URL="https://your-domain.com"
-export MINIFY_ASSETS="false"  # Set to "true" for production
+export MINIFY_ASSETS="false" # Set to "true" for production
 ```
 
 ### Workflow
+
 1. Create new post: `SPC B n` (capital B)
 2. Write your content in org-mode
 3. Publish locally: `SPC B p` (capital B) or run `./build.sh`
@@ -58,6 +63,7 @@ export MINIFY_ASSETS="false"  # Set to "true" for production
 ### Features
 
 The blog includes:
+
 - **Modern Design**: Clean, responsive design inspired by Claude Code docs
 - **Automatic Features**:
   - Archive/index generation with newest-first sorting
@@ -88,6 +94,7 @@ The blog supports syntax highlighting for code blocks through a dual approach:
    - Automatically applied for better accuracy
 
 To add support for more languages:
+
 1. Install the Emacs mode in `~/.config/doom/packages.el`
 2. Run `doom sync` to install
 3. Test with `./build.sh`
@@ -115,11 +122,13 @@ The blog includes three workflows:
 ### Deployment
 
 #### GitHub Pages
+
 1. Enable GitHub Pages in repository settings
 2. Set source to "GitHub Actions"
 3. Push to main branch to trigger deployment
 
 #### Custom Domain
+
 1. Add `CNAME` file to `static/` directory
 2. Update `BLOG_URL` in `.blogrc` or GitHub Secrets
 3. Configure DNS settings with your domain provider

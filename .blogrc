@@ -4,7 +4,7 @@
 # Blog metadata
 export BLOG_TITLE="My Blog"
 export BLOG_AUTHOR="bytenoob"
-export BLOG_EMAIL="chouyc.adam # gmail.com"
+export BLOG_EMAIL="chouyc.adam#gmail.com"
 export BLOG_URL="https://bytenoob.io"
 export BLOG_DESCRIPTION="A technical blog about programming and technology"
 

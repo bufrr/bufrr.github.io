@@ -73,16 +73,16 @@ jobs:
           script: |
             const artifactUrl = `https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}`;
             const comment = `## 🔍 Preview Build Complete!
-            
+
             Build #${{ github.run_number }} has finished successfully.
-            
+
             📦 [Download preview artifact](${artifactUrl})
-            
+
             ### Build Statistics:
             - Total HTML files: \`$(find public -name "*.html" | wc -l)\`
             - Build size: \`$(du -sh public | cut -f1)\`
             `;
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,

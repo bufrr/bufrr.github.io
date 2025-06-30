@@ -3,26 +3,26 @@
 /* ===== CSS Custom Properties ===== */
 :root {
   /* Colors - Light mode */
-  --bg-primary: #FDFDF7;
-  --bg-secondary: #F5F5EF;
-  --bg-code: #F5F5F0;
-  --text-primary: #0E0E0E;
-  --text-secondary: #6F6F6F;  /* Muted grey like Claude docs */
-  --text-muted: #8A8A8A;      /* Even more muted */
-  --accent-primary: #D4A27F;
-  --accent-hover: #C2916D;
-  --border-color: #E5E5E5;
-  --link-color: #D4A27F;
-  --code-border: #E5E5E0;
+  --bg-primary: #fdfdf7;
+  --bg-secondary: #f5f5ef;
+  --bg-code: #f5f5f0;
+  --text-primary: #0e0e0e;
+  --text-secondary: #6f6f6f; /* Muted grey like Claude docs */
+  --text-muted: #8a8a8a; /* Even more muted */
+  --accent-primary: #d4a27f;
+  --accent-hover: #c2916d;
+  --border-color: #e5e5e5;
+  --link-color: #d4a27f;
+  --code-border: #e5e5e0;
   --header-bg: rgba(253, 253, 247, 0.95);
-  
+
   /* Layout dimensions */
   --header-height: 4rem;
   --footer-height: 5rem;
   --sidebar-width: 300px;
   --content-max-width: 65rem;
   --container-max-width: 1400px;
-  
+
   /* Spacing scale */
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
@@ -31,7 +31,7 @@
   --space-xl: 2rem;
   --space-2xl: 3rem;
   --space-3xl: 4rem;
-  
+
   /* Typography scale */
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
@@ -41,7 +41,7 @@
   --text-2xl: 1.5rem;
   --text-3xl: 1.875rem;
   --text-4xl: 2.25rem;
-  
+
   /* Responsive scale ratio */
   --scale: 1;
 }
@@ -49,17 +49,17 @@
 /* Dark mode colors */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-primary: #09090B;
-    --bg-secondary: #0E0E0E;
-    --bg-code: #18181B;
-    --text-primary: #FAFAFA;
-    --text-secondary: #969696;  /* Muted grey like Claude docs dark mode */
-    --text-muted: #6B6B6B;      /* Even more muted */
-    --accent-primary: #D4A27F;
-    --accent-hover: #E0B590;
-    --border-color: #27272A;
-    --link-color: #D4A27F;
-    --code-border: #3F3F46;
+    --bg-primary: #09090b;
+    --bg-secondary: #0e0e0e;
+    --bg-code: #18181b;
+    --text-primary: #fafafa;
+    --text-secondary: #969696; /* Muted grey like Claude docs dark mode */
+    --text-muted: #6b6b6b; /* Even more muted */
+    --accent-primary: #d4a27f;
+    --accent-hover: #e0b590;
+    --border-color: #27272a;
+    --link-color: #d4a27f;
+    --code-border: #3f3f46;
     --header-bg: rgba(9, 9, 11, 0.95);
   }
 }
@@ -81,9 +81,19 @@ html {
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 
-               'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 
-               'Helvetica Neue', sans-serif;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'Roboto',
+    'Oxygen',
+    'Ubuntu',
+    'Cantarell',
+    'Fira Sans',
+    'Droid Sans',
+    'Helvetica Neue',
+    sans-serif;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
@@ -100,13 +110,13 @@ body {
 
 /* Animations */
 @keyframes fadeIn {
-  from { 
-    opacity: 0; 
-    transform: translateY(10px); 
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -235,8 +245,17 @@ main {
 }
 
 /* ===== Typography ===== */
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   font-weight: 600;
   line-height: 1.2;
   margin-top: var(--space-2xl);
@@ -246,22 +265,30 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Fluid typography with clamp */
-h1 { 
+h1 {
   font-size: clamp(1.75rem, 4vw, var(--text-4xl));
   font-weight: 700;
   margin-top: 0;
   margin-bottom: var(--space-lg);
 }
 
-h2 { 
+h2 {
   font-size: clamp(1.5rem, 3vw, var(--text-3xl));
   margin-top: var(--space-2xl);
 }
 
-h3 { font-size: clamp(1.25rem, 2.5vw, var(--text-2xl)); }
-h4 { font-size: var(--text-xl); }
-h5 { font-size: var(--text-lg); }
-h6 { font-size: var(--text-base); }
+h3 {
+  font-size: clamp(1.25rem, 2.5vw, var(--text-2xl));
+}
+h4 {
+  font-size: var(--text-xl);
+}
+h5 {
+  font-size: var(--text-lg);
+}
+h6 {
+  font-size: var(--text-base);
+}
 
 /* Paragraphs */
 p {
@@ -274,7 +301,7 @@ p {
 .outline-text-2 p,
 .outline-text-3 p,
 .outline-text-4 p {
-  color: var(--text-secondary);  /* Muted grey for article prose */
+  color: var(--text-secondary); /* Muted grey for article prose */
 }
 
 /* Links */
@@ -291,7 +318,8 @@ a:focus {
 }
 
 /* Lists */
-ul, ol {
+ul,
+ol {
   margin-bottom: var(--space-lg);
   padding-left: var(--space-xl);
 }
@@ -299,13 +327,13 @@ ul, ol {
 li {
   margin-bottom: var(--space-sm);
   line-height: 1.7;
-  color: var(--text-secondary);  /* Grey for descriptive text */
+  color: var(--text-secondary); /* Grey for descriptive text */
 }
 
 /* Keep bold text in lists with primary color */
 li b,
 li strong {
-  color: var(--text-primary);  /* White/black for emphasis */
+  color: var(--text-primary); /* White/black for emphasis */
 }
 
 /* Special handling for main content lists */
@@ -316,7 +344,7 @@ li strong {
 }
 
 .main-content ul li::before {
-  content: "•";
+  content: '•';
   display: inline-block;
   width: 1.5em;
   color: var(--text-secondary);
@@ -513,7 +541,8 @@ table {
   margin-bottom: var(--space-lg);
 }
 
-th, td {
+th,
+td {
   padding: var(--space-md);
   text-align: left;
   border-bottom: 1px solid var(--border-color);
@@ -625,7 +654,7 @@ img {
     --scale: 0.95;
     --sidebar-width: 250px;
   }
-  
+
   .page-wrapper {
     gap: var(--space-2xl);
   }
@@ -638,41 +667,47 @@ img {
     --space-2xl: 2rem;
     --space-3xl: 2.5rem;
   }
-  
+
   .container {
     padding: 0 var(--space-md);
   }
-  
+
   .site-header .container {
     flex-direction: column;
   }
-  
+
   .site-nav {
     gap: var(--space-lg);
   }
-  
+
   /* Stack layout on mobile */
   .page-wrapper {
     flex-direction: column;
     padding: 0 var(--space-md);
   }
-  
+
   .sidebar-left {
     position: static;
     max-height: none;
     width: 100%;
     margin-bottom: var(--space-xl);
   }
-  
+
   .main-content {
     max-width: 100%;
   }
-  
+
   /* Adjust typography */
-  h1 { font-size: 1.75rem; }
-  h2 { font-size: 1.5rem; }
-  h3 { font-size: 1.25rem; }
-  
+  h1 {
+    font-size: 1.75rem;
+  }
+  h2 {
+    font-size: 1.5rem;
+  }
+  h3 {
+    font-size: 1.25rem;
+  }
+
   pre {
     padding: var(--space-md);
     font-size: 0.8rem;
@@ -687,12 +722,12 @@ img {
   #table-of-contents {
     display: none;
   }
-  
+
   body {
     font-size: 12pt;
     line-height: 1.5;
   }
-  
+
   a {
     color: inherit;
     text-decoration: underline;
@@ -704,202 +739,202 @@ img {
 
 /* Keywords (def, if, else, return, etc.) */
 .org-keyword {
-  color: #9C6FCF;
+  color: #9c6fcf;
   font-weight: 600;
 }
 
 /* Built-in functions and types */
 .org-builtin {
-  color: #D4A27F;
+  color: #d4a27f;
 }
 
 /* Strings */
 .org-string {
-  color: #86B85C;
+  color: #86b85c;
 }
 
 /* Comments */
 .org-comment,
 .org-comment-delimiter {
-  color: #8A8A8A;
+  color: #8a8a8a;
   font-style: italic;
 }
 
 /* Function names */
 .org-function-name {
-  color: #5B9BC8;
+  color: #5b9bc8;
   font-weight: 600;
 }
 
 /* Variable names */
 .org-variable-name {
-  color: #5B9BC8;
+  color: #5b9bc8;
 }
 
 /* Constants */
 .org-constant {
-  color: #D68B5B;
+  color: #d68b5b;
 }
 
 /* Types */
 .org-type {
-  color: #D4A27F;
+  color: #d4a27f;
 }
 
 /* Preprocessor/macros */
 .org-preprocessor {
-  color: #9C6FCF;
+  color: #9c6fcf;
 }
 
 /* Numbers */
 .org-nv {
-  color: #D68B5B;
+  color: #d68b5b;
 }
 
 /* Operators */
 .org-operator {
-  color: #9C6FCF;
+  color: #9c6fcf;
 }
 
 /* Parentheses, brackets, etc. */
 .org-paren {
-  color: #6F6F6F;
+  color: #6f6f6f;
 }
 
 /* Errors/warnings */
 .org-warning {
-  color: #E06C6C;
+  color: #e06c6c;
   text-decoration: underline wavy;
 }
 
 /* Additional syntax classes for various languages */
 .org-doc,
 .org-doc-keyword {
-  color: #8A8A8A;
+  color: #8a8a8a;
   font-style: italic;
 }
 
 .org-regexp-grouping-backslash,
 .org-regexp-grouping-construct {
-  color: #9C6FCF;
+  color: #9c6fcf;
   font-weight: 600;
 }
 
 /* Go specific */
 .org-go-package-name {
-  color: #D4A27F;
+  color: #d4a27f;
 }
 
 /* Rust specific */
 .org-rust-attribute,
 .org-rust-macro {
-  color: #9C6FCF;
+  color: #9c6fcf;
 }
 
 /* General purpose classes that might be used by various modes */
 .org-font-lock-keyword-face {
-  color: #9C6FCF;
+  color: #9c6fcf;
   font-weight: 600;
 }
 
 .org-font-lock-type-face {
-  color: #D4A27F;
+  color: #d4a27f;
 }
 
 .org-font-lock-string-face {
-  color: #86B85C;
+  color: #86b85c;
 }
 
 .org-font-lock-comment-face {
-  color: #8A8A8A;
+  color: #8a8a8a;
   font-style: italic;
 }
 
 .org-font-lock-function-name-face {
-  color: #5B9BC8;
+  color: #5b9bc8;
   font-weight: 600;
 }
 
 .org-font-lock-variable-name-face {
-  color: #5B9BC8;
+  color: #5b9bc8;
 }
 
 .org-font-lock-constant-face {
-  color: #D68B5B;
+  color: #d68b5b;
 }
 
 .org-font-lock-builtin-face {
-  color: #D4A27F;
+  color: #d4a27f;
 }
 
 /* Dark mode adjustments */
 @media (prefers-color-scheme: dark) {
   .org-keyword,
   .org-font-lock-keyword-face {
-    color: #BB9AF7;
+    color: #bb9af7;
   }
-  
+
   .org-builtin,
   .org-font-lock-builtin-face {
-    color: #E0AF68;
+    color: #e0af68;
   }
-  
+
   .org-string,
   .org-font-lock-string-face {
-    color: #9ECE6A;
+    color: #9ece6a;
   }
-  
+
   .org-comment,
   .org-comment-delimiter,
   .org-font-lock-comment-face,
   .org-doc,
   .org-doc-keyword {
-    color: #565F89;
+    color: #565f89;
   }
-  
+
   .org-function-name,
   .org-font-lock-function-name-face {
-    color: #7DCFFF;
+    color: #7dcfff;
   }
-  
+
   .org-variable-name,
   .org-font-lock-variable-name-face {
-    color: #7AA2F7;
+    color: #7aa2f7;
   }
-  
+
   .org-constant,
   .org-font-lock-constant-face {
-    color: #FF9E64;
+    color: #ff9e64;
   }
-  
+
   .org-type,
   .org-font-lock-type-face {
-    color: #E0AF68;
+    color: #e0af68;
   }
-  
+
   .org-preprocessor,
   .org-rust-attribute,
   .org-rust-macro {
-    color: #BB9AF7;
+    color: #bb9af7;
   }
-  
+
   .org-nv {
-    color: #FF9E64;
+    color: #ff9e64;
   }
-  
+
   .org-operator {
-    color: #BB9AF7;
+    color: #bb9af7;
   }
-  
+
   .org-paren {
-    color: #A9B1D6;
+    color: #a9b1d6;
   }
-  
+
   .org-warning {
-    color: #F7768E;
+    color: #f7768e;
   }
-  
+
   .org-go-package-name {
-    color: #E0AF68;
+    color: #e0af68;
   }
 }

@@ -4,8 +4,8 @@
 
 # Source configuration if available
 if [ -f ".blogrc" ]; then
-    # shellcheck source=/dev/null
-    source .blogrc
+  # shellcheck source=/dev/null
+  source .blogrc
 fi
 
 BLOG_URL="${BLOG_URL:-https://example.com}"
@@ -29,21 +29,21 @@ EOF
 
 # Add all HTML files
 for file in public/*.html; do
-    if [ -f "$file" ] && [ "$(basename "$file")" != "404.html" ]; then
-        # Get last modified date
-        LASTMOD=$(date -r "$file" -u +%Y-%m-%d 2>/dev/null || date -u +%Y-%m-%d)
-        FILENAME=$(basename "$file")
-        
-        # Set priority based on page type
-        if [ "$FILENAME" = "index.html" ]; then
-            continue  # Already added
-        elif [ "$FILENAME" = "about.html" ]; then
-            PRIORITY="0.8"
-        else
-            PRIORITY="0.6"
-        fi
-        
-        cat >> "$OUTPUT_FILE" << EOF
+  if [ -f "$file" ] && [ "$(basename "$file")" != "404.html" ]; then
+    # Get last modified date
+    LASTMOD=$(date -r "$file" -u +%Y-%m-%d 2> /dev/null || date -u +%Y-%m-%d)
+    FILENAME=$(basename "$file")
+
+    # Set priority based on page type
+    if [ "$FILENAME" = "index.html" ]; then
+      continue # Already added
+    elif [ "$FILENAME" = "about.html" ]; then
+      PRIORITY="0.8"
+    else
+      PRIORITY="0.6"
+    fi
+
+    cat >> "$OUTPUT_FILE" << EOF
   <url>
     <loc>$BLOG_URL/$FILENAME</loc>
     <lastmod>$LASTMOD</lastmod>
@@ -51,7 +51,7 @@ for file in public/*.html; do
     <priority>$PRIORITY</priority>
   </url>
 EOF
-    fi
+  fi
 done
 
 # Close sitemap

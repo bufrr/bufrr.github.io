@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   lint:
@@ -96,7 +96,7 @@ jobs:
             echo "❌ public/index.html not found"
             exit 1
           fi
-          
+
           # Check that all expected HTML files exist
           for org_file in posts/*.org; do
             if [ -f "$org_file" ] && [[ "$org_file" != "posts/404.org" ]]; then
@@ -108,27 +108,38 @@ jobs:
               fi
             fi
           done
-          
+
           echo "✅ All HTML files generated successfully"
 
       - name: Check for broken internal links
         run: |
           echo "🔗 Checking for broken internal links..."
           cd public
-          broken_links=0
+
+          # Use a temporary file to track broken links
+          broken_file=$(mktemp)
+
           for html_file in *.html; do
-            # Extract internal links
-            links=$(grep -oP 'href="[^"]*\.html"' "$html_file" | sed 's/href="//;s/"//' | sort -u)
-            for link in $links; do
-              if [[ ! "$link" =~ ^https?:// ]] && [ ! -f "$link" ]; then
-                echo "❌ Broken link in $html_file: $link"
-                broken_links=$((broken_links + 1))
-              fi
-            done
+            if [ -f "$html_file" ]; then
+              # Extract internal links
+              grep -oE 'href="[^"]*\.html"' "$html_file" 2>/dev/null | sed 's/href="//;s/"//' | sort -u | while read -r link; do
+                if [ -n "$link" ] && [[ ! "$link" =~ ^https?:// ]]; then
+                  # Handle both relative and absolute paths
+                  check_file="${link#/}"
+                  if [ ! -f "$check_file" ] && [ ! -f "../$check_file" ]; then
+                    echo "❌ Broken link in $html_file: $link" | tee -a "$broken_file"
+                  fi
+                fi
+              done
+            fi
           done
-          
-          if [ $broken_links -gt 0 ]; then
-            echo "❌ Found $broken_links broken links"
+
+          # Count broken links
+          broken_count=$(wc -l < "$broken_file" 2>/dev/null || echo "0")
+          rm -f "$broken_file"
+
+          if [ "$broken_count" -gt 0 ]; then
+            echo "❌ Found $broken_count broken links"
             exit 1
           else
             echo "✅ No broken internal links found"

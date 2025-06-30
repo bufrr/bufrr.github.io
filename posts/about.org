@@ -38,7 +38,7 @@ The entire blog is generated from Org-mode files, showcasing the power of Emacs 
 
 Feel free to reach out:
 - **GitHub**: [[https://github.com/bufrr][github.com/bufrr]]
-- **Email**: chouyc.adam # gmail.com
+- **Email**: chouyc.adam#gmail.com
 
 ** License
 

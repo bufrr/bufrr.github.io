@@ -1,0 +1,8 @@
+# Robots.txt for bytenoob.io
+# Allow all web crawlers
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://bytenoob.io/sitemap.xml
