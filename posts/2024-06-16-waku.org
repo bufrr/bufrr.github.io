@@ -5,6 +5,7 @@
 #+KEYWORDS: waku, p2p, messaging, privacy, decentralized
 #+FILETAGS: :networking:p2p:privacy:
 #+LASTMOD: <2025-06-30 Mon>
+#+DRAFT: false
 #+OPTIONS: toc:t num:nil
 
 

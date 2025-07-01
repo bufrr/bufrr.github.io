@@ -103,6 +103,11 @@ if emacs --batch \
      \"<nav class=\\\"site-nav\\\">\"
      \"<a href=\\\"/\\\">Home</a>\"
      \"<a href=\\\"/about.html\\\">About</a>\"
+     \"<div class=\\\"lang-switcher\\\">\"
+     \"<button class=\\\"lang-btn active\\\" data-lang=\\\"en\\\">EN</button>\"
+     \"<span class=\\\"lang-divider\\\">|</span>\"
+     \"<button class=\\\"lang-btn\\\" data-lang=\\\"cn\\\">中文</button>\"
+     \"</div>\"
      \"</nav>\"
      \"</div>\"
      \"</header>\"))
@@ -117,9 +122,23 @@ if emacs --batch \
      \"</div>\"
      \"</footer>\"))
   
-  ;; Custom sitemap function to exclude author
+  ;; Function to check if a file is a draft
+  (defun blog/is-draft-p (file)
+    \"Check if FILE has #+DRAFT: true property.\"
+    (with-temp-buffer
+      (insert-file-contents file)
+      (goto-char (point-min))
+      (re-search-forward \"^#\\\\+DRAFT:\\\\s-*\\\\(true\\\\|t\\\\|yes\\\\)\" nil t)))
+  
+  ;; Custom publishing function that skips drafts
+  (defun blog/publish-to-html (plist filename pub-dir)
+    \"Publish an org file to HTML, but skip if it's a draft.\"
+    (unless (blog/is-draft-p filename)
+      (org-html-publish-to-html plist filename pub-dir)))
+  
+  ;; Custom sitemap function to exclude author and draft posts
   (defun blog/sitemap-function (title list)
-    \"Generate sitemap as an Org file without author metadata.\"
+    \"Generate sitemap as an Org file without author metadata and draft posts.\"
     (concat \"#+TITLE: Noob Notes\\n\"
             \"#+AUTHOR:\\n\"
             \"#+OPTIONS: author:nil toc:nil num:nil h:0\\n\\n\"
@@ -132,7 +151,7 @@ if emacs --batch \
            :base-extension \"org\"
            :publishing-directory ,blog-publish-directory
            :recursive t
-           :publishing-function org-html-publish-to-html
+           :publishing-function blog/publish-to-html
            :headline-levels 4
            :section-numbers nil
            :with-toc t
@@ -158,14 +177,14 @@ if emacs --batch \
                                            entry
                                            (org-publish-find-title entry project)))
            :sitemap-function blog/sitemap-function
-           :exclude \"404\\\\.org\\\\|about\\\\.org\")
+           :exclude \"404\\\\.org\\\\|about\\\\.org\\\\|-cn\\\\.org\")
           
           (\"blog-pages\"
            :base-directory ,blog-posts-directory
            :base-extension \"org\"
            :publishing-directory ,blog-publish-directory
            :recursive nil
-           :publishing-function org-html-publish-to-html
+           :publishing-function blog/publish-to-html
            :headline-levels 4
            :section-numbers nil
            :with-toc t

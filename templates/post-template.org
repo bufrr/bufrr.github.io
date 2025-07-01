@@ -5,6 +5,7 @@
 #+KEYWORDS: 
 #+FILETAGS: 
 #+LASTMOD: 
+#+DRAFT: true
 #+OPTIONS: toc:t num:nil
 
 * Introduction

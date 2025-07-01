@@ -5,6 +5,7 @@
 #+KEYWORDS: babylon, bitcoin, staking, pos, blockchain, security
 #+FILETAGS: :blockchain:bitcoin:staking:
 #+LASTMOD: <2025-06-30 Mon>
+#+DRAFT: false
 #+OPTIONS: toc:t num:nil
 
 * Babylon

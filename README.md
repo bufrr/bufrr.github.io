@@ -60,6 +60,24 @@ export MINIFY_ASSETS="false" # Set to "true" for production
 4. Serve locally: `cd ~/blog/public && python -m http.server`
 5. Deploy: Push to GitHub, automatic deployment via Actions
 
+### Working with Drafts
+
+To create draft posts that won't be published:
+
+1. Add `#+DRAFT: true` to the post header
+2. When ready to publish, change to `#+DRAFT: false` or remove the line
+3. Draft posts are excluded from the sitemap and won't be built
+
+Example draft post header:
+
+```org
+#+TITLE: My Draft Post
+#+DATE: <2025-01-01>
+#+AUTHOR: bytenoob
+#+DRAFT: true
+#+OPTIONS: toc:t num:nil
+```
+
 ### Features
 
 The blog includes:

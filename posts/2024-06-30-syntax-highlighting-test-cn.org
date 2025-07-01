@@ -1,48 +1,47 @@
-#+TITLE: Syntax Highlighting Test
+#+TITLE: 语法高亮测试
 #+DATE: <2024-06-30 Sun>
 #+AUTHOR: bytenoob
-#+DESCRIPTION: Testing syntax highlighting for various programming languages
-#+KEYWORDS: code, syntax, highlighting, test
-#+FILETAGS: :programming:test:
+#+DESCRIPTION: 测试各种编程语言的语法高亮
+#+KEYWORDS: 代码, 语法, 高亮, 测试
+#+FILETAGS: :编程:测试:
 #+LASTMOD: <2025-06-30 Mon>
-#+DRAFT: false
 #+OPTIONS: toc:t num:nil
 
-* Introduction
+* 简介
 
-This post tests syntax highlighting for various programming languages in our blog.
+这篇文章测试我们博客中各种编程语言的语法高亮功能。
 
 * Emacs Lisp
 
 #+BEGIN_SRC emacs-lisp
-;; Define a function to greet the user
+;; 定义一个向用户问候的函数
 (defun greet-user (name)
-  "Greet the user with NAME."
-  (interactive "sEnter your name: ")
-  (message "Hello, %s! Welcome to Emacs." name))
+  "向 NAME 用户问候。"
+  (interactive "s请输入你的名字: ")
+  (message "你好，%s！欢迎使用 Emacs。" name))
 
-;; Configuration example
-(setq user-full-name "John Doe"
-      user-mail-address "john@example.com")
+;; 配置示例
+(setq user-full-name "张三"
+      user-mail-address "zhangsan@example.com")
 
-;; Using let binding
+;; 使用 let 绑定
 (let ((x 10)
       (y 20))
-  (+ x y)) ; Returns 30
+  (+ x y)) ; 返回 30
 #+END_SRC
 
 * Python
 
 #+BEGIN_SRC python
-# Python example with classes and functions
+# Python 类和函数示例
 import os
 import sys
 from datetime import datetime
 
 class BlogPost:
-    """A simple blog post class."""
+    """一个简单的博客文章类。"""
     
-    def __init__(self, title, content, author="Anonymous"):
+    def __init__(self, title, content, author="匿名"):
         self.title = title
         self.content = content
         self.author = author
@@ -50,32 +49,32 @@ class BlogPost:
         self.tags = []
     
     def add_tag(self, tag):
-        """Add a tag to the post."""
+        """为文章添加标签。"""
         if tag not in self.tags:
             self.tags.append(tag)
     
     def __str__(self):
-        return f"{self.title} by {self.author}"
+        return f"{self.title} 作者：{self.author}"
 
-# Create a new post
-post = BlogPost("Hello World", "This is my first post!")
+# 创建新文章
+post = BlogPost("你好世界", "这是我的第一篇文章！")
 post.add_tag("python")
-post.add_tag("tutorial")
+post.add_tag("教程")
 
-# List comprehension example
+# 列表推导式示例
 numbers = [1, 2, 3, 4, 5]
 squares = [n**2 for n in numbers if n % 2 == 0]
-print(f"Even squares: {squares}")
+print(f"偶数的平方：{squares}")
 #+END_SRC
 
 * JavaScript
 
 #+BEGIN_SRC javascript
-// Modern JavaScript with ES6+ features
+// 使用 ES6+ 特性的现代 JavaScript
 const BlogManager = {
   posts: [],
   
-  // Arrow function method
+  // 箭头函数方法
   addPost: (title, content) => {
     const post = {
       id: Date.now(),
@@ -88,24 +87,24 @@ const BlogManager = {
     return post;
   },
   
-  // Async function example
+  // 异步函数示例
   async fetchPosts(url) {
     try {
       const response = await fetch(url);
       const data = await response.json();
       return data.posts;
     } catch (error) {
-      console.error('Failed to fetch posts:', error);
+      console.error('获取文章失败:', error);
       return [];
     }
   }
 };
 
-// Destructuring and template literals
+// 解构和模板字面量
 const { posts } = BlogManager;
-const message = `Total posts: ${posts.length}`;
+const message = `文章总数：${posts.length}`;
 
-// Class example
+// 类示例
 class Post {
   constructor(title, content) {
     this.title = title;
@@ -129,7 +128,7 @@ import (
     "time"
 )
 
-// BlogPost represents a blog post
+// BlogPost 表示一篇博客文章
 type BlogPost struct {
     ID        int       `json:"id"`
     Title     string    `json:"title"`
@@ -139,7 +138,7 @@ type BlogPost struct {
     Tags      []string  `json:"tags"`
 }
 
-// NewBlogPost creates a new blog post
+// NewBlogPost 创建新的博客文章
 func NewBlogPost(title, content, author string) *BlogPost {
     return &BlogPost{
         ID:        generateID(),
@@ -151,28 +150,28 @@ func NewBlogPost(title, content, author string) *BlogPost {
     }
 }
 
-// AddTag adds a tag to the post
+// AddTag 为文章添加标签
 func (p *BlogPost) AddTag(tag string) {
     p.Tags = append(p.Tags, tag)
 }
 
 func main() {
-    // Create a new post
-    post := NewBlogPost("Go Tutorial", "Learning Go is fun!", "Gopher")
+    // 创建新文章
+    post := NewBlogPost("Go 教程", "学习 Go 很有趣！", "Gopher")
     post.AddTag("golang")
-    post.AddTag("tutorial")
+    post.AddTag("教程")
     
-    // Using defer
-    defer fmt.Println("Cleanup complete")
+    // 使用 defer
+    defer fmt.Println("清理完成")
     
-    // Goroutine example
+    // Goroutine 示例
     go func() {
-        fmt.Println("Hello from goroutine!")
+        fmt.Println("来自 goroutine 的问候！")
     }()
     
-    // Channel example
+    // Channel 示例
     ch := make(chan string, 1)
-    ch <- "Hello, channels!"
+    ch <- "你好，channels！"
     msg := <-ch
     fmt.Println(msg)
 }
@@ -188,7 +187,7 @@ func generateID() int {
 use std::collections::HashMap;
 use std::fmt;
 
-// Define a struct for blog posts
+// 定义博客文章结构体
 #[derive(Debug, Clone)]
 pub struct BlogPost {
     id: u64,
@@ -199,7 +198,7 @@ pub struct BlogPost {
 }
 
 impl BlogPost {
-    // Constructor method
+    // 构造方法
     pub fn new(title: String, content: String, author: String) -> Self {
         Self {
             id: generate_id(),
@@ -210,14 +209,14 @@ impl BlogPost {
         }
     }
     
-    // Add a tag to the post
+    // 添加标签
     pub fn add_tag(&mut self, tag: String) {
         if !self.tags.contains(&tag) {
             self.tags.push(tag);
         }
     }
     
-    // Get a summary of the post
+    // 获取文章摘要
     pub fn summary(&self) -> String {
         let max_len = 100;
         if self.content.len() > max_len {
@@ -228,42 +227,42 @@ impl BlogPost {
     }
 }
 
-// Implement Display trait
+// 实现 Display trait
 impl fmt::Display for BlogPost {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} by {}", self.title, self.author)
+        write!(f, "{} 作者：{}", self.title, self.author)
     }
 }
 
 fn main() {
-    // Create a new post
+    // 创建新文章
     let mut post = BlogPost::new(
-        "Rust Tutorial".to_string(),
-        "Learning Rust is exciting!".to_string(),
+        "Rust 教程".to_string(),
+        "学习 Rust 令人兴奋！".to_string(),
         "Rustacean".to_string(),
     );
     
-    // Add some tags
+    // 添加标签
     post.add_tag("rust".to_string());
-    post.add_tag("systems".to_string());
+    post.add_tag("系统编程".to_string());
     
-    // Pattern matching
+    // 模式匹配
     match post.tags.len() {
-        0 => println!("No tags"),
-        1 => println!("One tag"),
-        n => println!("{} tags", n),
+        0 => println!("没有标签"),
+        1 => println!("一个标签"),
+        n => println!("{} 个标签", n),
     }
     
-    // Using Option and Result
+    // 使用 Option 和 Result
     let maybe_number: Option<i32> = Some(42);
     if let Some(n) = maybe_number {
-        println!("The answer is {}", n);
+        println!("答案是 {}", n);
     }
     
-    // Vector and iterator example
+    // 向量和迭代器示例
     let numbers: Vec<i32> = (1..=5).collect();
     let squares: Vec<i32> = numbers.iter().map(|n| n * n).collect();
-    println!("Squares: {:?}", squares);
+    println!("平方数：{:?}", squares);
 }
 
 fn generate_id() -> u64 {
@@ -275,73 +274,73 @@ fn generate_id() -> u64 {
 }
 #+END_SRC
 
-* Shell Script
+* Shell 脚本
 
 #+BEGIN_SRC bash
 #!/bin/bash
 
-# Blog publishing script
+# 博客发布脚本
 BLOG_DIR="$HOME/blog"
 POSTS_DIR="$BLOG_DIR/posts"
 PUBLIC_DIR="$BLOG_DIR/public"
 
-# Colors for output
+# 输出颜色
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m' # 无颜色
 
-# Function to log messages
+# 记录日志的函数
 log() {
     echo -e "${BLUE}[$(date +'%Y-%m-%d %H:%M:%S')]${NC} $1"
 }
 
-# Function to build the blog
+# 构建博客的函数
 build_blog() {
-    log "Building blog..."
+    log "正在构建博客..."
     
-    # Check if directories exist
+    # 检查目录是否存在
     if [ ! -d "$POSTS_DIR" ]; then
-        echo -e "${RED}Error: Posts directory not found!${NC}"
+        echo -e "${RED}错误：文章目录未找到！${NC}"
         exit 1
     fi
     
-    # Create public directory if it doesn't exist
+    # 如果不存在则创建公共目录
     mkdir -p "$PUBLIC_DIR"
     
-    # Build with Emacs
+    # 使用 Emacs 构建
     emacs --batch \
           --load ~/.config/doom/config.el \
           --eval "(org-publish \"blog\" t)" \
           2>&1 | tee build.log
     
-    # Check if build was successful
+    # 检查构建是否成功
     if [ ${PIPESTATUS[0]} -eq 0 ]; then
-        echo -e "${GREEN}✓ Build successful!${NC}"
+        echo -e "${GREEN}✓ 构建成功！${NC}"
         return 0
     else
-        echo -e "${RED}✗ Build failed!${NC}"
+        echo -e "${RED}✗ 构建失败！${NC}"
         return 1
     fi
 }
 
-# Main execution
+# 主执行函数
 main() {
-    log "Starting blog build process..."
+    log "开始博客构建过程..."
     
     if build_blog; then
-        log "Blog published to $PUBLIC_DIR"
+        log "博客已发布到 $PUBLIC_DIR"
         
-        # Count the posts
+        # 统计文章数量
         post_count=$(find "$POSTS_DIR" -name "*.org" | wc -l)
-        log "Total posts: $post_count"
+        log "文章总数：$post_count"
     else
-        log "Build failed. Check build.log for details."
+        log "构建失败。请查看 build.log 了解详情。"
         exit 1
     fi
 }
 
-# Run main function
+# 运行主函数
 main "$@"
 #+END_SRC
 
@@ -349,13 +348,13 @@ main "$@"
 
 #+BEGIN_SRC html
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Blog</title>
+    <title>我的博客</title>
     <style>
-        /* CSS styling example */
+        /* CSS 样式示例 */
         :root {
             --primary-color: #D4A27F;
             --text-color: #333;
@@ -390,8 +389,8 @@ main "$@"
 </head>
 <body>
     <article class="blog-post">
-        <h1>Welcome to My Blog</h1>
-        <p>This is a sample blog post with syntax highlighting.</p>
+        <h1>欢迎来到我的博客</h1>
+        <p>这是一篇带有语法高亮的示例博客文章。</p>
     </article>
 </body>
 </html>
@@ -402,27 +401,27 @@ main "$@"
 #+BEGIN_SRC json
 {
   "blog": {
-    "title": "My Technical Blog",
+    "title": "我的技术博客",
     "author": "bytenoob",
-    "description": "A blog about programming and technology",
+    "description": "关于编程和技术的博客",
     "posts": [
       {
         "id": 1,
-        "title": "Getting Started with Emacs",
+        "title": "Emacs 入门指南",
         "date": "2024-01-29",
-        "tags": ["emacs", "editor", "productivity"],
+        "tags": ["emacs", "编辑器", "生产力"],
         "published": true,
         "metadata": {
-          "readTime": "10 minutes",
+          "readTime": "10 分钟",
           "views": 1523,
           "likes": 42
         }
       },
       {
         "id": 2,
-        "title": "The Waku Network",
+        "title": "Waku 网络",
         "date": "2024-06-16",
-        "tags": ["networking", "p2p", "privacy"],
+        "tags": ["网络", "p2p", "隐私"],
         "published": true
       }
     ],
@@ -438,13 +437,13 @@ main "$@"
 * YAML
 
 #+BEGIN_SRC yaml
-# Blog configuration
+# 博客配置
 blog:
-  title: My Technical Blog
+  title: 我的技术博客
   author: bytenoob
   email: blog@example.com
   
-  # Theme settings
+  # 主题设置
   theme:
     name: minimal
     colors:
@@ -452,23 +451,23 @@ blog:
       secondary: "#333333"
       background: "#FDFDF7"
     
-  # Feature flags
+  # 功能开关
   features:
     comments: true
     search: true
     rss: true
     sitemap: true
     
-  # Categories
+  # 分类
   categories:
-    - name: Programming
+    - name: 编程
       slug: programming
-      description: Posts about programming languages and techniques
-    - name: DevOps
+      description: 关于编程语言和技术的文章
+    - name: 运维
       slug: devops
-      description: Posts about development operations
+      description: 关于开发运维的文章
       
-  # Social links
+  # 社交链接
   social:
     github: https://github.com/bytenoob
     twitter: https://twitter.com/bytenoob
@@ -478,11 +477,11 @@ blog:
 * SQL
 
 #+BEGIN_SRC sql
--- Create blog database schema
+-- 创建博客数据库架构
 CREATE DATABASE IF NOT EXISTS blog_db;
 USE blog_db;
 
--- Users table
+-- 用户表
 CREATE TABLE users (
     id INT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(50) UNIQUE NOT NULL,
@@ -492,7 +491,7 @@ CREATE TABLE users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Posts table
+-- 文章表
 CREATE TABLE posts (
     id INT PRIMARY KEY AUTO_INCREMENT,
     author_id INT NOT NULL,
@@ -509,14 +508,14 @@ CREATE TABLE posts (
     FULLTEXT(title, content)
 );
 
--- Tags table
+-- 标签表
 CREATE TABLE tags (
     id INT PRIMARY KEY AUTO_INCREMENT,
     name VARCHAR(50) UNIQUE NOT NULL,
     slug VARCHAR(50) UNIQUE NOT NULL
 );
 
--- Post tags junction table
+-- 文章标签关联表
 CREATE TABLE post_tags (
     post_id INT NOT NULL,
     tag_id INT NOT NULL,
@@ -525,7 +524,7 @@ CREATE TABLE post_tags (
     FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
 );
 
--- Sample query: Get recent posts with tags
+-- 示例查询：获取最近的文章及标签
 SELECT 
     p.id,
     p.title,
@@ -543,12 +542,12 @@ ORDER BY p.published_at DESC
 LIMIT 10;
 #+END_SRC
 
-* Conclusion
+* 结语
 
-This post demonstrates syntax highlighting for various programming languages. The highlighting quality depends on:
+这篇文章演示了各种编程语言的语法高亮。高亮质量取决于：
 
-1. Whether htmlize.el is available
-2. Whether the specific language mode is installed in Emacs
-3. The CSS classes defined for syntax highlighting
+1. 是否有 htmlize.el 可用
+2. Emacs 中是否安装了特定语言模式
+3. 为语法高亮定义的 CSS 类
 
-Languages with built-in Emacs support (like Emacs Lisp, Python, JavaScript) should highlight well. Others may show basic or no highlighting depending on your Emacs configuration.
+具有 Emacs 内置支持的语言（如 Emacs Lisp、Python、JavaScript）应该高亮良好。其他语言可能显示基本或无高亮，具体取决于你的 Emacs 配置。

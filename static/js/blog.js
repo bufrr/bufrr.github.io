@@ -917,6 +917,133 @@
     },
   };
 
+  // Language Switcher Module - Define before init()
+  const LanguageSwitcher = {
+    init() {
+      const langButtons = utils.$$('.lang-btn');
+      if (!langButtons.length) return;
+
+      // Get current language from localStorage or default to 'en'
+      const currentLang = localStorage.getItem('blog-language') || 'en';
+      this.setLanguage(currentLang);
+
+      // Check if we should redirect based on language preference
+      this.checkAndRedirect(currentLang);
+
+      // Add click handlers to language buttons
+      langButtons.forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const lang = btn.getAttribute('data-lang');
+          if (lang) {
+            this.switchLanguage(lang);
+          }
+        });
+      });
+    },
+
+    checkAndRedirect(preferredLang) {
+      const currentPath = window.location.pathname;
+      const currentFile = currentPath.split('/').pop();
+
+      // Check if we're on a post page
+      if (
+        currentFile &&
+        currentFile.endsWith('.html') &&
+        currentFile !== 'index.html' &&
+        currentFile !== 'about.html' &&
+        currentFile !== '404.html'
+      ) {
+        // Check if we're on the wrong language version
+        const isOnEnglishPage = !currentFile.includes('-cn.html');
+        const wantsChineseVersion = preferredLang === 'cn';
+
+        if (isOnEnglishPage && wantsChineseVersion) {
+          // User prefers Chinese but is on English page
+          const chinesePath = currentPath.replace('.html', '-cn.html');
+          // Check if Chinese version exists
+          fetch(chinesePath, { method: 'HEAD' })
+            .then((response) => {
+              if (response.ok) {
+                window.location.pathname = chinesePath;
+              }
+            })
+            .catch(() => {
+              // Chinese version not available
+            });
+        } else if (!isOnEnglishPage && preferredLang === 'en') {
+          // User prefers English but is on Chinese page
+          const englishPath = currentPath.replace('-cn.html', '.html');
+          window.location.pathname = englishPath;
+        }
+      }
+    },
+
+    setLanguage(lang) {
+      // Update active button state
+      const langButtons = utils.$$('.lang-btn');
+      langButtons.forEach((btn) => {
+        if (btn.getAttribute('data-lang') === lang) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      // Store language preference
+      localStorage.setItem('blog-language', lang);
+
+      // Update page language attribute
+      document.documentElement.setAttribute('lang', lang === 'cn' ? 'zh-CN' : 'en');
+    },
+
+    switchLanguage(lang) {
+      this.setLanguage(lang);
+
+      // Handle page redirects for language switching
+      const currentPath = window.location.pathname;
+      const currentFile = currentPath.split('/').pop();
+
+      // Check if we're on a post page
+      if (
+        currentFile &&
+        currentFile.endsWith('.html') &&
+        currentFile !== 'index.html' &&
+        currentFile !== 'about.html' &&
+        currentFile !== '404.html'
+      ) {
+        let newPath;
+        if (lang === 'cn') {
+          // Switch to Chinese version
+          if (!currentFile.includes('-cn.html')) {
+            newPath = currentPath.replace('.html', '-cn.html');
+          }
+        } else {
+          // Switch to English version
+          if (currentFile.includes('-cn.html')) {
+            newPath = currentPath.replace('-cn.html', '.html');
+          }
+        }
+
+        // Check if the translated version exists by trying to navigate
+        if (newPath && newPath !== currentPath) {
+          // Try to fetch the page to see if it exists
+          fetch(newPath, { method: 'HEAD' })
+            .then((response) => {
+              if (response.ok) {
+                // Redirect to the translated version
+                window.location.pathname = newPath;
+              }
+            })
+            .catch(() => {
+              // Error checking for translated version
+            });
+        }
+      }
+    },
+  };
+
   // Initialize when DOM is ready
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
@@ -951,6 +1078,9 @@
     if (!utils.$('#table-of-contents')) {
       initModule('TOC', () => TOC.init());
     }
+
+    // Initialize Language Switcher
+    initModule('LanguageSwitcher', () => LanguageSwitcher.init());
   }
 
   // Cleanup on page unload

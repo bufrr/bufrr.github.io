@@ -27,7 +27,7 @@ cat >> "$OUTPUT_FILE" << EOF
   </url>
 EOF
 
-# Add all HTML files
+# Add all HTML files (excluding drafts)
 for file in public/*.html; do
   if [ -f "$file" ] && [ "$(basename "$file")" != "404.html" ]; then
     # Get last modified date

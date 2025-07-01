@@ -5,6 +5,7 @@
 #+KEYWORDS: emacs, editor, programming, productivity
 #+FILETAGS: :emacs:tutorial:productivity:
 #+LASTMOD: <2025-06-30 Mon>
+#+DRAFT: false
 #+OPTIONS: toc:t num:nil
 
 * Introduction
