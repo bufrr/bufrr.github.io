@@ -177,7 +177,7 @@ if emacs --batch \
                                            entry
                                            (org-publish-find-title entry project)))
            :sitemap-function blog/sitemap-function
-           :exclude \"404\\\\.org\\\\|about\\\\.org\\\\|-cn\\\\.org\")
+           :exclude \"404\\\\.org\\\\|about\\\\.org\\\\|-cn\\\\.org\\\\|index-cn\\\\.org\")
           
           (\"blog-pages\"
            :base-directory ,blog-posts-directory
@@ -200,7 +200,7 @@ if emacs --batch \
            :html-postamble blog/postamble
            :html-head-include-default-style nil
            :html-head-include-scripts nil
-           :include (\"about.org\"))
+           :include (\"about.org\" \"index-cn.org\"))
           
           (\"blog-static\"
            :base-directory ,blog-static-directory

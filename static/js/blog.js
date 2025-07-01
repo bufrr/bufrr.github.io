@@ -945,13 +945,25 @@
 
     checkAndRedirect(preferredLang) {
       const currentPath = window.location.pathname;
-      const currentFile = currentPath.split('/').pop();
+      const currentFile = currentPath.split('/').pop() || 'index.html';
+
+      // Special handling for index pages
+      if (currentFile === 'index.html' || currentFile === 'index-cn.html' || currentPath === '/') {
+        if (preferredLang === 'cn' && currentFile !== 'index-cn.html') {
+          window.location.pathname = '/index-cn.html';
+          return;
+        } else if (preferredLang === 'en' && currentFile === 'index-cn.html') {
+          window.location.pathname = '/index.html';
+          return;
+        }
+      }
 
       // Check if we're on a post page
       if (
         currentFile &&
         currentFile.endsWith('.html') &&
         currentFile !== 'index.html' &&
+        currentFile !== 'index-cn.html' &&
         currentFile !== 'about.html' &&
         currentFile !== '404.html'
       ) {
@@ -1003,13 +1015,24 @@
 
       // Handle page redirects for language switching
       const currentPath = window.location.pathname;
-      const currentFile = currentPath.split('/').pop();
+      const currentFile = currentPath.split('/').pop() || 'index.html';
+
+      // Special handling for index pages
+      if (currentFile === 'index.html' || currentFile === 'index-cn.html' || currentPath === '/') {
+        if (lang === 'cn') {
+          window.location.pathname = '/index-cn.html';
+        } else {
+          window.location.pathname = '/index.html';
+        }
+        return;
+      }
 
       // Check if we're on a post page
       if (
         currentFile &&
         currentFile.endsWith('.html') &&
         currentFile !== 'index.html' &&
+        currentFile !== 'index-cn.html' &&
         currentFile !== 'about.html' &&
         currentFile !== '404.html'
       ) {

@@ -1,0 +1,8 @@
+#+TITLE: Noob Notes
+#+AUTHOR:
+#+OPTIONS: author:nil toc:nil num:nil h:0
+
+- [[file:2024-10-02-babylon-cn.org][什么是 Babylon？]]
+- [[file:2024-06-30-syntax-highlighting-test-cn.org][语法高亮测试]]
+- [[file:2024-06-16-waku-cn.org][Waku 网络]]
+- [[file:2024-01-29-getting-started-with-emacs-cn.org][Emacs 入门：现代化方法]]

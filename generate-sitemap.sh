@@ -29,7 +29,7 @@ EOF
 
 # Add all HTML files (excluding drafts)
 for file in public/*.html; do
-  if [ -f "$file" ] && [ "$(basename "$file")" != "404.html" ]; then
+  if [ -f "$file" ] && [ "$(basename "$file")" != "404.html" ] && [ "$(basename "$file")" != "index-cn.html" ]; then
     # Get last modified date
     LASTMOD=$(date -r "$file" -u +%Y-%m-%d 2> /dev/null || date -u +%Y-%m-%d)
     FILENAME=$(basename "$file")
