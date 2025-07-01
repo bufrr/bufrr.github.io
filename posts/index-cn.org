@@ -1,5 +1,6 @@
 #+TITLE: Noob Notes
 #+AUTHOR:
+#+DATE: 2025-07-01
 #+OPTIONS: author:nil toc:nil num:nil h:0
 
 - [[file:2024-10-02-babylon-cn.org][什么是 Babylon？]]
