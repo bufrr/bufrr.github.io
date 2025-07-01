@@ -78,6 +78,7 @@
     linkMap: new Map(),
     activeId: null,
     scrollHandler: null,
+    observer: null,
 
     init() {
       const toc = utils.$('#table-of-contents');
@@ -102,8 +103,13 @@
       // Set up smooth scrolling
       this.setupSmoothScrolling(tocLinks);
 
-      // Use scroll-based approach as it's more reliable
-      this.setupScrollTracking(headings);
+      // Use IntersectionObserver for better performance
+      if (features.intersectionObserver) {
+        this.setupIntersectionObserver(headings);
+      } else {
+        // Fallback to scroll-based approach
+        this.setupScrollTracking(headings);
+      }
     },
 
     setupSmoothScrolling(links) {
@@ -138,6 +144,25 @@
             }
           }
         });
+      });
+    },
+
+    setupIntersectionObserver(headings) {
+      const options = {
+        rootMargin: '-20% 0px -70% 0px',
+        threshold: [0, 0.5, 1],
+      };
+
+      this.observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > 0) {
+            this.setActiveLink(entry.target.id);
+          }
+        });
+      }, options);
+
+      headings.forEach((heading) => {
+        this.observer.observe(heading);
       });
     },
 
@@ -232,6 +257,10 @@
       if (this.scrollHandler) {
         window.removeEventListener('scroll', this.scrollHandler);
         this.scrollHandler = null;
+      }
+      if (this.observer) {
+        this.observer.disconnect();
+        this.observer = null;
       }
       this.linkMap.clear();
       this.activeId = null;
@@ -475,6 +504,137 @@
     },
   };
 
+  // Syntax highlighting configuration
+  const SYNTAX_CONFIG = {
+    keywords: {
+      go: [
+        'package',
+        'import',
+        'func',
+        'type',
+        'struct',
+        'interface',
+        'var',
+        'const',
+        'if',
+        'else',
+        'for',
+        'range',
+        'switch',
+        'case',
+        'default',
+        'return',
+        'break',
+        'continue',
+        'defer',
+        'go',
+        'chan',
+        'make',
+        'new',
+        'nil',
+        'true',
+        'false',
+      ],
+      rust: [
+        'use',
+        'pub',
+        'fn',
+        'let',
+        'mut',
+        'struct',
+        'impl',
+        'trait',
+        'enum',
+        'match',
+        'if',
+        'else',
+        'for',
+        'while',
+        'loop',
+        'return',
+        'break',
+        'continue',
+        'self',
+        'Self',
+        'super',
+        'crate',
+        'mod',
+        'true',
+        'false',
+        'Some',
+        'None',
+        'Ok',
+        'Err',
+        'async',
+        'await',
+        'move',
+        'ref',
+        'where',
+        'type',
+        'const',
+        'static',
+        'unsafe',
+        'extern',
+      ],
+      json: [],
+      yaml: [],
+    },
+    types: {
+      go: [
+        'string',
+        'int',
+        'int8',
+        'int16',
+        'int32',
+        'int64',
+        'uint',
+        'uint8',
+        'uint16',
+        'uint32',
+        'uint64',
+        'float32',
+        'float64',
+        'bool',
+        'error',
+        'byte',
+        'rune',
+        'interface{}',
+        'any',
+      ],
+      rust: [
+        'String',
+        'str',
+        'i8',
+        'i16',
+        'i32',
+        'i64',
+        'i128',
+        'u8',
+        'u16',
+        'u32',
+        'u64',
+        'u128',
+        'f32',
+        'f64',
+        'bool',
+        'char',
+        'Vec',
+        'HashMap',
+        'Option',
+        'Result',
+        'Box',
+        'Rc',
+        'Arc',
+        'Cell',
+        'RefCell',
+        'Mutex',
+        'RwLock',
+      ],
+      json: [],
+      yaml: [],
+    },
+  };
+
   // Module: Syntax Highlighting Fallback
   const SyntaxHighlighting = {
     init() {
@@ -506,131 +666,8 @@
     applySyntaxHighlighting(pre, lang) {
       let code = pre.textContent || pre.innerText;
 
-      // Common patterns for both Go and Rust
-      const keywords = {
-        go: [
-          'package',
-          'import',
-          'func',
-          'type',
-          'struct',
-          'interface',
-          'var',
-          'const',
-          'if',
-          'else',
-          'for',
-          'range',
-          'switch',
-          'case',
-          'default',
-          'return',
-          'break',
-          'continue',
-          'defer',
-          'go',
-          'chan',
-          'make',
-          'new',
-          'nil',
-          'true',
-          'false',
-        ],
-        rust: [
-          'use',
-          'pub',
-          'fn',
-          'let',
-          'mut',
-          'struct',
-          'impl',
-          'trait',
-          'enum',
-          'match',
-          'if',
-          'else',
-          'for',
-          'while',
-          'loop',
-          'return',
-          'break',
-          'continue',
-          'self',
-          'Self',
-          'super',
-          'crate',
-          'mod',
-          'true',
-          'false',
-          'Some',
-          'None',
-          'Ok',
-          'Err',
-          'async',
-          'await',
-          'move',
-          'ref',
-          'where',
-          'type',
-          'const',
-          'static',
-          'unsafe',
-          'extern',
-        ],
-      };
-
-      const types = {
-        go: [
-          'string',
-          'int',
-          'int8',
-          'int16',
-          'int32',
-          'int64',
-          'uint',
-          'uint8',
-          'uint16',
-          'uint32',
-          'uint64',
-          'float32',
-          'float64',
-          'bool',
-          'error',
-          'byte',
-          'rune',
-          'interface{}',
-          'any',
-        ],
-        rust: [
-          'String',
-          'str',
-          'i8',
-          'i16',
-          'i32',
-          'i64',
-          'i128',
-          'u8',
-          'u16',
-          'u32',
-          'u64',
-          'u128',
-          'f32',
-          'f64',
-          'bool',
-          'char',
-          'Vec',
-          'HashMap',
-          'Option',
-          'Result',
-          'Box',
-          'Rc',
-          'Arc',
-          'Cell',
-          'RefCell',
-          'Mutex',
-          'RwLock',
-        ],
-      };
+      const keywords = SYNTAX_CONFIG.keywords;
+      const types = SYNTAX_CONFIG.types;
 
       // Escape HTML special characters
       const escapeHtml = (str) => {
@@ -742,134 +779,8 @@
 
     // Helper function to highlight keywords and types in unhighlighted text
     highlightKeywordsAndTypes(text, lang) {
-      const keywords = {
-        go: [
-          'package',
-          'import',
-          'func',
-          'type',
-          'struct',
-          'interface',
-          'var',
-          'const',
-          'if',
-          'else',
-          'for',
-          'range',
-          'switch',
-          'case',
-          'default',
-          'return',
-          'break',
-          'continue',
-          'defer',
-          'go',
-          'chan',
-          'make',
-          'new',
-          'nil',
-          'true',
-          'false',
-        ],
-        rust: [
-          'use',
-          'pub',
-          'fn',
-          'let',
-          'mut',
-          'struct',
-          'impl',
-          'trait',
-          'enum',
-          'match',
-          'if',
-          'else',
-          'for',
-          'while',
-          'loop',
-          'return',
-          'break',
-          'continue',
-          'self',
-          'Self',
-          'super',
-          'crate',
-          'mod',
-          'true',
-          'false',
-          'Some',
-          'None',
-          'Ok',
-          'Err',
-          'async',
-          'await',
-          'move',
-          'ref',
-          'where',
-          'type',
-          'const',
-          'static',
-          'unsafe',
-          'extern',
-        ],
-        json: [],
-        yaml: [],
-      };
-
-      const types = {
-        go: [
-          'string',
-          'int',
-          'int8',
-          'int16',
-          'int32',
-          'int64',
-          'uint',
-          'uint8',
-          'uint16',
-          'uint32',
-          'uint64',
-          'float32',
-          'float64',
-          'bool',
-          'error',
-          'byte',
-          'rune',
-          'interface{}',
-          'any',
-        ],
-        rust: [
-          'String',
-          'str',
-          'i8',
-          'i16',
-          'i32',
-          'i64',
-          'i128',
-          'u8',
-          'u16',
-          'u32',
-          'u64',
-          'u128',
-          'f32',
-          'f64',
-          'bool',
-          'char',
-          'Vec',
-          'HashMap',
-          'Option',
-          'Result',
-          'Box',
-          'Rc',
-          'Arc',
-          'Cell',
-          'RefCell',
-          'Mutex',
-          'RwLock',
-        ],
-        json: [],
-        yaml: [],
-      };
+      const keywords = SYNTAX_CONFIG.keywords;
+      const types = SYNTAX_CONFIG.types;
 
       // For JSON and YAML, highlight property names
       if (lang === 'json' || lang === 'yaml') {
@@ -1093,8 +1004,19 @@
     // Initialize code copy buttons
     initModule('CodeCopy', () => CodeCopy.init());
 
-    // Initialize syntax highlighting fallback
-    initModule('SyntaxHighlighting', () => SyntaxHighlighting.init());
+    // Initialize syntax highlighting fallback lazily
+    const initSyntaxHighlighting = () => {
+      if (utils.$$('pre.src').length > 0) {
+        initModule('SyntaxHighlighting', () => SyntaxHighlighting.init());
+      }
+    };
+
+    // Use requestIdleCallback if available, otherwise immediate
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(initSyntaxHighlighting, { timeout: 2000 });
+    } else {
+      setTimeout(initSyntaxHighlighting, 100);
+    }
 
     // TOC is initialized by Sidebar if applicable
     // If no sidebar, initialize TOC directly

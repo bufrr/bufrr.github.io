@@ -103,11 +103,6 @@ body {
 }
 
 /* Focus styles for accessibility */
-:focus {
-  outline: 2px solid var(--accent-primary);
-  outline-offset: 2px;
-}
-
 /* Remove focus outline for mouse clicks, keep for keyboard */
 :focus:not(:focus-visible) {
   outline: none;
@@ -140,6 +135,11 @@ body {
     opacity: 1;
     transform: translateX(0);
   }
+}
+
+/* Apply will-change to animated elements */
+.article-meta {
+  will-change: opacity, transform;
 }
 
 /* ===== Layout Components ===== */
@@ -205,9 +205,15 @@ body {
   position: relative;
 }
 
-.site-nav a:hover,
-.site-nav a:focus {
+.site-nav a:hover {
   color: var(--text-primary);
+}
+
+.site-nav a:focus-visible {
+  color: var(--text-primary);
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 /* Language Switcher */
@@ -458,10 +464,16 @@ li strong {
   transition: all 0.15s ease;
 }
 
-#table-of-contents a:hover,
-#table-of-contents a:focus {
+#table-of-contents a:hover {
   background-color: var(--bg-primary);
   color: var(--text-primary);
+}
+
+#table-of-contents a:focus-visible {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  outline: 2px solid var(--accent-primary);
+  outline-offset: -2px;
 }
 
 #table-of-contents a.active {
@@ -559,6 +571,7 @@ pre {
   transition: all 0.2s ease;
   opacity: 0.8;
   z-index: 1;
+  will-change: opacity, transform;
 }
 
 .code-copy-button:hover {
@@ -659,6 +672,7 @@ img {
   text-decoration: none;
   cursor: pointer;
   transition: all 0.2s ease;
+  will-change: transform;
 }
 
 .btn:hover {
@@ -913,84 +927,42 @@ img {
   color: #9c6fcf;
 }
 
-/* General purpose classes that might be used by various modes */
-.org-font-lock-keyword-face {
-  color: #9c6fcf;
-  font-weight: 600;
-}
-
-.org-font-lock-type-face {
-  color: #d4a27f;
-}
-
-.org-font-lock-string-face {
-  color: #86b85c;
-}
-
-.org-font-lock-comment-face {
-  color: #8a8a8a;
-  font-style: italic;
-}
-
-.org-font-lock-function-name-face {
-  color: #5b9bc8;
-  font-weight: 600;
-}
-
-.org-font-lock-variable-name-face {
-  color: #5b9bc8;
-}
-
-.org-font-lock-constant-face {
-  color: #d68b5b;
-}
-
-.org-font-lock-builtin-face {
-  color: #d4a27f;
-}
+/* General purpose classes that might be used by various modes - removed duplicates */
 
 /* Dark mode adjustments */
 @media (prefers-color-scheme: dark) {
-  .org-keyword,
-  .org-font-lock-keyword-face {
+  .org-keyword {
     color: #bb9af7;
   }
 
-  .org-builtin,
-  .org-font-lock-builtin-face {
+  .org-builtin {
     color: #e0af68;
   }
 
-  .org-string,
-  .org-font-lock-string-face {
+  .org-string {
     color: #9ece6a;
   }
 
   .org-comment,
   .org-comment-delimiter,
-  .org-font-lock-comment-face,
   .org-doc,
   .org-doc-keyword {
     color: #565f89;
   }
 
-  .org-function-name,
-  .org-font-lock-function-name-face {
+  .org-function-name {
     color: #7dcfff;
   }
 
-  .org-variable-name,
-  .org-font-lock-variable-name-face {
+  .org-variable-name {
     color: #7aa2f7;
   }
 
-  .org-constant,
-  .org-font-lock-constant-face {
+  .org-constant {
     color: #ff9e64;
   }
 
-  .org-type,
-  .org-font-lock-type-face {
+  .org-type {
     color: #e0af68;
   }
 

@@ -1,0 +1,15 @@
+# Blog configuration example
+# Copy this file to .blogrc and customize
+
+# Blog title
+export BLOG_TITLE="My Awesome Blog"
+
+# Author information
+export BLOG_AUTHOR="Your Name"
+export BLOG_EMAIL="your.email@example.com"
+
+# Enable incremental builds (only rebuild changed files)
+# export INCREMENTAL_BUILD=true
+
+# Additional Emacs load paths (if you have custom elisp packages)
+# export EMACS_LOAD_PATH="/path/to/custom/packages"

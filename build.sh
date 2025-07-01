@@ -5,6 +5,12 @@
 
 set -euo pipefail
 
+# Configuration
+BLOG_TITLE="${BLOG_TITLE:-Noob Notes}"
+BLOG_AUTHOR="${BLOG_AUTHOR:-bytenoob}"
+BLOG_EMAIL="${BLOG_EMAIL:-noreply@example.com}"
+INCREMENTAL_BUILD="${INCREMENTAL_BUILD:-false}"
+
 # Source configuration if available
 if [ -f ".blogrc" ]; then
   # shellcheck source=/dev/null
@@ -17,6 +23,11 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 
 echo -e "${GREEN}Building blog...${NC}"
+
+# Show incremental build option if not enabled
+if [ "$INCREMENTAL_BUILD" != "true" ]; then
+  echo -e "${YELLOW}Tip:${NC} Use INCREMENTAL_BUILD=true $0 to skip unchanged files"
+fi
 
 # Get version numbers for cache busting based on file modification time
 CSS_VERSION=$(stat -c %Y static/css/blog.css 2> /dev/null || stat -f %m static/css/blog.css 2> /dev/null || echo "1")
@@ -40,6 +51,7 @@ if emacs --batch \
   ;; Set user info (use environment variables for security)
   (setq user-full-name (or (getenv \"BLOG_AUTHOR\") \"bytenoob\"))
   (setq user-mail-address (or (getenv \"BLOG_EMAIL\") \"noreply@example.com\"))
+  (setq blog-title (or (getenv \"BLOG_TITLE\") \"Noob Notes\"))
   
   ;; Load org and ox-publish
   (require 'org)
@@ -94,12 +106,21 @@ if emacs --batch \
      ;; If htmlize fails to load, continue without syntax highlighting
      (message \"Warning: htmlize not available, syntax highlighting disabled\")))
   
+  ;; Common HTML head content
+  (defun blog/html-head ()
+    (concat \"<link rel=\\\"icon\\\" type=\\\"image/svg+xml\\\" href=\\\"/static/favicon.svg\\\">
+<link rel=\\\"preconnect\\\" href=\\\"https://fonts.googleapis.com\\\">
+<link rel=\\\"preconnect\\\" href=\\\"https://fonts.gstatic.com\\\" crossorigin>
+<link href=\\\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap\\\" rel=\\\"stylesheet\\\">
+<link rel=\\\"stylesheet\\\" type=\\\"text/css\\\" href=\\\"/static/css/blog.css?v=\" (or (getenv \"CSS_VERSION\") \"1\") \"\\\" />
+<script src=\\\"/static/js/blog.js?v=\" (or (getenv \"JS_VERSION\") \"1\") \"\\\" defer></script>\"))
+  
   ;; Custom HTML preamble and postamble
   (defun blog/preamble (info)
     (concat
      \"<header class=\\\"site-header\\\">\"
      \"<div class=\\\"container\\\">\"
-     \"<h1 class=\\\"site-title\\\"><a href=\\\"/\\\">Noob Notes</a></h1>\"
+     \"<h1 class=\\\"site-title\\\"><a href=\\\"/\\\">\" blog-title \"</a></h1>\"
      \"<nav class=\\\"site-nav\\\">\"
      \"<a href=\\\"/\\\">Home</a>\"
      \"<a href=\\\"/about.html\\\">About</a>\"
@@ -130,16 +151,31 @@ if emacs --batch \
       (goto-char (point-min))
       (re-search-forward \"^#\\\\+DRAFT:\\\\s-*\\\\(true\\\\|t\\\\|yes\\\\)\" nil t)))
   
-  ;; Custom publishing function that skips drafts
+  ;; Function to check if file needs rebuilding
+  (defun blog/needs-rebuild-p (org-file html-file)
+    \"Check if ORG-FILE needs to be rebuilt by comparing with HTML-FILE.\"
+    (or (not (file-exists-p html-file))
+        (file-newer-than-file-p org-file html-file)
+        (not (string= (getenv \"INCREMENTAL_BUILD\") \"true\"))))
+  
+  ;; Custom publishing function that skips drafts and unchanged files
   (defun blog/publish-to-html (plist filename pub-dir)
-    \"Publish an org file to HTML, but skip if it's a draft.\"
+    \"Publish an org file to HTML, but skip if it's a draft or unchanged.\"
     (unless (blog/is-draft-p filename)
-      (org-html-publish-to-html plist filename pub-dir)))
+      (let* ((html-file (concat pub-dir 
+                               (file-name-sans-extension 
+                                (file-name-nondirectory filename)) 
+                               \".html\")))
+        (if (blog/needs-rebuild-p filename html-file)
+            (progn
+              (message \"Building: %s\" filename)
+              (org-html-publish-to-html plist filename pub-dir))
+          (message \"Skipping unchanged: %s\" filename)))))
   
   ;; Custom sitemap function to exclude author and draft posts
   (defun blog/sitemap-function (title list)
     \"Generate sitemap as an Org file without author metadata and draft posts.\"
-    (concat \"#+TITLE: Noob Notes\\n\"
+    (concat \"#+TITLE: \" blog-title \"\\n\"
             \"#+AUTHOR:\\n\"
             \"#+OPTIONS: author:nil toc:nil num:nil h:0\\n\\n\"
             (org-list-to-org list)))
@@ -157,12 +193,7 @@ if emacs --batch \
            :with-toc t
            :with-author t
            :with-date t
-           :html-head ,(concat \"<link rel=\\\"icon\\\" type=\\\"image/svg+xml\\\" href=\\\"/static/favicon.svg\\\">
-<link rel=\\\"preconnect\\\" href=\\\"https://fonts.googleapis.com\\\">
-<link rel=\\\"preconnect\\\" href=\\\"https://fonts.gstatic.com\\\" crossorigin>
-<link href=\\\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap\\\" rel=\\\"stylesheet\\\">
-<link rel=\\\"stylesheet\\\" type=\\\"text/css\\\" href=\\\"/static/css/blog.css?v=\" (or (getenv \"CSS_VERSION\") \"$CSS_VERSION\") \"\\\" />
-<script src=\\\"/static/js/blog.js?v=\" (or (getenv \"JS_VERSION\") \"$JS_VERSION\") \"\\\" defer></script>\")
+           :html-head ,(blog/html-head)
            :html-preamble blog/preamble
            :html-postamble blog/postamble
            :html-head-include-default-style nil
@@ -190,12 +221,7 @@ if emacs --batch \
            :with-toc t
            :with-author t
            :with-date t
-           :html-head ,(concat \"<link rel=\\\"icon\\\" type=\\\"image/svg+xml\\\" href=\\\"/static/favicon.svg\\\">
-<link rel=\\\"preconnect\\\" href=\\\"https://fonts.googleapis.com\\\">
-<link rel=\\\"preconnect\\\" href=\\\"https://fonts.gstatic.com\\\" crossorigin>
-<link href=\\\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap\\\" rel=\\\"stylesheet\\\">
-<link rel=\\\"stylesheet\\\" type=\\\"text/css\\\" href=\\\"/static/css/blog.css?v=\" (or (getenv \"CSS_VERSION\") \"$CSS_VERSION\") \"\\\" />
-<script src=\\\"/static/js/blog.js?v=\" (or (getenv \"JS_VERSION\") \"$JS_VERSION\") \"\\\" defer></script>\")
+           :html-head ,(blog/html-head)
            :html-preamble blog/preamble
            :html-postamble blog/postamble
            :html-head-include-default-style nil
@@ -224,10 +250,14 @@ if emacs --batch \
 
   # Show build statistics
   if [ -d "public" ]; then
-    POST_COUNT=$(find public -name "*.html" -not -name "index.html" | wc -l)
+    POST_COUNT=$(find public -name "*.html" -not -name "index.html" -not -name "index-cn.html" | wc -l)
     TOTAL_SIZE=$(du -sh public | cut -f1)
     echo -e "${GREEN}Generated:${NC} $POST_COUNT posts"
     echo -e "${GREEN}Total size:${NC} $TOTAL_SIZE"
+    
+    if [ "$INCREMENTAL_BUILD" = "true" ]; then
+      echo -e "${GREEN}Mode:${NC} Incremental build"
+    fi
   fi
 else
   echo -e "${YELLOW}Build completed with warnings${NC}"
