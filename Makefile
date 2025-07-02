@@ -50,19 +50,11 @@ install-deps:
 
 # Create a new blog post
 new-post:
-	@read -p "Enter post title: " title; \
-	slug=$$(echo "$$title" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$$//'); \
-	filename="posts/$$(date +%Y-%m-%d)-$$slug.org"; \
-	if [ -f "$$filename" ]; then \
-		echo "Error: $$filename already exists!"; \
-		exit 1; \
-	fi; \
-	cp templates/post-template.org "$$filename"; \
-	sed -i "s/{{TITLE}}/$$title/g" "$$filename"; \
-	sed -i "s/{{DATE}}/$$(date '+<%Y-%m-%d %a>')/g" "$$filename"; \
-	sed -i "s/{{AUTHOR}}/$${BLOG_AUTHOR:-bytenoob}/g" "$$filename"; \
-	echo "Created new post: $$filename"; \
-	$${EDITOR:-emacs} "$$filename"
+	@echo "To create a new blog post, use Doom Emacs:"
+	@echo "  SPC B n - Create new post"
+	@echo "  SPC B p - Publish blog"
+	@echo ""
+	@echo "Or run: emacs --eval '(blog/new-post)'"
 
 # Publish to GitHub Pages or other hosting
 publish: build

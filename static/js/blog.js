@@ -664,30 +664,13 @@
     },
 
     applySyntaxHighlighting(pre, lang) {
-      let code = pre.textContent || pre.innerText;
+      const code = pre.textContent || pre.innerText;
 
       const keywords = SYNTAX_CONFIG.keywords;
       const types = SYNTAX_CONFIG.types;
 
-      // Escape HTML special characters
-      const escapeHtml = (str) => {
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-      };
-
-      // Start with escaped HTML
-      code = escapeHtml(code);
-
       // Apply syntax highlighting using a tokenizer approach
       const tokens = [];
-      let remaining = code;
-      let position = 0;
-
-      // Helper to add a token
-      const addToken = (type, text, start, end) => {
-        tokens.push({ type, text, start, end });
-      };
 
       // First pass: identify all tokens
       const patterns = [
@@ -743,15 +726,15 @@
         }
       }
 
-      // Build result with highlighting
-      let result = '';
+      // Build DOM with safe manipulation
+      const fragment = document.createDocumentFragment();
       let currentPos = 0;
 
       for (const match of cleanMatches) {
         // Add unhighlighted text before this match
         if (currentPos < match.start) {
           const unmatched = code.substring(currentPos, match.start);
-          result += this.highlightKeywordsAndTypes(unmatched, lang);
+          this.appendHighlightedKeywordsAndTypes(fragment, unmatched, lang);
         }
 
         // Add highlighted match
@@ -764,67 +747,114 @@
           attribute: 'org-preprocessor',
         }[match.type];
 
-        result += `<span class="${className}">${match.text}</span>`;
+        const span = document.createElement('span');
+        span.className = className;
+        span.textContent = match.text;
+        fragment.appendChild(span);
+
         currentPos = match.end;
       }
 
       // Add remaining unhighlighted text
       if (currentPos < code.length) {
-        result += this.highlightKeywordsAndTypes(code.substring(currentPos), lang);
+        this.appendHighlightedKeywordsAndTypes(fragment, code.substring(currentPos), lang);
       }
 
-      // Update the pre element
-      pre.innerHTML = result;
+      // Replace pre content safely
+      pre.textContent = ''; // Clear existing content
+      pre.appendChild(fragment);
     },
 
-    // Helper function to highlight keywords and types in unhighlighted text
-    highlightKeywordsAndTypes(text, lang) {
+    // Helper function to append highlighted keywords and types using DOM manipulation
+    appendHighlightedKeywordsAndTypes(fragment, text, lang) {
       const keywords = SYNTAX_CONFIG.keywords;
       const types = SYNTAX_CONFIG.types;
 
-      // For JSON and YAML, highlight property names
+      // For JSON and YAML, handle property names specially
       if (lang === 'json' || lang === 'yaml') {
-        // Property names in JSON (before colon)
         if (lang === 'json') {
-          text = text.replace(/(\w+)(?=\s*:)/g, '<span class="org-variable-name">$1</span>');
+          // JSON property names (before colon)
+          const jsonParts = text.split(/(\w+)(?=\s*:)/g);
+          for (let i = 0; i < jsonParts.length; i++) {
+            if (i % 2 === 1) {
+              const span = document.createElement('span');
+              span.className = 'org-variable-name';
+              span.textContent = jsonParts[i];
+              fragment.appendChild(span);
+            } else if (jsonParts[i]) {
+              fragment.appendChild(document.createTextNode(jsonParts[i]));
+            }
+          }
+        } else if (lang === 'yaml') {
+          // YAML is more complex due to line-based structure
+          const lines = text.split('\n');
+          lines.forEach((line, index) => {
+            if (index > 0) fragment.appendChild(document.createTextNode('\n'));
+
+            // Check for property names at line start
+            const propMatch = line.match(/^(\s*)(\w+)(\s*:.*)/);
+            if (propMatch) {
+              fragment.appendChild(document.createTextNode(propMatch[1])); // whitespace
+              const span = document.createElement('span');
+              span.className = 'org-variable-name';
+              span.textContent = propMatch[2];
+              fragment.appendChild(span);
+              fragment.appendChild(document.createTextNode(propMatch[3])); // rest of line
+            } else {
+              // Check for list items
+              const listMatch = line.match(/^(\s*)(-)(\s+.*)/);
+              if (listMatch) {
+                fragment.appendChild(document.createTextNode(listMatch[1])); // whitespace
+                const span = document.createElement('span');
+                span.className = 'org-keyword';
+                span.textContent = listMatch[2];
+                fragment.appendChild(span);
+                fragment.appendChild(document.createTextNode(listMatch[3])); // rest of line
+              } else {
+                fragment.appendChild(document.createTextNode(line));
+              }
+            }
+          });
         }
-        // Property names in YAML (at line start or after whitespace, before colon)
-        if (lang === 'yaml') {
-          text = text.replace(
-            /^(\s*)(\w+)(?=\s*:)/gm,
-            '$1<span class="org-variable-name">$2</span>'
-          );
-          // List items with dash
-          text = text.replace(/^(\s*)(-)(\s+)/gm, '$1<span class="org-keyword">$2</span>$3');
-        }
-        return text;
+        return;
       }
 
       // Split text into words and non-words for other languages
       const parts = text.split(/(\b\w+\b)/g);
-      let result = '';
 
       for (let i = 0; i < parts.length; i++) {
         const part = parts[i];
         if (i % 2 === 1) {
           // Word parts
+          let span = null;
+
           if (types[lang] && types[lang].includes(part)) {
-            result += `<span class="org-type">${part}</span>`;
+            span = document.createElement('span');
+            span.className = 'org-type';
+            span.textContent = part;
           } else if (keywords[lang] && keywords[lang].includes(part)) {
-            result += `<span class="org-keyword">${part}</span>`;
+            span = document.createElement('span');
+            span.className = 'org-keyword';
+            span.textContent = part;
           } else if (lang === 'go' && i > 0 && parts[i - 1].endsWith('func ')) {
-            result += `<span class="org-function-name">${part}</span>`;
+            span = document.createElement('span');
+            span.className = 'org-function-name';
+            span.textContent = part;
           } else if (lang === 'rust' && i > 0 && parts[i - 1].endsWith('fn ')) {
-            result += `<span class="org-function-name">${part}</span>`;
-          } else {
-            result += part;
+            span = document.createElement('span');
+            span.className = 'org-function-name';
+            span.textContent = part;
           }
-        } else {
-          result += part;
+
+          if (span) {
+            fragment.appendChild(span);
+          } else {
+            fragment.appendChild(document.createTextNode(part));
+          }
+        } else if (part) {
+          fragment.appendChild(document.createTextNode(part));
         }
       }
-
-      return result;
     },
   };
 

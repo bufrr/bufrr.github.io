@@ -1,4 +1,4 @@
-#+TITLE: Noob Notes
+#+TITLE: My Blog
 #+AUTHOR:
 #+OPTIONS: author:nil toc:nil num:nil h:0
 

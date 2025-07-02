@@ -54,10 +54,10 @@ export MINIFY_ASSETS="false" # Set to "true" for production
 
 ### Workflow
 
-1. Create new post: `SPC B n` (capital B)
+1. Create new post: `SPC B n` (capital B) in Doom Emacs
 2. Write your content in org-mode
-3. Publish locally: `SPC B p` (capital B) or run `./build.sh`
-4. Serve locally: `cd ~/blog/public && python -m http.server`
+3. Publish locally: `SPC B p` (capital B) in Doom Emacs or run `./build.sh`
+4. Serve locally: `make serve` or `cd ~/blog/public && python -m http.server`
 5. Deploy: Push to GitHub, automatic deployment via Actions
 
 ### Working with Drafts

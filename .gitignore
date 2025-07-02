@@ -66,3 +66,5 @@ logs/
 tmp/
 temp/
 EOF < /dev/null
+
+.mcp.json

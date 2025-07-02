@@ -14,12 +14,12 @@
     "format:check": "prettier --check \"**/*.{js,css,json,md,yml,yaml}\" \"!public/**\" \"!*.min.*\""
   },
   "devDependencies": {
-    "cssnano": "^6.0.1",
-    "postcss": "^8.4.31",
-    "postcss-cli": "^10.1.0",
-    "prettier": "^3.6.2",
-    "prettier-plugin-sh": "^0.18.0",
-    "terser": "^5.24.0"
+    "cssnano": "6.0.1",
+    "postcss": "8.4.31",
+    "postcss-cli": "10.1.0",
+    "prettier": "3.6.2",
+    "prettier-plugin-sh": "0.18.0",
+    "terser": "5.24.0"
   },
   "engines": {
     "node": ">=16.0.0"
