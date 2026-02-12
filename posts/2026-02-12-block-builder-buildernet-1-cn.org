@@ -1,0 +1,553 @@
+#+TITLE: Block Builder 深度解析：Ethereum BuilderNet（一）
+#+DATE: 2026-02-12
+#+AUTHOR: bytenoob
+#+DESCRIPTION: 从 1.pdf 整理并重排后的中文 Org 版本
+#+KEYWORDS: ethereum,buildernet,mev,flashbots,pbs
+#+FILETAGS: :ethereum:buildernet:mev:
+#+LASTMOD: 2026-02-12
+#+DRAFT: false
+#+OPTIONS: toc:t num:nil ^:nil
+
+* 背景
+目前以太坊约 80% 的区块由 Titan 和 BuilderNet 两家 builder 构建。集中度高，带来三个直接问题：
+- 审查风险：单一 builder 的策略会直接影响交易能否上链
+- orderflow 垄断：头部钱包和聚合器常与 builder 独家合作，中小参与者拿不到同等待遇
+- MEV 分配不透明：用户贡献的价值，往往由 builder 与少数合作方获得
+
+BuilderNet 的两个关键时间点：
+- 2024-11-26：Flashbots 联合 Beaverbuild、Nethermind 上线 BuilderNet
+- 2025-05-06：Beaverbuild 宣布退役中心化 builder，全面迁移到 BuilderNet
+
+#+CAPTION: 主要 Builder 市场份额（示意）
+| Builder                         | 出块数 | 市场份额 | 平均交易数 | 区块中位价值 |
+|---------------------------------+--------+----------+------------+--------------|
+| Titan Builder                   | 98,464 | 49.53%   | 231        | 0.0085       |
+| BuilderNet                      | 56,449 | 28.39%   | 242        | 0.0086       |
+| Quasar (quasar.win)             | 34,335 | 17.27%   | 216        | 0.0071       |
+| Builder+ (www.btcs.com/builder) | 3,212  | 1.62%    | 181        | 0.0282       |
+| Beaverbuild                     | 1,835  | 0.92%    | 247        | 0.0130       |
+| Eureka (eurekabuilder.xyz)      | 1,511  | 0.76%    | 126        | 0.0053       |
+| shimmerblocks.com               | 1,455  | 0.73%    | 100        | 0.0066       |
+| bobTheBuilder.xyz               | 904    | 0.45%    | 54         | 0.0130       |
+
+* 核心思路
+BuilderNet 的目标很明确：多个运营商跑同一套开源 builder，共享 orderflow，避免单点垄断。
+
+核心机制有三条：
+1. TEE：基于 Intel TDX，运营商看不到明文订单，也不能随意改执行逻辑
+2. Orderflow 共享：交易和 bundle 通过 P2P 广播到其他节点，降低独家流量优势
+3. 公开退款规则：按交易边际贡献分配 MEV 退款
+
+* 系统架构
+系统角色包括：
+- Builder Node
+- Node Operator
+- Flashbots Infrastructure
+- MEV-Boost Relay
+- Orderflow Source
+
+其中，Orderflow Source 包含钱包、应用、搜索者和普通用户。
+
+#+CAPTION: BuilderNet 整体架构
+[[./static/images/posts/buildernet-1/img-001.png]]
+
+** Flashbots 基础设施
+当前仍有两个中心化组件：
+
+- BuilderHub：
+  - 负责节点身份、密钥下发和 peer 发现
+  - 节点启动时携带 TEE attestation 向 BuilderHub 请求配置
+  - BuilderHub 校验 measurement 和 IP 白名单后，下发 coinbase key、relay signing key 等敏感信息
+
+- Redistribution Archive：
+  - 存储 orderflow、bid 和区块结果
+  - 用于退款计算与审计
+  - 以 50% 出块率估算，数据规模约 30GB/天
+
+** 节点启动流程
+BuilderNet 节点不是 Docker 容器，而是基于 Yocto 构建的完整 Linux TDX VM 镜像（.vhd 格式）
+可运行在支持 TDX 的环境，例如 Azure TDX Confidential VM 或 Intel 4th Gen Xeon Scalable 及以上硬件。
+
+流程：
+1. 启动系统服务（network、fs、cron）
+2. 时间同步（NTP daemon，v1.2 后增强）
+3. 启动 cvm-reverse-proxy（处理 TEE attestation）
+4. 从 BuilderHub 拉取 secrets 与 config（包含 attestation 验证）
+5. 挂载加密磁盘
+6. 启动 Operator API（system-api，端口 3535）
+7. 启动 Prometheus/Fluentbit（可观测性）
+8. 启动 Lighthouse（共识层客户端）
+9. 执行 Reth snapshot sync
+10. 启动 Reth（执行层客户端）
+11. 启动 rbuilder + bidding service + HAProxy
+12. 启动 orderflow-proxy，开始接收交易
+
+#+CAPTION: Builder 节点启动序列
+[[./static/images/posts/buildernet-1/img-002.png]]
+
+** 如何成为 Operator
+当前是许可制。
+
+流程：
+1. 提交申请
+2. Flashbots 审核
+3. 白名单通过
+4. 节点上线
+
+官方 roadmap 提到会向 permissionless 方向推进，目前还没完全落地。
+
+** Orderflow 分发机制
+关键组件是 orderflow-proxy，部署在两端：
+- Flashbots 基础设施侧（汇聚多渠道流量）
+- 各个 TEE 节点内（接收、广播、归档、转发）
+
+*** 数据来源
+- Flashbots Bundle Relay：搜索者提交的 bundle
+- Flashbots Protect：用户私有交易
+- MEV-Share：带 hint 的部分暴露交易
+- Direct Submit：用户、钱包、搜索者直连任意 BuilderNet 节点
+
+*** orderflow-proxy 的职责
+1. 接收来自基础设施的 orderflow
+2. 接收其他节点 P2P 转发的 orderflow
+3. 接收本节点的直接提交流量
+4. 把收到的 orderflow 广播给其他节点，保证交易池视图趋同
+5. 写入 Redistribution Archive，用于退款计算
+6. 转发给本地 rbuilder
+
+*** 端到端加密
+orderflow-proxy 在 TEE 内生成 TLS 证书和 ECDSA 密钥并注册到 BuilderHub。
+节点间通信使用 TLS，会校验证书是否匹配 BuilderHub 注册公钥。用户也可以通过 aTLS 验证节点身份后再发交易。
+
+#+CAPTION: 节点与基础设施的可信连接路径
+[[./static/images/posts/buildernet-1/img-003.png]]
+
+* 区块构建过程
+核心组件是 rbuilder（Rust 实现，基于 Reth）
+
+** 输入
+- orderflow-proxy 转发的交易和 bundle
+- MEV-Share hint（部分暴露的交易信息）
+- 本地 Reth mempool
+
+** 处理流程
+1. 模拟与有效性检查：验证交易可执行性、gas 等约束
+2. Bundle 合并排序：按收益最大化策略组合订单流
+3. MEV 提取：执行 backrun、套利等策略
+4. 合规过滤：按运营商 blocklist 过滤特定地址或模式
+5. Gas 优化：调整交易顺序提升区块收益
+
+** 封装与提交
+封装阶段：
+1. 应用 withdrawals
+2. 执行 post-block 调用
+3. 计算 state root hash
+4. 打包完整区块
+
+提交阶段：
+1. 由私有 bidding 模块决定竞标价格
+2. 提交到多个 MEV-Boost relay
+3. =extra_data= 字段标注 BuilderNet (operator_id)，用于链上识别来源
+
+v1.3 版本的主要优化：
+- 仅提交到 regional relays，减少跨区网络时延（约 50ms）
+- 支持 bundle cancellation
+- p99 端到端延迟约下降 2 倍
+
+* 退款机制
+** 目标
+- 为用户、钱包、应用、搜索者提供更透明的 MEV 处理方式
+- 降低每笔交易的上链净成本
+- 维持网络长期运行能力
+
+#+CAPTION: 退款机制设计目标
+| 目标     | 说明                                                       |
+|----------+------------------------------------------------------------|
+| 透明化   | 取代不透明的链下 orderflow 交易                            |
+| 无需许可 | 任何人都能按规则获得退款                                   |
+| 最小化成本 | 每笔交易只需支付其必要成本（击败竞争对手的最小金额）     |
+| 防 Sybil | 通过 Identity Constraint 防止分拆身份套利                  |
+
+** 退款逻辑
+1. BuilderNet 在 MEV-Boost 拍卖中竞争出块
+2. 若区块价值更高但出价低于真实价值，会形成可分配差额（remainder）
+3. 对通过 =eth_sendBundle=, =mev_sendBundle=, =eth_sendPrivateTransaction= 进入且最终上链的交易，回溯模拟其 contribution
+4. 按 contribution 比例分配 remainder
+
+#+CAPTION: 不同交易类型的退款资格
+| 情况                     | 是否获得退款             |
+|--------------------------+--------------------------|
+| 私密提交的交易/bundle    | 是                       |
+| 公共 mempool 中的交易    | 否                       |
+| 仅包含公共 mempool 交易的 bundle | 否                |
+| 同一 signer 发送的 bundle | 视为非竞争性（合并计算） |
+
+补充说明：
+- 这里的退款逻辑和 =eth_sendBundle= 自带的 refund 不是一回事
+
+=eth_sendBundle= 退款参数示例：
+
+#+BEGIN_SRC text
+refundPercent   // Integer: 1-99
+refundRecipient // String: refund recipient address
+#+END_SRC
+
+** Flat Tax Rule（核心公式）
+#+CAPTION: 核心符号定义
+| 符号    | 含义                                                   |
+|---------+--------------------------------------------------------|
+| T       | 所有 bundle 的集合                                     |
+| B(T)    | 从 T 中产生的最有利可图区块                            |
+| v(T)    | B(T) 的价值                                            |
+| b_i(T)  | 若区块 B(T) 实现，身份 i 发送的所有 bundle 支付总额    |
+| c       | builder 支付给 proposer、用于赢得区块的金额            |
+
+*** 边际贡献定义
+
+#+BEGIN_SRC text
+μ_i(T) = min(b_i(T), v(T) - v(T \ i))
+#+END_SRC
+
+身份 i 的边际贡献不会超过其支付金额，因此净支付不会为负。
+
+*** 退款分配公式
+
+#+BEGIN_SRC text
+φ_i(T,c) = ( μ_i(T) / Σ_j μ_j(T) ) * min( v(B(T)) - c, Σ_j μ_j(T) )
+#+END_SRC
+
+解释：
+- v(B(T)) - c 是可分配的 remainder
+- 若 remainder 足够覆盖总边际贡献，则可全额覆盖边际贡献
+- 若不足，则按边际贡献比例分配
+
+*** 净支付公式
+
+#+BEGIN_SRC text
+p_i(T) = b_i(B(T)) - φ_i(T,c)
+#+END_SRC
+
+即：净支付 = 原始支付 - 退款
+
+** Identity Constraint（防 Sybil）
+为防止用多个身份拆分 bundle 套取更多退款，引入联合边际贡献约束。
+
+*** 联合边际贡献
+
+#+BEGIN_SRC text
+μ_I(T) = min( Σ_{i∈I} b_i(T), v(T) - v(T \ I) )
+#+END_SRC
+
+*** 优化问题
+实际退款向量 ψ(T,c) 通过以下优化求解：
+
+#+BEGIN_SRC text
+min_{r∈R_+^n} Σ_i (r_i - φ_i(T,c))^2
+s.t.  Σ_{i∈I} r_i ≤ μ_I(T),  ∀ I ⊆ B(T)
+      Σ_i r_i ≤ v(T) - c
+#+END_SRC
+
+目标是尽量贴近 Flat Tax 结果，同时满足联合约束和总退款约束。
+
+** 数值示例
+给定：
+- v(T) = 10 ETH
+- c = 7 ETH
+- μ_A = 1.5 ETH
+- μ_B = 1 ETH
+
+计算：
+1. Remainder = v(T) - c = 3 ETH
+2. Σμ_j = 1.5 + 1 = 2.5 ETH
+3. 可分配金额 = min(3, 2.5) = 2.5 ETH
+4. 退款结果：
+   - φ_A = (1.5 / 2.5) * 2.5 = 1.5 ETH
+   - φ_B = (1 / 2.5) * 2.5 = 1 ETH
+
+#+CAPTION: 数值示例输入参数
+| 参数               | 值      |
+|--------------------+---------|
+| 区块价值 v(T)      | 10 ETH  |
+| 支付给 proposer c  | 7 ETH   |
+| A 的支付 b_A       | 2 ETH   |
+| A 的边际贡献 μ_A   | 1.5 ETH |
+| B 的支付 b_B       | 1 ETH   |
+| B 的边际贡献 μ_B   | 1 ETH   |
+
+#+CAPTION: 数值示例退款结果
+| Searcher | 原始支付 | 边际贡献 | 退款    | 净支付 |
+|----------+----------+----------+---------+--------|
+| A        | 2 ETH    | 1.5 ETH  | 1.5 ETH | 0.5 ETH |
+| B        | 1 ETH    | 1 ETH    | 1 ETH   | 0 ETH  |
+
+在这个例子里，如果某参与者的边际贡献等于其支付，且 remainder 足够，其净支付可以接近 0。
+
+** 退款发放与影响
+数据查询入口：
+- [[https://dune.com/flashbots/buildernet][BuilderNet Dashboard]]
+- [[https://dune.com/flashbots/flashbots-protect][Flashbots Protect Dashboard]]
+- BuilderNet 相关 API（按官方开放范围）
+
+退款地址与 ENS（示例）：
+
+#+CAPTION: BuilderNet 退款地址信息
+| 项目     | 值                                         |
+|----------+--------------------------------------------|
+| 退款地址 | 0x62A29205f7Ff00F4233d9779c210150787638E7f |
+| ENS      | refunds.buildernet.eth                     |
+
+影响简述：
+- 对 Validator：短期收益变化通常有限，长期可能有更多价值回流到 orderflow 提供方
+- 对 Operator：后续规则预计会考虑节点运行成本补偿
+
+* API 接口
+** Orderflow API
+*** Endpoints
+限流：约 3 requests/IP/second（官方说明后续会调整）
+
+#+CAPTION: Orderflow API 区域接入点
+| 区域   | Endpoint              | Orderflow 端口 | TEE 端口 |
+|--------+-----------------------+----------------+----------|
+| Global | rpc.buildernet.org    | 443            | 7936     |
+| US     | direct-us.buildernet.org | 443         | 7936     |
+| EU     | direct-eu.buildernet.org | 443         | 7936     |
+
+*** 支持方法
+- =eth_sendBundle=: 支持签名头、退款参数、bundle cancellation
+- =eth_sendRawTransaction=: 不支持退款，通常在多个区块窗口内尝试打包
+
+** TEE 验证
+使用 attested-get 验证节点身份：
+
+#+BEGIN_SRC text
+go install github.com/flashbots/cvm-reverse-proxy/cmd/attested-get
+attested-get \
+  --addr=https://rpc.buildernet.org:7936/cert \
+  --expected-measurements=https://measurements.buildernet.org \
+  --out-response=builder-cert.pem
+#+END_SRC
+
+该过程会在 TLS 握手阶段校验 TEE measurement，再导出与特定 VM 镜像绑定的证书。
+
+** 运营商接口
+每个节点暴露 3535 端口运行 system-api，通常通过 HTTP Basic Auth + TLS 访问。
+
+#+BEGIN_SRC text
+# 重启 rbuilder
+curl --insecure --user admin:secret \
+  https://ip:3535/api/v1/actions/rbuilder_restart
+
+# 上传 blocklist
+curl --insecure --user admin:secret \
+  --data-binary "@blocklist.json" \
+  https://ip:3535/api/v1/file-upload/rbuilder_blocklist
+#+END_SRC
+
+各运营商维护独立 blocklist，同一笔交易可能被 A 节点过滤、被 B 节点打包。
+
+** 服务组件一览
+- rbuilder：区块构建引擎
+- bidding service：竞价策略执行模块（私有分发）
+- orderflow-proxy：交易接入、P2P 广播、归档转发
+- system-api：节点运维接口
+- HAProxy：流量分发与高可用
+- Prometheus/Fluentbit：指标与日志采集
+
+#+CAPTION: BuilderNet 关键代码仓库与组件映射
+| 仓库                                             | 描述                                       |
+|--------------------------------------------------+--------------------------------------------|
+| github.com/flashbots/rbuilder                    | 区块构建软件                               |
+| github.com/sigp/lighthouse                       | 共识层客户端（CL）                         |
+| github.com/paradigmxyz/reth                      | 执行层客户端（EL）                         |
+| github.com/flashbots/system-api                  | Operator 与 TDX 实例服务之间的接口         |
+| github.com/flashbots/cvm-reverse-proxy           | 用于 aTLS/TDX measurement 校验             |
+| github.com/flashbots/buildernet-orderflow-proxy  | 接收并多路复用 orderflow                   |
+
+* Titan Builder vs BuilderNet
+** 基本对比
+- Titan：中心化程度高，路径更短，延迟通常更低
+- BuilderNet：多运营商共享订单流，强调透明性和抗垄断
+
+#+CAPTION: Titan 与 BuilderNet 对比
+| 维度     | Titan                 | BuilderNet                          |
+|----------+-----------------------+-------------------------------------|
+| 市场份额 | ~46-51%               | ~27-39%                             |
+| 架构     | 中心化闭源            | 去中心化开源（TEE）                 |
+| Orderflow | 独家交易（如 Banana Gun） | 所有节点共享                    |
+| 运营商   | 单一团队              | Flashbots + Beaverbuild + Nethermind |
+
+** Titan 份额更高的常见原因
+1. 独家 orderflow：与头部钱包/机器人有更深合作
+2. 延迟优势：中心化架构在极限时延下更占优
+3. 中立叙事：强调不做 searching，吸引部分 bundle 流量
+
+有公开材料提到，Titan 的链上交易费里有较高比例来自独家流量。
+
+#+CAPTION: Titan 与 BuilderNet 入口与限流对比
+| 区域/项   | Titan                 | BuilderNet              |
+|-----------+-----------------------+-------------------------|
+| Global    | rpc.titanbuilder.xyz  | rpc.buildernet.org      |
+| US        | us.rpc.titanbuilder.xyz | direct-us.buildernet.org |
+| EU        | eu.rpc.titanbuilder.xyz | direct-eu.buildernet.org |
+| Asia      | ap.rpc.titanbuilder.xyz | -                     |
+| Rate Limit | 50/sec               | 3/sec                   |
+
+** Bundle Tracing
+Titan 提供 =titan_getBundleStats= 查询接口，BuilderNet 目前没有完全对齐的公开能力。
+
+#+BEGIN_SRC text
+curl -X POST -d '{"method":"titan_getBundleStats","params":[{"bundleHash":"0x..."}],"jsonrpc":"2.0","id":1}' \
+  https://stats.titanbuilder.xyz
+#+END_SRC
+
+* MEV-Boost 与 Relay 机制
+** 什么是 MEV-Boost
+MEV-Boost 是 Flashbots 开发的开源中间件，用来实现 PoS 时代的 PBS。
+Validator 通过 builder 市场获取更高价值区块，而不是完全自己构建。
+
+公开统计常见口径是：当前绝大多数以太坊区块通过 MEV-Boost 路径产出。
+
+** 核心角色
+- Searcher：构造可提取价值的 bundle
+- Builder：组装候选区块并报价
+- Relay：验证并托管区块，在拍卖中转发最高报价
+- Validator：盲签名并最终广播区块
+
+#+CAPTION: MEV-Boost 角色分工
+| 角色                 | 说明                                           |
+|----------------------+------------------------------------------------|
+| Validator (Proposer) | 区块提议者，选择最高出价区块并签名             |
+| Builder              | 区块构建者，构建包含 orderflow 的区块并出价    |
+| Relay                | 可信中介，聚合 builder 出价并验证区块有效性    |
+| MEV-Boost            | Validator 侧 sidecar，连接多个 relay           |
+
+** 工作流程（简化）
+1. Validator 预先向 relay 注册
+2. 到达 slot 后，Validator 请求最高报价区块头（不含完整交易）
+3. Validator 进行盲签名
+4. Relay 验证签名并返回完整区块
+5. Validator 广播区块
+
+盲签名设计的核心是：签名前看不到完整区块，降低 validator 抢跑或替换区块的空间。
+
+** Relay 职责
+1. 聚合多个 builder 的区块提交
+2. 模拟验证区块有效性和支付约束
+3. 在签名前隐藏完整区块内容
+4. 在签名后释放并广播区块
+5. 对外提供历史数据 API
+
+#+CAPTION: Relay 典型 API 组件
+| 组件         | 功能                                   |
+|--------------+----------------------------------------|
+| Proposer API | validator 注册、获取区块头、提交签名区块 |
+| Builder API  | 接收 builder 提交的区块                |
+| Data API     | 查询历史区块数据                       |
+
+** Optimistic Relaying
+部分 relay 采用 optimistic 模式换取更低时延：
+- 先返回区块，再异步完成部分验证
+- 若后续发现区块无效，builder 需承担对应惩罚
+
+** 市场格局与审查
+- builder 往往会并行提交到多个 relay，以提高中标概率
+- 不同 relay 对敏感交易（如 OFAC 相关地址）策略不同
+- Validator 可通过多 relay 连接和 min-bid 参数降低单点审查影响
+
+#+CAPTION: Relay 市场份额与运营方
+| Relay                 | 市场份额 | 运营商       | 审查策略  |
+|-----------------------+----------+--------------+-----------|
+| Ultrasound Money      | ~30%     | 社区         | 不审查    |
+| Titan Relay           | ~23%     | Titan Builder | 不审查   |
+| bloXroute Max Profit  | ~18%     | bloXroute    | 不审查    |
+| bloXroute Regulated   | ~14%     | bloXroute    | OFAC 合规 |
+| Flashbots             | ~6%      | Flashbots    | OFAC 合规 |
+| Agnostic              | ~5%      | 独立         | 不审查    |
+| Aestus                | ~3%      | 独立         | 不审查    |
+
+#+CAPTION: Relay 审查策略对比
+| 类型   | Relay                                                    | 说明         |
+|--------+----------------------------------------------------------+--------------|
+| 审查   | Flashbots, bloXroute Regulated                          | 遵守 OFAC 制裁 |
+| 不审查 | Ultrasound, bloXroute Max Profit, Titan, Agnostic, Aestus | 中立       |
+
+#+CAPTION: Relay 市场演进（Merge 后）
+| 时间             | 格局                                       |
+|------------------+--------------------------------------------|
+| 2022.9（Merge 后） | Flashbots 独占 ~82%                        |
+| 2023             | bloXroute、Ultrasound 崛起，Flashbots 降至 ~25% |
+| 2024             | Blocknative 退出，4 家控制 95%             |
+| 2025             | Ultrasound + bloXroute + Titan 主导        |
+
+** Relay 经济模型挑战
+Relay 是 PBS 的关键基础设施，但目前普遍缺乏直接收费机制，长期可持续性仍是行业问题。
+
+#+CAPTION: 各角色收入来源
+| 角色      | 收入来源                                |
+|-----------+-----------------------------------------|
+| Builder   | 区块构建利润（MEV + priority fee 差价） |
+| Validator | Builder 支付的出价                      |
+| Searcher  | MEV 利润                                |
+| Relay     | 无直接收入                              |
+
+#+CAPTION: Relay 可持续性相关提案
+| 提案      | 内容                                         | 状态   |
+|-----------+----------------------------------------------+--------|
+| PBS Guild | 建立基金，接受社区捐赠补偿 relay             | 未通过 |
+| Fee Market | 每个 relay 收取 ~1% 费用，validator 选择性连接 | 未通过 |
+
+* BuilderNet 与 Relay 的关系
+** 提交流程
+流程：
+1. bidding service 生成出价
+2. 使用 relay 签名密钥完成签名
+3. 并行提交到多个 MEV-Boost relay
+4. =extra_data= 写入 BuilderNet (operator_id)
+
+#+CAPTION: 传统 Builder 与 BuilderNet 提交流程差异
+| 方面       | 传统 Builder       | BuilderNet              |
+|------------+--------------------+-------------------------|
+| 运营       | 单一实体           | 多运营商 TEE 节点       |
+| Orderflow  | 可能独家协议       | 全网共享                |
+| 透明度     | 黑盒               | 开源 rbuilder           |
+| MEV 分配   | 内部化或私下协议   | 公开退款规则            |
+| Relay 提交 | 直接提交           | 通过 bidding service    |
+
+** v1.3 优化
+- 仅提交 regional relays，减少跨区链路耗时
+- 支持 bundle cancellation
+- p99 端到端延迟约优化 2 倍
+
+* 几点观察
+- 延迟依然是决定 builder 份额的核心变量，特别在高频场景
+- BuilderNet 在“共享 orderflow + 公开退款规则”上更透明，但仍依赖部分中心化协调组件
+- 竞价模块私有化是现实工程取舍，也会降低外部可验证性
+- 各运营商独立维护 blocklist，可以提升抗审查弹性，但也会带来行为差异
+
+* 未来：Enshrined PBS（ePBS）
+当前 MEV-Boost 属于协议外 PBS，对 relay 有较强信任依赖。
+ePBS 的方向是把 PBS 机制内置到协议层，但整体仍在研究与迭代阶段。
+
+#+CAPTION: 当前 MEV-Boost 与 ePBS 对比
+| 方面       | 当前（MEV-Boost） | 未来（ePBS）         |
+|------------+-------------------+----------------------|
+| Relay 信任 | 需要信任 relay    | 协议保证             |
+| 实现方式   | 可选 sidecar      | 协议强制             |
+| 区块验证   | Relay 负责        | 协议层验证           |
+| 审查抵抗   | 依赖多 relay      | Inclusion List 等机制 |
+
+* 下一篇预告
+Block Builder 深度解析：BSC PBS 机制（二）
+
+* 参考链接
+- [[https://buildernet.org/docs][BuilderNet 官方文档]]
+- [[https://dune.com/flashbots/buildernet][BuilderNet Dune Dashboard]]
+- [[https://dune.com/flashbots/flashbots-protect][Flashbots Protect Dashboard]]
+- [[https://github.com/flashbots/rbuilder][rbuilder 源码]]
+- [[https://github.com/flashbots/yocto-manifests][Yocto 镜像构建]]
+- [[https://github.com/flashbots/builder-hub][BuilderHub 源码]]
+- [[https://github.com/flashbots/mev-boost][MEV-Boost 仓库]]
+- [[https://github.com/flashbots/mev-boost-relay][MEV-Boost Relay 仓库]]
+- [[https://www.relayscan.io][Relay 市场数据]]
+- [[https://mevboost.pics][MEV-Boost 统计]]
+- [[https://docs.flashbots.net/flashbots-mev-boost/introduction][Flashbots 文档]]

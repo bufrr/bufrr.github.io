@@ -149,10 +149,16 @@ body {
   padding: 0 var(--space-xl);
 }
 
-/* Header */
-.site-header {
+/* Header wrapper from Org preamble */
+#preamble {
   position: sticky;
   top: 0;
+  z-index: 100;
+}
+
+/* Header */
+.site-header {
+  position: relative;
   z-index: 100;
   background-color: var(--header-bg);
   border-bottom: 0.5px solid var(--border-color);
@@ -424,10 +430,16 @@ li strong {
 }
 
 /* Special handling for main content lists */
-.main-content ul,
-.main-content ol {
+.main-content ul {
   padding-left: 0;
   list-style: none;
+}
+
+/* Keep ordered-list numbering visible for process/step sections */
+.main-content ol {
+  padding-left: 1.5rem;
+  list-style: decimal;
+  list-style-position: outside;
 }
 
 .main-content ul li::before {

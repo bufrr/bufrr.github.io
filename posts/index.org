@@ -2,6 +2,7 @@
 #+AUTHOR:
 #+OPTIONS: author:nil toc:nil num:nil h:0
 
+- [[file:2026-02-12-block-builder-buildernet-1.org][Block Builder Deep Dive: Ethereum BuilderNet (I)]]
 - [[file:2024-10-02-babylon.org][What is Babylon?]]
 - [[file:2024-06-30-syntax-highlighting-test.org][Syntax Highlighting Test]]
 - [[file:2024-06-16-waku.org][The Waku Network]]

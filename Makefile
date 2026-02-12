@@ -28,7 +28,7 @@ clean:
 serve: build
 	@[ -d public ] || { echo "Build output not found: public/"; exit 1; }
 	@echo "Serving blog at http://localhost:8000"
-	@cd public && python3 -m http.server 8000
+	@python3 -m http.server 8000 --directory "$(CURDIR)/public"
 
 # Alias for serve
 server: serve

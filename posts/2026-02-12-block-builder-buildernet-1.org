@@ -1,0 +1,554 @@
+#+TITLE: Block Builder Deep Dive: Ethereum BuilderNet (I)
+#+DATE: 2026-02-12
+#+AUTHOR: bytenoob
+#+DESCRIPTION: Reorganized English Org version adapted from 1.pdf
+#+KEYWORDS: ethereum,buildernet,mev,flashbots,pbs
+#+FILETAGS: :ethereum:buildernet:mev:
+#+LASTMOD: 2026-02-12
+#+DRAFT: false
+#+OPTIONS: toc:t num:nil ^:nil
+
+* Background
+Today, roughly 80% of Ethereum blocks are built by two builders: Titan and BuilderNet.
+That concentration creates three immediate issues:
+- Censorship risk: a single builder policy can directly decide whether a transaction gets included
+- Orderflow monopoly: major wallets and aggregators often sign exclusive deals, leaving smaller participants with weaker access
+- Opaque MEV distribution: value created by users is often captured by builders and a small set of partners
+
+Two important milestones for BuilderNet:
+- 2024-11-26: Flashbots launched BuilderNet with Beaverbuild and Nethermind
+- 2025-05-06: Beaverbuild retired its centralized builder and fully migrated to BuilderNet
+
+#+CAPTION: Major builder market share (snapshot)
+| Builder                         | Blocks | Market Share | Avg Tx/Block | Median Block Value |
+|---------------------------------+--------+--------------+--------------+--------------------|
+| Titan Builder                   | 98,464 | 49.53%       | 231          | 0.0085             |
+| BuilderNet                      | 56,449 | 28.39%       | 242          | 0.0086             |
+| Quasar (quasar.win)             | 34,335 | 17.27%       | 216          | 0.0071             |
+| Builder+ (www.btcs.com/builder) | 3,212  | 1.62%        | 181          | 0.0282             |
+| Beaverbuild                     | 1,835  | 0.92%        | 247          | 0.0130             |
+| Eureka (eurekabuilder.xyz)      | 1,511  | 0.76%        | 126          | 0.0053             |
+| shimmerblocks.com               | 1,455  | 0.73%        | 100          | 0.0066             |
+| bobTheBuilder.xyz               | 904    | 0.45%        | 54           | 0.0130             |
+
+* Core Idea
+BuilderNet's goal is simple: multiple operators run the same open-source builder, share orderflow, and reduce single-operator dominance.
+
+The design rests on three pillars:
+1. TEE: based on Intel TDX, so operators cannot inspect plaintext orderflow or arbitrarily modify execution logic
+2. Shared orderflow: transactions and bundles are broadcast over P2P instead of being kept as exclusive inventory
+3. Public refund rules: MEV refunds are distributed by marginal contribution
+
+* System Architecture
+Main roles:
+- Builder Node
+- Node Operator
+- Flashbots Infrastructure
+- MEV-Boost Relay
+- Orderflow Source
+
+Orderflow Source includes wallets, applications, searchers, and end users.
+
+#+CAPTION: BuilderNet high-level architecture
+[[./static/images/posts/buildernet-1/img-001.png]]
+
+** Flashbots Infrastructure
+There are still two centralized components:
+
+- BuilderHub:
+  - Handles node identity, key distribution, and peer discovery
+  - Nodes boot with TEE attestation and request configuration from BuilderHub
+  - BuilderHub verifies measurement + IP allowlist, then issues sensitive material such as coinbase keys and relay signing keys
+
+- Redistribution Archive:
+  - Stores orderflow, bids, and block results
+  - Used for refund calculation and auditing
+  - At a 50% win rate, storage is roughly 30GB/day
+
+** Node Boot Sequence
+BuilderNet nodes are not Docker containers.
+They run as full Linux TDX VM images built with Yocto (in =.vhd= format), on TDX-capable infrastructure such as Azure TDX Confidential VM or Intel 4th Gen Xeon Scalable+ hardware.
+
+Flow:
+1. Start system services (network, filesystem, cron)
+2. Start time sync via NTP daemon (improved after v1.2)
+3. Start cvm-reverse-proxy for TEE attestation
+4. Pull secrets and config from BuilderHub
+5. Mount encrypted disk
+6. Start Operator API (system-api on port 3535)
+7. Start observability services (Prometheus/Fluentbit)
+8. Start Lighthouse (consensus client)
+9. Run Reth snapshot sync
+10. Start Reth (execution client)
+11. Start rbuilder, bidding service, and HAProxy
+12. Start orderflow-proxy and begin receiving orderflow
+
+#+CAPTION: Builder node boot sequence
+[[./static/images/posts/buildernet-1/img-002.png]]
+
+** How to Become an Operator
+The network is currently permissioned.
+
+Flow:
+1. Submit application
+2. Flashbots review
+3. Allowlist approval
+4. Bring node online
+
+Roadmap direction is permissionless, but that transition is not complete yet.
+
+** Orderflow Distribution
+The key component is =orderflow-proxy=, running in two places:
+- Flashbots infrastructure side (aggregation)
+- Inside each TEE node (receive, broadcast, archive, forward)
+
+*** Sources
+- Flashbots Bundle Relay: searcher bundles
+- Flashbots Protect: private user transactions
+- MEV-Share: partially revealed transactions with hints
+- Direct Submit: users, wallets, and searchers connect to any BuilderNet node
+
+*** Responsibilities of orderflow-proxy
+1. Receive orderflow from Flashbots infrastructure
+2. Receive P2P-forwarded orderflow from other nodes
+3. Receive direct submissions to the local node
+4. Broadcast local orderflow to peers for a converged pool view
+5. Send a copy to Redistribution Archive for refund accounting
+6. Forward to local =rbuilder=
+
+*** End-to-End Encryption
+=orderflow-proxy= generates TLS certificates and ECDSA keys inside TEE and registers them with BuilderHub.
+Node-to-node links are TLS encrypted, and peer certificates are matched against BuilderHub-registered public keys.
+Users can also use aTLS to verify node identity before sending orderflow.
+
+#+CAPTION: Trusted connectivity between node and infrastructure
+[[./static/images/posts/buildernet-1/img-003.png]]
+
+* Block Building Pipeline
+The core engine is =rbuilder= (Rust, built on Reth).
+
+** Inputs
+- Transactions and bundles forwarded by =orderflow-proxy=
+- =MEV-Share= hints
+- Local Reth mempool
+
+** Processing Steps
+1. Simulation and validity checks (including gas constraints)
+2. Bundle merge + ordering for value maximization
+3. MEV extraction (backrun, arbitrage, etc.)
+4. Compliance filtering based on operator blocklist
+5. Gas optimization by transaction ordering
+
+** Packaging and Submission
+Packaging phase:
+1. Apply =withdrawals=
+2. Run =post-block= calls
+3. Compute =state root hash=
+4. Package full block
+
+Submission phase:
+1. Private =bidding service= computes bid price
+2. Submit to multiple MEV-Boost relays
+3. Write =BuilderNet (operator_id)= into =extra_data= for on-chain attribution
+
+v1.3 highlights:
+- Regional relay-only submission (about 50ms cross-region savings)
+- Bundle cancellation support
+- ~2x p99 end-to-end latency improvement
+
+* Refund Mechanism
+** Goals
+- Give users, wallets, apps, and searchers a more transparent MEV path
+- Reduce per-transaction net cost to land on chain
+- Keep network operations sustainable
+
+#+CAPTION: Refund mechanism goals
+| Goal             | Description                                                        |
+|------------------+--------------------------------------------------------------------|
+| Transparency     | Replace opaque off-chain orderflow deals                           |
+| Permissionless   | Anyone can receive refunds under public rules                      |
+| Cost Minimization | Each transaction pays only the required competitive amount        |
+| Anti-Sybil       | Identity constraints prevent refund gaming via split identities    |
+
+** Refund Logic
+1. BuilderNet competes in MEV-Boost auctions
+2. If a winning block is bid below its true value, the gap becomes distributable remainder
+3. For landed transactions from =eth_sendBundle=, =mev_sendBundle=, and =eth_sendPrivateTransaction=, BuilderNet estimates contribution by replay/simulation
+4. Remainder is distributed proportionally to contribution
+
+#+CAPTION: Refund eligibility by transaction type
+| Scenario                                 | Eligible for Refund |
+|------------------------------------------+---------------------|
+| Private submitted transaction/bundle     | Yes                 |
+| Public mempool transaction               | No                  |
+| Bundle containing only public mempool tx | No                  |
+| Bundles from the same signer             | Treated as non-competitive (merged) |
+
+Note:
+- This is different from the built-in refund field in =eth_sendBundle=
+
+=eth_sendBundle= refund fields:
+
+#+BEGIN_SRC text
+refundPercent   // Integer: 1-99
+refundRecipient // String: refund recipient address
+#+END_SRC
+
+** Flat Tax Rule (Core Formula)
+#+CAPTION: Core symbol definitions
+| Symbol  | Meaning                                                                 |
+|---------+-------------------------------------------------------------------------|
+| T       | Set of all bundles                                                      |
+| B(T)    | Most profitable block constructed from T                               |
+| v(T)    | Value of B(T)                                                           |
+| b_i(T)  | Total payment from identity i's bundles if B(T) is realized           |
+| c       | Payment sent by builder to proposer to win the block                  |
+
+*** Marginal Contribution
+
+#+BEGIN_SRC text
+mu_i(T) = min(b_i(T), v(T) - v(T \ i))
+#+END_SRC
+
+Marginal contribution is capped by payment, so net payment cannot become negative.
+
+*** Refund Formula
+
+#+BEGIN_SRC text
+phi_i(T,c) = ( mu_i(T) / sum_j mu_j(T) ) * min( v(B(T)) - c, sum_j mu_j(T) )
+#+END_SRC
+
+Interpretation:
+- =v(B(T)) - c= is distributable remainder
+- If remainder covers total marginal contribution, each participant can recover full marginal contribution
+- Otherwise it is allocated pro-rata
+
+*** Net Payment
+
+#+BEGIN_SRC text
+p_i(T) = b_i(B(T)) - phi_i(T,c)
+#+END_SRC
+
+Net payment = gross payment - refund.
+
+** Identity Constraint (Anti-Sybil)
+To prevent split-identity bundle strategies from extracting extra refunds, BuilderNet adds a joint marginal contribution constraint.
+
+*** Joint Marginal Contribution
+
+#+BEGIN_SRC text
+mu_I(T) = min( sum_{i in I} b_i(T), v(T) - v(T \ I) )
+#+END_SRC
+
+*** Optimization Problem
+Actual refunds =psi(T,c)= are solved as:
+
+#+BEGIN_SRC text
+min_{r in R_+^n} sum_i (r_i - phi_i(T,c))^2
+s.t.  sum_{i in I} r_i <= mu_I(T),  for all I subseteq B(T)
+      sum_i r_i <= v(T) - c
+#+END_SRC
+
+The objective is to stay close to Flat Tax outputs while satisfying joint and global constraints.
+
+** Numerical Example
+Given:
+- v(T) = 10 ETH
+- c = 7 ETH
+- mu_A = 1.5 ETH
+- mu_B = 1 ETH
+
+Computation:
+1. Remainder = v(T) - c = 3 ETH
+2. sum(mu_j) = 1.5 + 1 = 2.5 ETH
+3. Distributable = min(3, 2.5) = 2.5 ETH
+4. Refunds:
+   - phi_A = (1.5 / 2.5) * 2.5 = 1.5 ETH
+   - phi_B = (1 / 2.5) * 2.5 = 1 ETH
+
+#+CAPTION: Numerical example inputs
+| Parameter            | Value   |
+|----------------------+---------|
+| Block value v(T)     | 10 ETH  |
+| Proposer payment c   | 7 ETH   |
+| A payment b_A        | 2 ETH   |
+| A marginal mu_A      | 1.5 ETH |
+| B payment b_B        | 1 ETH   |
+| B marginal mu_B      | 1 ETH   |
+
+#+CAPTION: Numerical example outputs
+| Searcher | Gross Payment | Marginal Contribution | Refund  | Net Payment |
+|----------+---------------+-----------------------+---------+-------------|
+| A        | 2 ETH         | 1.5 ETH               | 1.5 ETH | 0.5 ETH     |
+| B        | 1 ETH         | 1 ETH                 | 1 ETH   | 0 ETH       |
+
+If a participant's marginal contribution equals payment and remainder is sufficient, net payment can approach zero.
+
+** Payout and Impact
+Tracking dashboards:
+- [[https://dune.com/flashbots/buildernet][BuilderNet Dashboard]]
+- [[https://dune.com/flashbots/flashbots-protect][Flashbots Protect Dashboard]]
+- BuilderNet APIs (subject to available endpoints)
+
+Refund destination example:
+
+#+CAPTION: Refund address and ENS
+| Item           | Value                                      |
+|----------------+--------------------------------------------|
+| Refund Address | 0x62A29205f7Ff00F4233d9779c210150787638E7f |
+| ENS            | refunds.buildernet.eth                     |
+
+Expected effects:
+- Validators: limited short-term impact, possible long-term value shift toward orderflow providers
+- Operators: future rules are expected to account for operating costs
+
+* API Interfaces
+** Orderflow API
+*** Endpoints
+Rate limit is around =3 requests/IP/second= (subject to change).
+
+#+CAPTION: Regional Orderflow API endpoints
+| Region | Endpoint                | Orderflow Port | TEE Port |
+|--------+-------------------------+----------------+----------|
+| Global | rpc.buildernet.org      | 443            | 7936     |
+| US     | direct-us.buildernet.org | 443           | 7936     |
+| EU     | direct-eu.buildernet.org | 443           | 7936     |
+
+*** Supported Methods
+- =eth_sendBundle=: supports signed headers, refund params, bundle cancellation
+- =eth_sendRawTransaction=: no refund support, usually retried across multiple blocks
+
+** TEE Verification
+Use =attested-get=:
+
+#+BEGIN_SRC text
+go install github.com/flashbots/cvm-reverse-proxy/cmd/attested-get
+attested-get \
+  --addr=https://rpc.buildernet.org:7936/cert \
+  --expected-measurements=https://measurements.buildernet.org \
+  --out-response=builder-cert.pem
+#+END_SRC
+
+This validates TEE measurement during TLS handshake and exports a certificate bound to the VM image.
+
+** Operator API
+Each node exposes =system-api= on port =3535=, typically behind HTTP Basic Auth + TLS.
+
+#+BEGIN_SRC text
+# Restart rbuilder
+curl --insecure --user admin:secret \
+  https://ip:3535/api/v1/actions/rbuilder_restart
+
+# Upload blocklist
+curl --insecure --user admin:secret \
+  --data-binary "@blocklist.json" \
+  https://ip:3535/api/v1/file-upload/rbuilder_blocklist
+#+END_SRC
+
+Since blocklists are per-operator, a transaction filtered by one operator can still be included by another.
+
+** Service Components
+- =rbuilder=: block construction engine
+- =bidding service=: private bidding logic
+- =orderflow-proxy=: ingest, P2P broadcast, archival forwarding
+- =system-api=: operator control plane
+- =HAProxy=: traffic routing and high availability
+- Prometheus/Fluentbit: metrics and logs
+
+#+CAPTION: BuilderNet repositories and component mapping
+| Repository                                       | Description                                             |
+|--------------------------------------------------+---------------------------------------------------------|
+| github.com/flashbots/rbuilder                    | Block building software                                 |
+| github.com/sigp/lighthouse                       | CL client                                               |
+| github.com/paradigmxyz/reth                      | EL client                                               |
+| github.com/flashbots/system-api                  | Interface between operators and services in TDX instance |
+| github.com/flashbots/cvm-reverse-proxy           | Verifies TDX measurements via aTLS                      |
+| github.com/flashbots/buildernet-orderflow-proxy  | Receives and multiplexes orderflow                      |
+
+* Titan Builder vs BuilderNet
+** High-Level Comparison
+- Titan: more centralized path, usually lower latency
+- BuilderNet: multi-operator shared orderflow with explicit refund mechanics
+
+#+CAPTION: Titan vs BuilderNet comparison
+| Dimension    | Titan                         | BuilderNet                               |
+|--------------+-------------------------------+------------------------------------------|
+| Market Share | ~46-51%                       | ~27-39%                                  |
+| Architecture | Centralized, closed-source    | Decentralized, open-source (TEE)         |
+| Orderflow    | Exclusive flow (for example Banana Gun) | Shared across all nodes         |
+| Operators    | Single team                   | Flashbots + Beaverbuild + Nethermind     |
+
+** Why Titan Still Has Higher Share
+1. Exclusive orderflow relationships with major wallets/bots
+2. Latency advantage from centralized architecture
+3. Neutrality narrative (=no searching=) that attracts some bundle flow
+
+Public analyses often note a significant fee share from exclusive flow channels.
+
+#+CAPTION: Titan vs BuilderNet endpoint and rate-limit comparison
+| Region/Item | Titan                  | BuilderNet               |
+|-------------+------------------------+--------------------------|
+| Global      | rpc.titanbuilder.xyz   | rpc.buildernet.org       |
+| US          | us.rpc.titanbuilder.xyz | direct-us.buildernet.org |
+| EU          | eu.rpc.titanbuilder.xyz | direct-eu.buildernet.org |
+| Asia        | ap.rpc.titanbuilder.xyz | -                       |
+| Rate Limit  | 50/sec                 | 3/sec                    |
+
+** Bundle Tracing
+Titan exposes a bundle status query (=titan_getBundleStats=), while BuilderNet currently lacks full parity.
+
+#+BEGIN_SRC text
+curl -X POST -d '{"method":"titan_getBundleStats","params":[{"bundleHash":"0x..."}],"jsonrpc":"2.0","id":1}' \
+  https://stats.titanbuilder.xyz
+#+END_SRC
+
+* MEV-Boost and Relay
+** What is MEV-Boost
+MEV-Boost is open-source middleware by Flashbots for PBS in Ethereum PoS.
+Validators can source higher-value blocks from a builder market instead of building entirely by themselves.
+
+A common public metric is that most Ethereum blocks currently flow through MEV-Boost paths.
+
+** Roles
+- Searcher: creates value-extracting bundles
+- Builder: assembles candidate blocks and bids
+- Relay: validates/escrows blocks and forwards highest bids
+- Validator: blind-signs and broadcasts blocks
+
+#+CAPTION: MEV-Boost role model
+| Role                 | Description                                                  |
+|----------------------+--------------------------------------------------------------|
+| Validator (Proposer) | Chooses highest bid block and signs it                      |
+| Builder              | Constructs orderflow-rich blocks and submits bids           |
+| Relay                | Trusted intermediary that verifies blocks and aggregates bids |
+| MEV-Boost            | Validator-side sidecar that connects to multiple relays     |
+
+** Simplified Workflow
+1. Validator registers with relay
+2. At slot time, validator requests highest bid block header (no full tx body)
+3. Validator blind-signs
+4. Relay validates signature and returns full block
+5. Validator broadcasts
+
+Blind signing reduces validator ability to frontrun or replace block contents before commitment.
+
+** Relay Responsibilities
+1. Aggregate submissions from multiple builders
+2. Simulate and validate block correctness/payment constraints
+3. Hide full contents before signature
+4. Release and broadcast after signature
+5. Provide historical data APIs
+
+#+CAPTION: Typical relay API surface
+| Component    | Function                                               |
+|--------------+--------------------------------------------------------|
+| Proposer API | Validator registration, header fetch, signed block submit |
+| Builder API  | Accepts block submissions from builders                |
+| Data API     | Queries historical block data                          |
+
+** Optimistic Relaying
+Some relays use optimistic mode for lower latency:
+- return block first, complete parts of validation asynchronously
+- if invalid, builder bears the penalty
+
+** Market and Censorship
+- Builders usually submit to multiple relays to maximize win rate
+- Relay policy differs on sensitive flow (for example OFAC-related addresses)
+- Validators can reduce single-relay censorship exposure via multi-relay configs and =min-bid=
+
+#+CAPTION: Relay market share and operators
+| Relay                | Market Share | Operator      | Censorship Policy |
+|----------------------+--------------+---------------+-------------------|
+| Ultrasound Money     | ~30%         | Community     | Non-censoring     |
+| Titan Relay          | ~23%         | Titan Builder | Non-censoring     |
+| bloXroute Max Profit | ~18%         | bloXroute     | Non-censoring     |
+| bloXroute Regulated  | ~14%         | bloXroute     | OFAC-compliant    |
+| Flashbots            | ~6%          | Flashbots     | OFAC-compliant    |
+| Agnostic             | ~5%          | Independent   | Non-censoring     |
+| Aestus               | ~3%          | Independent   | Non-censoring     |
+
+#+CAPTION: Relay censorship policy comparison
+| Type          | Relays                                                          | Notes           |
+|---------------+-----------------------------------------------------------------+-----------------|
+| Censoring     | Flashbots, bloXroute Regulated                                 | Follows OFAC    |
+| Non-censoring | Ultrasound, bloXroute Max Profit, Titan, Agnostic, Aestus      | Neutral policy  |
+
+#+CAPTION: Relay market evolution since the Merge
+| Time               | Landscape                                              |
+|--------------------+--------------------------------------------------------|
+| 2022.9 (post-Merge) | Flashbots dominated at ~82%                            |
+| 2023               | bloXroute and Ultrasound rose; Flashbots fell to ~25% |
+| 2024               | Blocknative exited; top 4 controlled 95%              |
+| 2025               | Ultrasound + bloXroute + Titan led                    |
+
+** Relay Economics
+Relays are critical PBS infrastructure but still lack durable direct monetization in many setups.
+
+#+CAPTION: Revenue sources by role
+| Role      | Revenue Source                                      |
+|-----------+-----------------------------------------------------|
+| Builder   | Block building profit (MEV + priority fee spread)  |
+| Validator | Bid paid by builders                                |
+| Searcher  | MEV profit                                          |
+| Relay     | No direct revenue                                   |
+
+#+CAPTION: Relay sustainability proposals
+| Proposal   | Content                                                      | Status   |
+|------------+--------------------------------------------------------------+----------|
+| PBS Guild  | Community-funded pool to subsidize relay operations          | Rejected |
+| Fee Market | Each relay charges ~1%; validators choose relay connections | Rejected |
+
+* BuilderNet and Relays
+** Submission Flow
+1. =bidding service= computes bid
+2. Block is signed with relay key
+3. Submission fan-outs to multiple MEV-Boost relays
+4. =extra_data= marks =BuilderNet (operator_id)=
+
+#+CAPTION: Traditional builder flow vs BuilderNet flow
+| Aspect            | Traditional Builder         | BuilderNet                   |
+|-------------------+-----------------------------+------------------------------|
+| Operations        | Single entity               | Multi-operator TEE nodes     |
+| Orderflow         | Potentially exclusive deals | Network-wide sharing         |
+| Transparency      | Black-box                   | Open-source rbuilder         |
+| MEV Distribution  | Internalized/private deals  | Public refund rules          |
+| Relay Submission  | Direct relay submission     | Through bidding service      |
+
+** v1.3 Optimizations
+- regional relay routing only
+- bundle cancellation support
+- about 2x p99 end-to-end latency improvement
+
+* Notes
+- Latency remains the strongest share driver in high-frequency environments
+- BuilderNet is more explicit on flow sharing + refunds, but still depends on some centralized coordination
+- Private bidding logic is a practical tradeoff, but it reduces external auditability
+- Per-operator blocklists improve censorship resilience at network level while increasing behavior diversity
+
+* Future: Enshrined PBS (ePBS)
+Current MEV-Boost is out-of-protocol PBS and still relay-trust-heavy.
+The ePBS direction is to move PBS logic into the base protocol, but it remains an active research/iteration track.
+
+#+CAPTION: MEV-Boost today vs ePBS future
+| Aspect               | Current (MEV-Boost) | Future (ePBS)          |
+|----------------------+---------------------+------------------------|
+| Relay Trust Model    | Requires relay trust | Protocol-guaranteed   |
+| Implementation Mode  | Optional sidecar     | Protocol-enforced     |
+| Block Validation     | Relay-side           | Protocol-layer        |
+| Censorship Resistance | Depends on multi-relay setup | Inclusion List and related mechanisms |
+
+* Next Part
+Block Builder Deep Dive: BSC PBS (II)
+
+* References
+- [[https://buildernet.org/docs][BuilderNet Docs]]
+- [[https://dune.com/flashbots/buildernet][BuilderNet Dune Dashboard]]
+- [[https://dune.com/flashbots/flashbots-protect][Flashbots Protect Dashboard]]
+- [[https://github.com/flashbots/rbuilder][rbuilder Source]]
+- [[https://github.com/flashbots/yocto-manifests][Yocto Build Manifests]]
+- [[https://github.com/flashbots/builder-hub][BuilderHub Source]]
+- [[https://github.com/flashbots/mev-boost][MEV-Boost Repository]]
+- [[https://github.com/flashbots/mev-boost-relay][MEV-Boost Relay Repository]]
+- [[https://www.relayscan.io][Relay Market Data]]
+- [[https://mevboost.pics][MEV-Boost Stats]]
+- [[https://docs.flashbots.net/flashbots-mev-boost/introduction][Flashbots Docs]]
