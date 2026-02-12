@@ -1,6 +1,6 @@
 # Makefile for blog operations
 
-.PHONY: all build clean serve dev install-deps new-post publish help
+.PHONY: all build clean serve server dev install-deps new-post publish help
 
 # Default target
 all: build
@@ -26,8 +26,12 @@ clean:
 
 # Serve the blog locally
 serve: build
+	@[ -d public ] || { echo "Build output not found: public/"; exit 1; }
 	@echo "Serving blog at http://localhost:8000"
 	@cd public && python3 -m http.server 8000
+
+# Alias for serve
+server: serve
 
 # Development mode with auto-rebuild
 dev:

@@ -29,6 +29,12 @@ if [ "$INCREMENTAL_BUILD" != "true" ]; then
   echo -e "${YELLOW}Tip:${NC} Use INCREMENTAL_BUILD=true $0 to skip unchanged files"
 fi
 
+# Emacs is required to publish Org files.
+if ! command -v emacs > /dev/null 2>&1; then
+  echo -e "${YELLOW}Error:${NC} emacs is required but was not found in PATH."
+  exit 1
+fi
+
 # Get version numbers for cache busting based on file modification time
 CSS_VERSION=$(stat -c %Y static/css/blog.css 2> /dev/null || stat -f %m static/css/blog.css 2> /dev/null || echo "1")
 JS_VERSION=$(stat -c %Y static/js/blog.js 2> /dev/null || stat -f %m static/js/blog.js 2> /dev/null || echo "1")
@@ -41,27 +47,28 @@ export JS_VERSION
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Run Emacs in batch mode to publish the blog
-if emacs --batch \
+if ! emacs --batch \
   --load "$SCRIPT_DIR/build.el" \
   --funcall blog/publish-all; then
-  echo -e "${GREEN}Build complete!${NC} HTML files generated in public/"
+  echo -e "${YELLOW}Error:${NC} build failed."
+  exit 1
+fi
 
-  # Generate sitemap
-  if [ -x "./generate-sitemap.sh" ]; then
-    ./generate-sitemap.sh
-  fi
+echo -e "${GREEN}Build complete!${NC} HTML files generated in public/"
 
-  # Show build statistics
-  if [ -d "public" ]; then
-    POST_COUNT=$(find public -name "*.html" -not -name "index.html" -not -name "index-cn.html" | wc -l)
-    TOTAL_SIZE=$(du -sh public | cut -f1)
-    echo -e "${GREEN}Generated:${NC} $POST_COUNT posts"
-    echo -e "${GREEN}Total size:${NC} $TOTAL_SIZE"
-    
-    if [ "$INCREMENTAL_BUILD" = "true" ]; then
-      echo -e "${GREEN}Mode:${NC} Incremental build"
-    fi
+# Generate sitemap
+if [ -x "./generate-sitemap.sh" ]; then
+  ./generate-sitemap.sh
+fi
+
+# Show build statistics
+if [ -d "public" ]; then
+  POST_COUNT=$(find public -name "*.html" -not -name "index.html" -not -name "index-cn.html" | wc -l)
+  TOTAL_SIZE=$(du -sh public | cut -f1)
+  echo -e "${GREEN}Generated:${NC} $POST_COUNT posts"
+  echo -e "${GREEN}Total size:${NC} $TOTAL_SIZE"
+
+  if [ "$INCREMENTAL_BUILD" = "true" ]; then
+    echo -e "${GREEN}Mode:${NC} Incremental build"
   fi
-else
-  echo -e "${YELLOW}Build completed with warnings${NC}"
 fi

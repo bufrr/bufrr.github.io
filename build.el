@@ -6,7 +6,14 @@
 ;;; Code:
 
 ;; Set up directories
-(setq blog-directory (file-name-as-directory (or (getenv "GITHUB_WORKSPACE") (expand-file-name "~/blog"))))
+;; Prefer explicit env vars, then CI workspace, then the directory of this file.
+(setq blog-directory
+      (file-name-as-directory
+       (expand-file-name
+        (or (getenv "BLOG_DIR")
+            (getenv "GITHUB_WORKSPACE")
+            (and load-file-name (file-name-directory load-file-name))
+            default-directory))))
 (setq blog-posts-directory (concat blog-directory "posts/"))
 (setq blog-publish-directory (concat blog-directory "public/"))
 (setq blog-static-directory (concat blog-directory "static/"))
@@ -101,7 +108,7 @@
 <link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/favicon.svg\">
 <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">
 <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>
-<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap\" rel=\"stylesheet\">
+<link href=\"https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&display=swap\" rel=\"stylesheet\">
 <link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/blog.css?v=" (or (getenv "CSS_VERSION") "1") "\" />
 <script src=\"/static/js/blog.js?v=" (or (getenv "JS_VERSION") "1") "\" defer></script>"))
 

@@ -79,6 +79,8 @@
     activeId: null,
     scrollHandler: null,
     observer: null,
+    clickLockUntil: 0,
+    clickLockTimer: null,
 
     init() {
       const toc = utils.$('#table-of-contents');
@@ -103,13 +105,8 @@
       // Set up smooth scrolling
       this.setupSmoothScrolling(tocLinks);
 
-      // Use IntersectionObserver for better performance
-      if (features.intersectionObserver) {
-        this.setupIntersectionObserver(headings);
-      } else {
-        // Fallback to scroll-based approach
-        this.setupScrollTracking(headings);
-      }
+      // Scroll-based tracking is more stable for nested headings and click-to-scroll behavior.
+      this.setupScrollTracking(headings);
     },
 
     setupSmoothScrolling(links) {
@@ -127,6 +124,7 @@
 
             // Immediately set this link as active
             this.setActiveLink(targetId);
+            this.lockActiveState(1200);
 
             // Smooth scroll to position
             if (features.scrollBehavior) {
@@ -145,6 +143,19 @@
           }
         });
       });
+    },
+
+    lockActiveState(durationMs = 1200) {
+      this.clickLockUntil = Date.now() + durationMs;
+
+      if (this.clickLockTimer) {
+        clearTimeout(this.clickLockTimer);
+      }
+
+      this.clickLockTimer = setTimeout(() => {
+        this.clickLockUntil = 0;
+        this.clickLockTimer = null;
+      }, durationMs);
     },
 
     setupIntersectionObserver(headings) {
@@ -171,6 +182,11 @@
       const scrollOffset = 85; // Match the offset used in smooth scrolling
 
       const findActiveHeading = () => {
+        if (this.clickLockUntil && Date.now() < this.clickLockUntil) {
+          ticking = false;
+          return;
+        }
+
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         let activeId = null;
         let closestDistance = Infinity;
@@ -262,8 +278,13 @@
         this.observer.disconnect();
         this.observer = null;
       }
+      if (this.clickLockTimer) {
+        clearTimeout(this.clickLockTimer);
+        this.clickLockTimer = null;
+      }
       this.linkMap.clear();
       this.activeId = null;
+      this.clickLockUntil = 0;
     },
   };
 
