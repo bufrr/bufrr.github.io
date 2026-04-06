@@ -1,0 +1,18 @@
+#+title: Wiki Index
+#+date: [2026-04-06]
+#+filetags: :index:
+
+* Core
+/People, projects, places, events, companies/
+
+* Culture
+/Books, films, music, games, tools, platforms/
+
+* Technical
+/Languages, frameworks, protocols, architectures/
+
+* Narrative
+/Eras, transitions, decisions, experiments/
+
+* Work
+/Strategies, techniques, skills, ideas/

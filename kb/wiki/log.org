@@ -1,0 +1,4 @@
+#+title: Knowledge Base Log
+#+filetags: :log:
+
+* Log

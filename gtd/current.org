@@ -1,0 +1,61 @@
+#+TITLE: Current Work
+#+STARTUP: indent
+#+STARTUP: show2levels
+
+* Projects
+** TODO Learn Rust [0%]
+*** TODO Read "The Rust Programming Language"
+*** TODO Complete Rustlings exercises [0/5]
+    - [ ] Variables
+    - [ ] Functions
+    - [ ] Control flow
+    - [ ] Ownership
+    - [ ] Borrowing
+*** TODO Build a CLI tool
+
+** TODO Solana Working [0%]
+   [2025-07-15 Tue 12:23]
+*** TODO review gateway code [0/2]
+    - [ ] Review solana code
+    - [ ] Review repo code
+*** TODO memory optimize [0/2]
+    - [ ] Hash lib replace
+    - [ ] jemlloc
+*** TODO Jito optimize review
+** TODO Reth Working [0%]
+*** TODO Review tracing V2 code [0/2]
+    - [ ] Review fixed code
+    - [ ] Review op code changes
+** TODO Relay [50%]
+*** DONE Remove reduntant code in relay
+DEADLINE: <2025-07-15 Tue> SCHEDULED: <2025-07-15 Tue>
+*** TODO Bsc support design
+DEADLINE: <2025-07-23 Wed>
+*** TODO New release with tag
+SCHEDULED: <2025-07-17 Thu>
+*** DONE Doc for presentation
+SCHEDULED: <2025-07-16 Wed>
+
+** TODO Solana Learning [0%]
+   [2025-07-15 Tue 17:21]
+*** TODO p2p code analysis [0/3]
+    - [ ] Turbine code
+    - [ ] P2p process
+    - [ ] Write blog
+
+** TODO Facet Arbitrary [0%]
+   [2025-07-15 Tue 17:28]
+*** TODO More accurate mev calculation
+*** TODO FCT arbitrary [0/2]
+    - [ ] solidity contract
+    - [ ] mint rate extract from tx
+
+* Tasks
+** TODO Call dentist for appointment
+   SCHEDULED: <2025-08-30 Sat>
+
+
+* Ideas
+** Research Neovim as alternative editor
+** Start a technical blog
+** Learn about WebAssembly

@@ -36,6 +36,10 @@ tramp
 .org-timestamps/
 *.org_archive
 ltximg/
+org-roam.db
+
+# Claude Code
+.claude/
 
 # OS files
 .DS_Store
