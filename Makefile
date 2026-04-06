@@ -1,6 +1,6 @@
 # Makefile for blog operations
 
-.PHONY: all build clean serve server dev install-deps new-post publish help
+.PHONY: all build clean serve server dev install-deps new-post publish help kb-lint kb-absorb kb-breakdown
 
 # Default target
 all: build
@@ -71,6 +71,19 @@ publish: build
 		echo "No git repository found. Initialize with 'git init' first."; \
 	fi
 
+# Knowledge base operations
+kb-lint:
+	@echo "Running KB health check..."
+	@claude -p "Read kb/skills/lint.md. Run a health check on the knowledge base."
+
+kb-absorb:
+	@echo "Absorbing new raw files..."
+	@claude -p "Read kb/skills/absorb.md. Check kb/raw/ for files not yet in kb/wiki/log.org and absorb them."
+
+kb-breakdown:
+	@echo "Finding missing articles..."
+	@claude -p "Read kb/skills/breakdown.md. Analyze the wiki for missing articles."
+
 # Help target
 help:
 	@echo "Blog Makefile - Available targets:"
@@ -82,4 +95,7 @@ help:
 	@echo "  make install-deps   - Install required dependencies"
 	@echo "  make new-post       - Create a new blog post"
 	@echo "  make publish        - Build and publish to git"
+	@echo "  make kb-lint        - Run KB health check"
+	@echo "  make kb-absorb      - Absorb new raw files into wiki"
+	@echo "  make kb-breakdown   - Find missing articles in wiki"
 	@echo "  make help           - Show this help message"

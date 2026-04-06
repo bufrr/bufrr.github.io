@@ -1,63 +1,68 @@
-# Org-Mode Blog
+# bufrr.github.io
 
-Static blog generator powered by Emacs Org publish, with shell-based build scripts and GitHub Pages deployment.
+Private monorepo: blog + GTD + LLM-powered knowledge base.
 
-## Prerequisites
+## Structure
 
-- Emacs
-- Node.js 16+ and npm
-- Python 3 (for local preview server)
+```
+posts/        Blog source files (.org)
+static/       CSS, JS, assets
+templates/    Blog post templates
+public/       Generated HTML (GitHub Pages)
+gtd/          GTD system (current.org + archive.org)
+kb/           Knowledge base
+  raw/        Immutable source material
+  wiki/       LLM-maintained wiki (org-roam nodes)
+  brainstorm/ Brainstorming drafts
+  artifacts/  Query outputs, blog drafts, reports
+  skills/     Skill files defining Claude's behavior
+```
 
-## Quick Start
+## Blog
 
 ```bash
 npm ci
 cp .blogrc.example .blogrc
-./build.sh
-make serve
+./build.sh              # build site
+make serve              # preview at localhost:8000
+make build-prod         # build + minify
 ```
 
-Open `http://localhost:8000`.
+Create posts in `posts/` using `YYYY-MM-DD-slug.org` naming with `#+TITLE:`, `#+AUTHOR:`, `#+DATE:` headers. Set `#+DRAFT: true` to keep unpublished.
 
-## Common Commands
+Push to `main` to deploy via GitHub Pages.
 
-- `make build` or `npm run build`: Build site into `public/`
-- `make build-prod` or `npm run build:prod`: Build and minify assets
-- `make serve` or `npm run serve`: Build and preview locally
-- `make dev`: Watch `posts/` and `static/`, then rebuild on change
-- `npm run format`: Format JS/CSS/JSON/MD/YAML
-- `npm run format:check`: Check formatting
+## Knowledge Base
 
-## Project Layout
+The KB uses `claude -p` (Claude Code CLI) to compile raw notes into a structured wiki.
 
-- `posts/`: Org source files for posts and pages
-- `static/`: CSS, JS, images, favicon, robots
-- `templates/`: Post template(s)
-- `build.el`: Org publish configuration
-- `build.sh`, `minify.sh`, `generate-sitemap.sh`: Build pipeline scripts
-- `public/`: Generated output (do not edit directly)
+```bash
+# Ingest a source
+claude -p "Read kb/skills/ingest.md. Ingest this URL: https://..."
 
-## Writing Posts
+# Compile raw files into wiki
+claude -p "Read kb/skills/absorb.md. Absorb kb/raw/articles/my-article.org"
 
-Create posts in `posts/` using `YYYY-MM-DD-slug.org` naming. Include:
+# Query the wiki
+claude -p "Read kb/skills/query.md. What do I know about Ethereum MEV?"
 
-- `#+TITLE:`
-- `#+AUTHOR:`
-- `#+DATE:`
+# Health check
+claude -p "Read kb/skills/lint.md. Run a health check."
 
-Set `#+DRAFT: true` to keep a post unpublished.
+# Find missing articles
+claude -p "Read kb/skills/breakdown.md. What articles are missing?"
+```
 
-## Deployment
+Skill files in `kb/skills/` define all rules. See `CLAUDE.md` for the full command reference.
 
-Push to `main` to trigger `.github/workflows/publish.yml` and deploy to GitHub Pages.
+## GTD
 
-For configuration, use `.blogrc` and/or repository secrets (`BLOG_URL`, `BLOG_AUTHOR`, `BLOG_EMAIL`).
+Managed in Doom Emacs with `SPC g` keybindings. Files: `gtd/current.org` (active work) and `gtd/archive.org` (completed).
 
-## CI Checks
+## Doom Emacs Keybindings
 
-PRs run `.github/workflows/ci.yml`, including:
-
-- Org metadata validation
-- Shell script linting
-- Build verification
-- Internal HTML link checks
+| Prefix | System | Keys |
+|--------|--------|------|
+| `SPC g` | GTD | `c` capture, `a` agenda, `w` current work |
+| `SPC k` | KB | `n` new raw, `c` compile, `k` browse wiki, `g` graph, `h` health check |
+| `SPC B` | Blog | `n` new post, `p` publish |
