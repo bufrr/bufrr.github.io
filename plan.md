@@ -494,7 +494,7 @@ kb/skills/
 - [x] **0.7** 创建 `kb/wiki/index.org` — wiki 目录索引
 - [x] **0.8** 创建 `kb/wiki/log.org` — 操作日志
 - [x] **0.9** 更新 `.gitignore` — 排除 `org-roam.db`、`.claude/`
-- [ ] **0.10** 提交初始目录结构 ⚠️ 等用户确认后提交
+- [x] **0.10** 提交初始目录结构（commit 2e4303f）
 
 ### Phase 1: Doom Emacs 配置（Day 1-2） ✅
 
@@ -520,14 +520,14 @@ kb/skills/
 - [x] **2.5** 编写 `kb/skills/breakdown.md`
 - [x] **2.6** 编写 `kb/skills/reorganize.md`
 - [x] **2.7** 编写 `kb/skills/rebuild-index.md`
-- [ ] **2.8** 提交所有 skill 文件 ⚠️ 等用户确认后提交
+- [x] **2.8** 提交所有 skill 文件（commit 2e4303f）
 
 ### Phase 3: 更新项目 CLAUDE.md（Day 3） ✅
 
 - [x] **3.1** 更新 `bufrr.github.io/CLAUDE.md`（完整命令映射表、目录结构、wiki 规则）
 - [x] **3.2** 创建 `kb/wiki/index.org` 初始模板（Phase 0 中已完成）
 - [x] **3.3** 创建 `kb/wiki/log.org` 初始模板（Phase 0 中已完成）
-- [ ] **3.4** 提交 CLAUDE.md 和初始模板 ⚠️ 等用户确认后提交
+- [x] **3.4** 提交 CLAUDE.md 和初始模板（commit 2e4303f）
 
 ### Phase 4: Elisp 函数（Day 3-4） ✅
 
@@ -539,7 +539,7 @@ kb/skills/
 - [x] **4.6** 绑定所有 `SPC k` 快捷键（n/c/C/k/g/h/p）
 - [ ] **4.7** 验证：`SPC k n` 弹出 capture 窗口 ⚠️ 需手动验证
 - [ ] **4.8** 验证：所有现有快捷键未被破坏 ⚠️ 需手动验证
-- [ ] **4.9** 提交 config.el 变更到 emacs-config repo ⚠️ 等用户确认后提交
+- [ ] **4.9** 提交 config.el 变更到 emacs-config repo ⚠️ 需手动提交到 emacs-config repo
 
 ### Phase 5: 冒烟测试 — 首次编译循环（Day 4-5）
 
