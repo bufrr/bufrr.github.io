@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Structure
 
-This is a private monorepo containing three systems:
+This is a private repo containing blog + LLM-powered knowledge base:
 
 ```
 bufrr.github.io/
@@ -13,7 +13,6 @@ bufrr.github.io/
 ├── public/           # Generated HTML (GitHub Pages serves from here)
 ├── static/           # CSS, JS, assets
 ├── templates/        # Blog post templates
-├── gtd/              # GTD system (current.org + archive.org)
 ├── kb/               # Knowledge base
 │   ├── raw/          # Immutable source material (articles, tweets, chats)
 │   ├── wiki/         # LLM-maintained wiki (you write and maintain this)
@@ -22,6 +21,8 @@ bufrr.github.io/
 │   └── skills/       # Skill files that define your behavior
 └── CLAUDE.md         # This file
 ```
+
+Note: GTD lives separately at `~/org/gtd/` and is not part of this repo.
 
 ## Knowledge Base Commands
 
@@ -65,12 +66,6 @@ emacs -Q --script build-site.el
 - Build: `build-site.el` uses `ox-publish`
 - Output: `public/` directory (GitHub Pages)
 - Blog drafts from `kb/artifacts/` can be published to `posts/`
-
-## GTD
-
-- `gtd/current.org` — Active work (projects, tasks, ideas)
-- `gtd/archive.org` — Completed items
-- Do not modify GTD files unless explicitly asked.
 
 ## Rules
 

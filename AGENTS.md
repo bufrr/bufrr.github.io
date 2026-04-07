@@ -5,8 +5,9 @@
 This is a private monorepo with three systems:
 
 - **Blog** (`posts/`, `static/`, `templates/`, `build.el`, `build.sh`) — Org-mode static site generator → `public/` → GitHub Pages
-- **GTD** (`gtd/`) — Simple 2-file GTD system (current.org + archive.org)
 - **Knowledge Base** (`kb/`) — LLM-powered personal wiki compiled from raw sources
+
+Note: GTD lives separately at `~/org/gtd/` and is not part of this repo.
 
 ### Key Directories
 
@@ -14,8 +15,6 @@ This is a private monorepo with three systems:
 - `static/` — Site assets (css/, js/, favicon.svg, robots.txt) copied to `public/static/`
 - `templates/post-template.org` — Starter template for new posts
 - `public/` — Generated output. Do not edit manually.
-- `gtd/current.org` — Active projects, tasks, ideas
-- `gtd/archive.org` — Completed items
 - `kb/raw/` — Immutable source material (articles, podcasts, tweets, chats). Never modify after ingestion.
 - `kb/wiki/` — LLM-maintained wiki. Contains `index.org` (master catalog) and `log.org` (operation timeline).
 - `kb/skills/` — Skill files defining Claude's behavior for each KB operation.

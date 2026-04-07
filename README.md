@@ -1,6 +1,6 @@
 # bufrr.github.io
 
-Private monorepo: blog + GTD + LLM-powered knowledge base.
+Private repo: blog + LLM-powered knowledge base.
 
 ## Setup (after clone)
 
@@ -26,9 +26,10 @@ The Doom config lives in `~/.config/doom/` (separate [emacs-config](https://gith
 
 ```elisp
 (setq org-directory "~/bufrr.github.io/")
-(setq org-current-file "~/bufrr.github.io/gtd/current.org")
-(setq org-archive-file "~/bufrr.github.io/gtd/archive.org")
 (setq blog-directory "~/bufrr.github.io/")
+;; GTD stays separate at ~/org/gtd/
+(setq org-current-file "~/org/gtd/current.org")
+(setq org-archive-file "~/org/gtd/archive.org")
 ```
 
 After cloning the emacs-config, run:
@@ -63,7 +64,6 @@ posts/        Blog source files (.org)
 static/       CSS, JS, assets
 templates/    Blog post templates
 public/       Generated HTML (GitHub Pages)
-gtd/          GTD system (current.org + archive.org)
 kb/           Knowledge base
   raw/        Immutable source material
   wiki/       LLM-maintained wiki (org-roam nodes)
@@ -125,15 +125,15 @@ Push to `main` to deploy via GitHub Pages.
 
 ## GTD
 
-Managed in Doom Emacs. Files: `gtd/current.org` (active work) and `gtd/archive.org` (completed).
+GTD lives separately at `~/org/gtd/` (not in this repo). Managed in Doom Emacs with `SPC g` keybindings.
 
 ## Keybindings
 
 | Prefix | System | Keys |
 |--------|--------|------|
-| `SPC g` | GTD | `c` capture, `a` agenda, `w` current work, `A` archive |
 | `SPC k` | KB | `n` new raw, `c` compile file, `C` compile all new, `k` browse wiki, `g` graph, `h` health check, `p` publish draft |
 | `SPC B` | Blog | `n` new post, `p` publish |
+| `SPC g` | GTD (separate) | `c` capture, `a` agenda, `w` current work, `A` archive |
 
 ## KB Commands Reference
 
