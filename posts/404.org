@@ -2,6 +2,9 @@
 #+AUTHOR: 
 #+DATE: 
 #+OPTIONS: toc:nil num:nil author:nil date:nil
+# Served at arbitrary missing URLs: resolve links from the site root
+#+HTML_HEAD_EXTRA: <base href="/" />
+#+HTML_HEAD_EXTRA: <meta name="blog-page" content="404" />
 
 * 404 - Page Not Found
 

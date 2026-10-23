@@ -375,8 +375,7 @@ video {
 }
 
 .rail-toggle {
-  cursor: default;
-  pointer-events: none;
+  display: none;
 }
 
 .rail .count {
@@ -1037,10 +1036,14 @@ sup a {
     display: none;
   }
 
+  .rail-label {
+    display: none;
+  }
+
   .rail-toggle {
+    display: block;
     margin-bottom: 0;
     cursor: pointer;
-    pointer-events: auto;
   }
 
   .rail-toggle::after {

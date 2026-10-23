@@ -93,24 +93,15 @@
           const targetElement = utils.$(`#${targetId}`);
 
           if (targetElement) {
-            // Calculate scroll position with offset
-            const offset = 80; // Offset from top to account for any fixed headers
-            const elementPosition = targetElement.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - offset;
-
             // Immediately set this link as active
             this.setActiveLink(targetId);
             this.lockActiveState(1200);
 
-            // Smooth scroll to position
-            if (features.scrollBehavior) {
-              window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth',
-              });
-            } else {
-              window.scrollTo(0, offsetPosition);
-            }
+            // scrollIntoView honours the headings' CSS scroll-margin-top,
+            // which clears the sticky nav at every viewport width
+            targetElement.scrollIntoView(
+              features.scrollBehavior ? { behavior: 'smooth', block: 'start' } : true
+            );
 
             // Update URL without jumping
             if (features.history) {
@@ -155,7 +146,9 @@
 
     setupScrollTracking(headings) {
       let ticking = false;
-      const scrollOffset = 85; // Match the offset used in smooth scrolling
+      // Headings land at their CSS scroll-margin-top after a jump; count a
+      // heading as reached a little below that line
+      const scrollOffset = (parseFloat(getComputedStyle(headings[0]).scrollMarginTop) || 80) + 12;
 
       const findActiveHeading = () => {
         if (this.clickLockUntil && Date.now() < this.clickLockUntil) {
@@ -187,6 +180,14 @@
         // If no heading is found and we're near the top, activate the first one
         if (!activeId && scrollTop < scrollOffset && headings.length > 0) {
           activeId = headings[0].id;
+        }
+
+        // At the bottom of the page the last headings can never reach the
+        // offset line, so activate the last one
+        const atBottom =
+          window.innerHeight + scrollTop >= document.documentElement.scrollHeight - 2;
+        if (atBottom && scrollTop > 0 && headings.length > 0) {
+          activeId = headings[headings.length - 1].id;
         }
 
         if (activeId && activeId !== this.activeId) {
@@ -232,14 +233,18 @@
         currentLink.classList.add('active');
         currentLink.setAttribute('aria-current', 'location');
 
-        // Ensure active link is visible in TOC
-        const toc = utils.$('#table-of-contents');
-        if (toc) {
-          const tocRect = toc.getBoundingClientRect();
+        // Keep the active link visible inside the rail, which is the scroll
+        // container on wide screens. Scroll only the rail, never the window.
+        const rail = currentLink.closest('.rail');
+        if (rail && rail.scrollHeight > rail.clientHeight) {
+          const railRect = rail.getBoundingClientRect();
           const linkRect = currentLink.getBoundingClientRect();
 
-          if (linkRect.top < tocRect.top || linkRect.bottom > tocRect.bottom) {
-            currentLink.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          if (linkRect.top < railRect.top || linkRect.bottom > railRect.bottom) {
+            rail.scrollTo({
+              top: rail.scrollTop + linkRect.top - railRect.top - rail.clientHeight / 2,
+              behavior: features.scrollBehavior ? 'smooth' : 'auto',
+            });
           }
         }
       }
@@ -320,7 +325,9 @@
         const heading = utils.$('h2', toc);
         if (heading) heading.remove();
         rail.appendChild(el('div', 'rail-title', title.textContent));
-        // Collapsible on narrow screens, where the rail sits above the prose
+        // Plain label on wide screens; a collapse toggle on narrow screens,
+        // where the rail sits above the prose (CSS shows one or the other)
+        rail.appendChild(el('div', 'th rail-label', 'TREE'));
         const toggle = el('button', 'th rail-toggle', 'TREE');
         toggle.type = 'button';
         toggle.setAttribute('aria-expanded', 'false');
@@ -537,7 +544,7 @@
             textArea.select();
 
             try {
-              document.execCommand('copy');
+              if (!document.execCommand('copy')) throw new Error('copy rejected');
               flash('COPIED', true);
             } catch (fallbackErr) {
               flash('FAILED', false);
@@ -729,8 +736,11 @@
         // YAML comments
         ...(lang === 'yaml' ? [{ regex: /#.*?(?=\n|$)/g, type: 'comment' }] : []),
         // Strings
-        { regex: /"(?:[^"\\]|\\.)*"/g, type: 'string' },
-        { regex: /'(?:[^'\\]|\\.)*'/g, type: 'string' },
+        { regex: /"(?:[^"\\\n]|\\.)*"/g, type: 'string' },
+        // Rust single quotes are char literals only, so lifetimes ('a) stay plain
+        lang === 'rust'
+          ? { regex: /'(?:[^'\\\n]|\\.)'/g, type: 'string' }
+          : { regex: /'(?:[^'\\\n]|\\.)*'/g, type: 'string' },
         // Numbers
         { regex: /\b(?:0x[0-9a-fA-F]+|0b[01]+|\d+\.?\d*(?:[eE][+-]?\d+)?)\b/g, type: 'number' },
         // Booleans for JSON/YAML
@@ -904,152 +914,118 @@
   };
 
   // Language Switcher Module - Define before init()
+  // A page's language comes from its URL (-cn.html is Chinese). Visitors are
+  // only auto-redirected after they explicitly pick a language.
   const LanguageSwitcher = {
+    storageKey: 'blog-language',
+    memoryPref: null,
+
+    // localStorage can throw (private mode, blocked storage)
+    getPreference() {
+      try {
+        return localStorage.getItem(this.storageKey) || this.memoryPref;
+      } catch (e) {
+        return this.memoryPref;
+      }
+    },
+
+    savePreference(lang) {
+      this.memoryPref = lang;
+      try {
+        localStorage.setItem(this.storageKey, lang);
+      } catch (e) {
+        // Preference lasts for this page only
+      }
+    },
+
+    pageFile() {
+      return window.location.pathname.split('/').pop() || 'index.html';
+    },
+
+    pageLang() {
+      return this.pageFile().endsWith('-cn.html') ? 'cn' : 'en';
+    },
+
+    // Path of this page in the other language, or null for pages that are
+    // only published in one language
+    translationPath(lang) {
+      const file = this.pageFile();
+      if (file === 'index.html' || file === 'index-cn.html') {
+        return lang === 'cn' ? '/index-cn.html' : '/index.html';
+      }
+      if (!file.endsWith('.html') || file === 'about.html' || file === '404.html') {
+        return null;
+      }
+      const dir = window.location.pathname.slice(0, -file.length);
+      const base = file.replace(/(-cn)?\.html$/, '');
+      return dir + base + (lang === 'cn' ? '-cn.html' : '.html');
+    },
+
+    isNotFoundPage() {
+      return Boolean(utils.$('meta[name="blog-page"][content="404"]'));
+    },
+
     init() {
       const langButtons = utils.$$('.lang-btn');
       if (!langButtons.length) return;
 
-      // Get current language from localStorage or default to 'en'
-      const currentLang = localStorage.getItem('blog-language') || 'en';
-      this.setLanguage(currentLang);
-
-      // Check if we should redirect based on language preference
-      this.checkAndRedirect(currentLang);
-
-      // Add click handlers to language buttons
       langButtons.forEach((btn) => {
         btn.addEventListener('click', (e) => {
           e.preventDefault();
-          e.stopPropagation();
           const lang = btn.getAttribute('data-lang');
           if (lang) {
             this.switchLanguage(lang);
           }
         });
       });
-    },
 
-    checkAndRedirect(preferredLang) {
-      const currentPath = window.location.pathname;
-      const currentFile = currentPath.split('/').pop() || 'index.html';
+      const pageLang = this.pageLang();
+      this.markActive(pageLang);
+      document.documentElement.setAttribute('lang', pageLang === 'cn' ? 'zh-CN' : 'en');
 
-      // Special handling for index pages
-      if (currentFile === 'index.html' || currentFile === 'index-cn.html' || currentPath === '/') {
-        if (preferredLang === 'cn' && currentFile !== 'index-cn.html') {
-          window.location.pathname = '/index-cn.html';
-          return;
-        } else if (preferredLang === 'en' && currentFile === 'index-cn.html') {
-          window.location.pathname = '/index.html';
-          return;
-        }
-      }
-
-      // Check if we're on a post page
-      if (
-        currentFile &&
-        currentFile.endsWith('.html') &&
-        currentFile !== 'index.html' &&
-        currentFile !== 'index-cn.html' &&
-        currentFile !== 'about.html' &&
-        currentFile !== '404.html'
-      ) {
-        // Check if we're on the wrong language version
-        const isOnEnglishPage = !currentFile.includes('-cn.html');
-        const wantsChineseVersion = preferredLang === 'cn';
-
-        if (isOnEnglishPage && wantsChineseVersion) {
-          // User prefers Chinese but is on English page
-          const chinesePath = currentPath.replace('.html', '-cn.html');
-          // Check if Chinese version exists
-          fetch(chinesePath, { method: 'HEAD' })
-            .then((response) => {
-              if (response.ok) {
-                window.location.pathname = chinesePath;
-              }
-            })
-            .catch(() => {
-              // Chinese version not available
-            });
-        } else if (!isOnEnglishPage && preferredLang === 'en') {
-          // User prefers English but is on Chinese page
-          const englishPath = currentPath.replace('-cn.html', '.html');
-          window.location.pathname = englishPath;
-        }
+      const preferred = this.getPreference();
+      if (preferred && preferred !== pageLang && !this.isNotFoundPage()) {
+        // Automatic redirect: replace, so Back skips the bounced page
+        this.goTo(this.translationPath(preferred), null, true);
       }
     },
 
-    setLanguage(lang) {
-      // Update active button state
-      const langButtons = utils.$$('.lang-btn');
-      langButtons.forEach((btn) => {
-        if (btn.getAttribute('data-lang') === lang) {
-          btn.classList.add('active');
-        } else {
-          btn.classList.remove('active');
-        }
+    markActive(lang) {
+      utils.$$('.lang-btn').forEach((btn) => {
+        const active = btn.getAttribute('data-lang') === lang;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-pressed', String(active));
       });
-
-      // Store language preference
-      localStorage.setItem('blog-language', lang);
-
-      // Update page language attribute
-      document.documentElement.setAttribute('lang', lang === 'cn' ? 'zh-CN' : 'en');
     },
 
     switchLanguage(lang) {
-      this.setLanguage(lang);
+      this.savePreference(lang);
+      if (lang === this.pageLang()) return;
 
-      // Handle page redirects for language switching
-      const currentPath = window.location.pathname;
-      const currentFile = currentPath.split('/').pop() || 'index.html';
+      const home = lang === 'cn' ? '/index-cn.html' : '/index.html';
+      this.goTo(this.translationPath(lang), home, false);
+    },
 
-      // Special handling for index pages
-      if (currentFile === 'index.html' || currentFile === 'index-cn.html' || currentPath === '/') {
-        if (lang === 'cn') {
-          window.location.pathname = '/index-cn.html';
-        } else {
-          window.location.pathname = '/index.html';
+    // Navigate to path if it exists, otherwise to fallback (if any)
+    goTo(path, fallback, replace) {
+      const navigate = (target) => {
+        if (target && target !== window.location.pathname) {
+          if (replace) {
+            window.location.replace(target);
+          } else {
+            window.location.assign(target);
+          }
         }
+      };
+
+      if (!path) {
+        navigate(fallback);
         return;
       }
 
-      // Check if we're on a post page
-      if (
-        currentFile &&
-        currentFile.endsWith('.html') &&
-        currentFile !== 'index.html' &&
-        currentFile !== 'index-cn.html' &&
-        currentFile !== 'about.html' &&
-        currentFile !== '404.html'
-      ) {
-        let newPath;
-        if (lang === 'cn') {
-          // Switch to Chinese version
-          if (!currentFile.includes('-cn.html')) {
-            newPath = currentPath.replace('.html', '-cn.html');
-          }
-        } else {
-          // Switch to English version
-          if (currentFile.includes('-cn.html')) {
-            newPath = currentPath.replace('-cn.html', '.html');
-          }
-        }
-
-        // Check if the translated version exists by trying to navigate
-        if (newPath && newPath !== currentPath) {
-          // Try to fetch the page to see if it exists
-          fetch(newPath, { method: 'HEAD' })
-            .then((response) => {
-              if (response.ok) {
-                // Redirect to the translated version
-                window.location.pathname = newPath;
-              }
-            })
-            .catch(() => {
-              // Error checking for translated version
-            });
-        }
-      }
+      fetch(path, { method: 'HEAD' })
+        .then((response) => navigate(response.ok ? path : fallback))
+        .catch(() => navigate(fallback));
     },
   };
 

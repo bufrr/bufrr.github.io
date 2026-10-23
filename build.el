@@ -102,9 +102,7 @@
 ;; Common HTML head content
 (defun blog/html-head ()
   (concat "<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self';\">
-<meta http-equiv=\"X-Frame-Options\" content=\"SAMEORIGIN\">
-<meta http-equiv=\"X-Content-Type-Options\" content=\"nosniff\">
-<meta http-equiv=\"Referrer-Policy\" content=\"strict-origin-when-cross-origin\">
+<meta name=\"referrer\" content=\"strict-origin-when-cross-origin\">
 <link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/favicon.svg\">
 <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">
 <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>
@@ -213,7 +211,10 @@
       (if (blog/needs-rebuild-p filename html-file)
           (progn
             (message "Building: %s" filename)
-            (org-html-publish-to-html plist filename pub-dir))
+            ;; Chinese variants export with lang="zh-CN" unless #+LANGUAGE says otherwise
+            (let ((org-export-default-language
+                   (if (string-match-p "-cn\\.org\\'" filename) "zh-CN" "en")))
+              (org-html-publish-to-html plist filename pub-dir)))
         (message "Skipping unchanged: %s" filename)))))
 
 ;; Custom sitemap function to exclude author and draft posts
