@@ -35,12 +35,14 @@
 > ### What the article actually delivers
 >
 > Karpathy's original post (April 2) outlined the high-level vision:
+>
 > - Raw sources → LLM "compiles" a clean wiki of Markdown files
 > - Obsidian as the IDE/frontend
 > - LLM handles summarization, concept extraction, indexing, Q&A, and "linting"/health checks
 > - Keep everything as files (no black-box RAG at small scale)
 >
 > Yanhua's post is the **implementation manual**:
+>
 > - **Directory structure** (raw/ → wiki/ → outputs/) with clear separation of concerns
 > - **Ingestion pipeline**: Web Clipper for articles, Podwise for podcasts, custom Claude Skill for tweets/links — all with enforced metadata
 > - **Compilation step**: Claude reads new raw files → generates structured summaries + concept entries + updates indexes (All-Sources.md, All-Concepts.md)
@@ -51,6 +53,7 @@
 > They also preempt common failure modes: don't jump to RAG too early, start tiny (5–10 articles), use CLAUDE.md as a spec file for consistent output, etc.
 >
 > ### Strengths
+>
 > - **Actionable to the bone** — You could literally copy their folder structure and prompts today and have a working system by tomorrow.
 > - **Addresses the real pain** — "I have hundreds of notes but they're rotting and I can't find anything" is the exact problem 90% of Obsidian users hit. The "compile" framing + health checks is a genuine psychological and practical breakthrough.
 > - **Scalable mindset** — Starts file-based and simple, only adds RAG later when you actually need it (smart).
@@ -58,6 +61,7 @@
 > - Tone is generous and clear — no gatekeeping, no fluff.
 >
 > ### Minor weaknesses / open questions
+>
 > - Still somewhat manual at the ingestion/compilation stage (you trigger Claude yourself). Future agents will probably make this fully autonomous.
 > - Relies on "Claude Code" (or equivalent desktop LLM that can read your whole vault). Not everyone has that setup yet.
 > - No discussion of cost or token limits for very large vaults (though they correctly say wait until you actually hit scale).
@@ -82,6 +86,7 @@
 **搜索时间**：2026-04-05
 
 **核心参考**：
+
 - Andrej Karpathy 的 [LLM Knowledge Bases](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) gist（2026-04-02）：raw → compile → wiki 的完整架构。
 - 社区实践中的四层工作流扩展：raw → wiki → brainstorming → artifacts。
 
@@ -285,21 +290,21 @@ Emacs 函数（直接复制到 config.el）
 
 **每周 Prompt**：「对整个 kb/ 做四层健康检查……」
 
-| 周次 | 任务 |
-|------|------|
-| Day 1 | repo 设为私有 + 建 `gtd/`、`kb/` 目录结构 + Pages 改为 `/public` 发布 |
-| Week 1 | Doom 配置 + 迁移 10 篇到 raw/ + 用 `claude -p` 试编译 |
-| Week 2 | Org-roam 图谱 + 增量编译 + 博客发布流程 |
-| Week 3+ | 日常全流程闭环 |
+| 周次    | 任务                                                                  |
+| ------- | --------------------------------------------------------------------- |
+| Day 1   | repo 设为私有 + 建 `gtd/`、`kb/` 目录结构 + Pages 改为 `/public` 发布 |
+| Week 1  | Doom 配置 + 迁移 10 篇到 raw/ + 用 `claude -p` 试编译                 |
+| Week 2  | Org-roam 图谱 + 增量编译 + 博客发布流程                               |
+| Week 3+ | 日常全流程闭环                                                        |
 
 ### 2.6 API 成本估算
 
-| 操作 | 预估 tokens/次 | 成本（Claude Sonnet） |
-|------|---------------|----------------------|
-| 单篇文章编译（~2000 字原文） | ~4K input + ~2K output | ~$0.02 |
-| 10 篇初始批量编译 | ~60K total | ~$0.20 |
-| 每周健康检查（100 篇库） | ~50K input + ~5K output | ~$0.18 |
-| 单次 Q&A 查询 | ~10K input + ~2K output | ~$0.04 |
+| 操作                         | 预估 tokens/次          | 成本（Claude Sonnet） |
+| ---------------------------- | ----------------------- | --------------------- |
+| 单篇文章编译（~2000 字原文） | ~4K input + ~2K output  | ~$0.02                |
+| 10 篇初始批量编译            | ~60K total              | ~$0.20                |
+| 每周健康检查（100 篇库）     | ~50K input + ~5K output | ~$0.18                |
+| 单次 Q&A 查询                | ~10K input + ~2K output | ~$0.04                |
 
 **月预算参考**：日常使用（每天编译 1-2 篇 + 每周健康检查）约 $2-5/月。
 初始迁移批量编译 50 篇约 $1。远低于 ChatGPT Plus 订阅。
@@ -317,34 +322,39 @@ Emacs 函数（直接复制到 config.el）
 完整架构设计文档（[原文](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)），故意保持抽象，需要使用者自行实例化。
 
 **核心洞察 — Wiki 不是 RAG**：
+
 > "大多数人用 LLM 处理文档的体验是 RAG：上传文件，查询时检索相关片段，生成回答。这能用，但 LLM 每次都在从零重新发现知识。没有积累。"
 >
 > "这里的想法不同。LLM **增量构建并维护一个持久的 wiki** — 一个结构化的、相互链接的 Markdown 文件集合。知识被编译一次然后保持更新，而非每次查询重新推导。"
 
 **三层架构**：
+
 - **Raw sources** — 不可变的原始输入文档。LLM 只读不改。这是你的 source of truth
 - **Wiki** — LLM 维护的 Markdown 文件目录。摘要、实体页、概念页、比较、综述。LLM 完全拥有这一层
 - **Schema** — 配置文件（CLAUDE.md / AGENTS.md），告诉 LLM wiki 的结构、约定和工作流。你和 LLM 随时间共同演化这个文件
 
 **三个操作**：
 
-| 操作 | 内容 |
-|------|------|
+| 操作       | 内容                                                                                                                                                                               |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Ingest** | 新源文件放入 raw/，LLM 读取、讨论要点、写摘要页、更新 index、更新相关实体和概念页。**单次 ingest 可能触及 10-15 个 wiki 页面**。可以逐个 ingest（保持参与）或批量 ingest（少监督） |
-| **Query** | 对 wiki 提问。LLM 搜索相关页面、阅读、综合回答并引用。输出可以是 Markdown、比较表、Marp 幻灯片、matplotlib 图表。**关键：好的回答应归档回 wiki 成为新页面** — 查询即积累 |
-| **Lint** | 健康检查：页面间矛盾、被新源supersede的过时声明、无入链的孤立页、被提及但没有自己页面的重要概念、缺失的交叉引用、可通过 web search 填补的数据空白 |
+| **Query**  | 对 wiki 提问。LLM 搜索相关页面、阅读、综合回答并引用。输出可以是 Markdown、比较表、Marp 幻灯片、matplotlib 图表。**关键：好的回答应归档回 wiki 成为新页面** — 查询即积累           |
+| **Lint**   | 健康检查：页面间矛盾、被新源supersede的过时声明、无入链的孤立页、被提及但没有自己页面的重要概念、缺失的交叉引用、可通过 web search 填补的数据空白                                  |
 
 **两个关键导航文件**：
+
 - **index.md** — 内容目录。每个页面列出链接、一行摘要、元数据。按类别组织。LLM 每次 ingest 都更新。查询时 LLM 先读 index 找相关页面再深入。**在中等规模（~100 源、~数百页）下够用，不需要 RAG**
 - **log.md** — 时间线。Append-only，记录所有 ingest、query、lint。格式如 `## [2026-04-02] ingest | Article Title`，可用 `grep "^## \[" log.md | tail -5` 解析
 
 **推荐工具**：
+
 - [qmd](https://github.com/tobi/qmd) — 本地 Markdown 搜索引擎，BM25 + 向量混合搜索，有 CLI 和 MCP server
 - Obsidian Web Clipper — 浏览器扩展，网页转 Markdown
 - Marp — Markdown 幻灯片格式
 - Dataview — Obsidian 插件，对 YAML frontmatter 做查询
 
 **核心哲学**：
+
 - **Obsidian 是 IDE，LLM 是程序员，Wiki 是代码库**（对应本计划：Emacs 是 IDE，Claude 是程序员，kb/wiki/ 是代码库）
 - 人负责：选源、探索、提好问题、思考意义
 - LLM 负责：摘要、交叉引用、归档、记账 — 所有让知识库有用的苦力活
@@ -359,17 +369,18 @@ Emacs 函数（直接复制到 config.el）
 
 **7 个命令**：
 
-| 命令 | 作用 |
-|------|------|
-| **Ingest** | 导入源数据（日记、Notes、iMessage 等）→ 带 YAML frontmatter 的 Markdown 条目 |
-| **Absorb** | 核心编译：按时间顺序处理条目，匹配已有文章，提取模式，按主题写入。每 15 条重建索引并审计质量 |
-| **Query** | 只读查询，通过 index + 反向链接导航回答问题 |
-| **Cleanup** | 并行子 agent 审计所有文章：结构、语气、断链、补充机会 |
-| **Breakdown** | 从已有内容里挖掘缺失的文章（值得独立成页的实体和主题） |
-| **Rebuild-index** | 重建主索引，带 wikilink 别名和反向链接映射 |
-| **Reorganize** | 重组 wiki 分类和架构 |
+| 命令              | 作用                                                                                         |
+| ----------------- | -------------------------------------------------------------------------------------------- |
+| **Ingest**        | 导入源数据（日记、Notes、iMessage 等）→ 带 YAML frontmatter 的 Markdown 条目                 |
+| **Absorb**        | 核心编译：按时间顺序处理条目，匹配已有文章，提取模式，按主题写入。每 15 条重建索引并审计质量 |
+| **Query**         | 只读查询，通过 index + 反向链接导航回答问题                                                  |
+| **Cleanup**       | 并行子 agent 审计所有文章：结构、语气、断链、补充机会                                        |
+| **Breakdown**     | 从已有内容里挖掘缺失的文章（值得独立成页的实体和主题）                                       |
+| **Rebuild-index** | 重建主索引，带 wikilink 别名和反向链接映射                                                   |
+| **Reorganize**    | 重组 wiki 分类和架构                                                                         |
 
 **目录结构（按主题涌现，不预建）**：
+
 - **Core**：people, projects, places, events, companies, institutions
 - **Culture**：books, films, music, games, tools, platforms, courses
 - **Inner Life**：philosophies, patterns, tensions, identities, life
@@ -378,6 +389,7 @@ Emacs 函数（直接复制到 config.el）
 - **Work**：strategies, techniques, skills, ideas, artifacts
 
 **写作标准**：
+
 - 维基百科语气 — 事实、中立、平实，不加修辞
 - 按主题组织，不按时间 — "这对这个人意味着什么"而非"发生了什么"
 - 每条数据必须被"吸收"进理解，不是机械归档
@@ -385,11 +397,13 @@ Emacs 函数（直接复制到 config.el）
 - 文章长度：最少 15 行，重要传记阶段 60-100 行
 
 **反模式**：
+
 - **反填塞（Anti-cramming）** — 别往已有文章硬塞内容，该开新页就开新页
 - **反空壳（Anti-thinning）** — 没有足够内容就别建页面
 - **反日记式结构** — 不用日期做标题，用主题概念
 
 **Farza 的四个核心理念**：
+
 1. **显式（Explicit）** — 知识是可见可浏览的 wiki 文件，不是 AI 黑箱里的隐式记忆
 2. **你的（Yours）** — 数据在本地，不锁在任何 AI 厂商系统里
 3. **文件优于应用（File over App）** — 纯通用格式，任何工具都能处理
@@ -402,26 +416,29 @@ Emacs 函数（直接复制到 config.el）
 与 Karpathy/Farza 的扁平文件路线完全不同，GBrain 是一个工程化产品，面向 7000+ 文件、2.3GB 规模的知识库。
 
 **架构选择**：
+
 - **SQLite 单文件**（FTS5 全文搜索 + 向量嵌入）替代扁平 Markdown 文件
 - **理由**：Git 在 ~5K 文件后吃力；SQLite 无服务器、支持并发读取
 - 支持 `export` 回 Markdown 做 round-trip 验证，不锁数据
 
 **"Above the line / Below the line" 页面结构**（最有价值的设计）：
+
 - **上线（编译后的真相）** — LLM 的当前理解，会被新信息改写更新
 - **下线（时间线）** — Append-only，永不改写，是证据基础
 - 用 `-----` 分隔。解决了"错误复利"问题 — 永远能追溯到原始证据
 
 **Thin CLI + Fat Skills 架构**：
+
 - CLI 仅 ~500 行 TypeScript，负责数据库操作
 - 智能在 5 个独立的 `SKILL.md` 文件里：
 
-| Skill | 作用 |
-|-------|------|
-| **ingest/SKILL.md** | 处理会议、文章、对话。更新已有页面，为新实体建页，维护交叉引用，解析时间线条目 |
-| **query/SKILL.md** | 三层搜索：FTS5 关键词（精确匹配）→ 向量语义（含义匹配）→ 结构化查询（关系导航）。合并去重后综合回答 |
-| **maintain/SKILL.md** | 矛盾检测、过期标记、孤立页面、缺失交叉引用、死链清理、标签规范化、嵌入新鲜度验证 |
-| **enrich/SKILL.md** | 从外部 API（Crustdata、Exa 等）补充人物和公司数据 |
-| **briefing/SKILL.md** | 每日简报：日历、活跃交易、待办线程、近期变更、相关人物 |
+| Skill                 | 作用                                                                                                |
+| --------------------- | --------------------------------------------------------------------------------------------------- |
+| **ingest/SKILL.md**   | 处理会议、文章、对话。更新已有页面，为新实体建页，维护交叉引用，解析时间线条目                      |
+| **query/SKILL.md**    | 三层搜索：FTS5 关键词（精确匹配）→ 向量语义（含义匹配）→ 结构化查询（关系导航）。合并去重后综合回答 |
+| **maintain/SKILL.md** | 矛盾检测、过期标记、孤立页面、缺失交叉引用、死链清理、标签规范化、嵌入新鲜度验证                    |
+| **enrich/SKILL.md**   | 从外部 API（Crustdata、Exa 等）补充人物和公司数据                                                   |
+| **briefing/SKILL.md** | 每日简报：日历、活跃交易、待办线程、近期变更、相关人物                                              |
 
 **MCP Server**：任何 AI 工具（Claude Code、Cursor、Windsurf）通过标准 Model Context Protocol 接入，不绑定特定 agent。
 
@@ -431,34 +448,34 @@ Emacs 函数（直接复制到 config.el）
 
 ### 3.4 对比与差距分析
 
-| | Karpathy | Farza | Garry Tan (GBrain) | 本计划（当前） |
-|---|---------|-------|-------------------|--------------|
-| 定位 | 架构理念 | 个人维基实现 | 工程化产品 | 实现（半成品） |
-| 规模 | ~100 篇、~400K 字 | 400 篇 | **7,471 文件、2.3GB** | 起步 ~10 篇 |
-| 存储 | 扁平 .md + Git | 扁平 .md | **SQLite**（FTS5 + 向量） | 扁平 .org + Git |
-| 搜索 | index.md + qmd | index + backlinks | **三层**（FTS5 + 向量 + 结构化） | index.org（够用） |
-| 操作数 | 3（ingest/query/lint） | 7（含 breakdown/reorganize） | 5 个 fat skills | 2（compile/health-check）**← 需补** |
-| 页面结构 | 自由 | 维基百科语气 | **上线/下线分层**（编译真相 + 证据时间线） | **未定义 ← 采纳上/下线** |
-| 写作规范 | 未定义 | 详细（语气、反模式、长度） | 隐含在 skills 里 | **未定义 ← 需补** |
-| 输出回流 | **是** | 是 | 是（timeline append） | **无 ← 需补** |
-| AI 接入 | 任何 agent 读文件 | Claude Code | **MCP server**（标准协议） | claude -p |
-| CLAUDE.md | 概念级 | 生产级（单文件） | **5 个独立 SKILL.md** | **未写 ← 采纳 fat skills** |
-| 增量处理 | 增量，单次触及 10-15 页 | 每 15 条审计 | 事务性写入 | 按文件名匹配 **← 过于简单** |
-| 导航文件 | **index.md + log.md** | index | index + structured timeline | **无 ← 采纳 index + log** |
+|           | Karpathy                | Farza                        | Garry Tan (GBrain)                         | 本计划（当前）                      |
+| --------- | ----------------------- | ---------------------------- | ------------------------------------------ | ----------------------------------- |
+| 定位      | 架构理念                | 个人维基实现                 | 工程化产品                                 | 实现（半成品）                      |
+| 规模      | ~100 篇、~400K 字       | 400 篇                       | **7,471 文件、2.3GB**                      | 起步 ~10 篇                         |
+| 存储      | 扁平 .md + Git          | 扁平 .md                     | **SQLite**（FTS5 + 向量）                  | 扁平 .org + Git                     |
+| 搜索      | index.md + qmd          | index + backlinks            | **三层**（FTS5 + 向量 + 结构化）           | index.org（够用）                   |
+| 操作数    | 3（ingest/query/lint）  | 7（含 breakdown/reorganize） | 5 个 fat skills                            | 2（compile/health-check）**← 需补** |
+| 页面结构  | 自由                    | 维基百科语气                 | **上线/下线分层**（编译真相 + 证据时间线） | **未定义 ← 采纳上/下线**            |
+| 写作规范  | 未定义                  | 详细（语气、反模式、长度）   | 隐含在 skills 里                           | **未定义 ← 需补**                   |
+| 输出回流  | **是**                  | 是                           | 是（timeline append）                      | **无 ← 需补**                       |
+| AI 接入   | 任何 agent 读文件       | Claude Code                  | **MCP server**（标准协议）                 | claude -p                           |
+| CLAUDE.md | 概念级                  | 生产级（单文件）             | **5 个独立 SKILL.md**                      | **未写 ← 采纳 fat skills**          |
+| 增量处理  | 增量，单次触及 10-15 页 | 每 15 条审计                 | 事务性写入                                 | 按文件名匹配 **← 过于简单**         |
+| 导航文件  | **index.md + log.md**   | index                        | index + structured timeline                | **无 ← 采纳 index + log**           |
 
 ### 3.5 本计划采纳的设计决策
 
 基于三个参考实现的对比，本计划采纳以下设计：
 
-| 采纳项 | 来源 | 理由 |
-|--------|------|------|
-| **扁平 .org 文件 + Git** | Karpathy | 起步规模 ~10 篇，扁平文件够用。SQLite 是过早优化 |
-| **上线/下线页面结构** | GBrain | 成本为零但价值极大。上半部分 LLM 可改写，下半部分证据只追加。解决错误复利问题 |
-| **Fat skills 拆分** | GBrain | 不写一个巨大的 CLAUDE.md，按命令拆成独立文件（`kb/skills/*.md`） |
-| **index.org + log.org** | Karpathy | index 做内容导航，log 做时间线。log 格式 grep 友好 |
-| **写作规范 + 反模式** | Farza | 维基百科语气、反填塞、反空壳、按主题不按时间 |
-| **7 个命令** | Farza + Karpathy | ingest/absorb/query/lint/breakdown/reorganize/rebuild-index |
-| **查询即积累** | Karpathy | 好的回答归档回 wiki，每次查询增强知识库 |
+| 采纳项                   | 来源             | 理由                                                                          |
+| ------------------------ | ---------------- | ----------------------------------------------------------------------------- |
+| **扁平 .org 文件 + Git** | Karpathy         | 起步规模 ~10 篇，扁平文件够用。SQLite 是过早优化                              |
+| **上线/下线页面结构**    | GBrain           | 成本为零但价值极大。上半部分 LLM 可改写，下半部分证据只追加。解决错误复利问题 |
+| **Fat skills 拆分**      | GBrain           | 不写一个巨大的 CLAUDE.md，按命令拆成独立文件（`kb/skills/*.md`）              |
+| **index.org + log.org**  | Karpathy         | index 做内容导航，log 做时间线。log 格式 grep 友好                            |
+| **写作规范 + 反模式**    | Farza            | 维基百科语气、反填塞、反空壳、按主题不按时间                                  |
+| **7 个命令**             | Farza + Karpathy | ingest/absorb/query/lint/breakdown/reorganize/rebuild-index                   |
+| **查询即积累**           | Karpathy         | 好的回答归档回 wiki，每次查询增强知识库                                       |
 
 **下一步**：基于以上决策编写 `kb/skills/` 目录下的 skill 文件：
 

@@ -28,15 +28,15 @@ Note: GTD lives separately at `~/org/gtd/` and is not part of this repo.
 
 When the user gives one of these commands, read the corresponding skill file and follow its instructions exactly:
 
-| Command | Skill File | What to Do |
-|---------|-----------|------------|
-| **ingest** | `kb/skills/ingest.md` | Import a source into kb/raw/ |
-| **absorb** | `kb/skills/absorb.md` | Compile raw sources into wiki entries |
-| **query** | `kb/skills/query.md` | Answer questions from the wiki |
-| **lint** | `kb/skills/lint.md` | Health check the knowledge base |
-| **breakdown** | `kb/skills/breakdown.md` | Find missing articles |
-| **reorganize** | `kb/skills/reorganize.md` | Restructure wiki categories |
-| **rebuild-index** | `kb/skills/rebuild-index.md` | Regenerate index.org |
+| Command           | Skill File                   | What to Do                            |
+| ----------------- | ---------------------------- | ------------------------------------- |
+| **ingest**        | `kb/skills/ingest.md`        | Import a source into kb/raw/          |
+| **absorb**        | `kb/skills/absorb.md`        | Compile raw sources into wiki entries |
+| **query**         | `kb/skills/query.md`         | Answer questions from the wiki        |
+| **lint**          | `kb/skills/lint.md`          | Health check the knowledge base       |
+| **breakdown**     | `kb/skills/breakdown.md`     | Find missing articles                 |
+| **reorganize**    | `kb/skills/reorganize.md`    | Restructure wiki categories           |
+| **rebuild-index** | `kb/skills/rebuild-index.md` | Regenerate index.org                  |
 
 Always read the skill file before executing. The skill files contain the rules.
 
@@ -49,6 +49,7 @@ Always read the skill file before executing. The skill files contain the rules.
 ## Wiki Page Format
 
 All wiki pages use the above-the-line / below-the-line structure (defined in `kb/skills/absorb.md`):
+
 - Above `-----`: Compiled truth. Rewrite freely with new information.
 - Below `-----`: Evidence timeline. Append-only. Never rewrite.
 

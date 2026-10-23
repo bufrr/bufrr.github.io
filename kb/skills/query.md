@@ -12,6 +12,7 @@ Answer questions using the knowledge base. Read-only navigation through the wiki
 ## Output Formats
 
 Choose based on the question:
+
 - **Short answer**: Direct text response with page citations.
 - **Org file**: For complex answers worth keeping. Save to `kb/artifacts/`.
 - **Comparison table**: For "X vs Y" questions.
@@ -20,6 +21,7 @@ Choose based on the question:
 ## Output Reflow
 
 When an answer is substantial and worth preserving:
+
 1. Save the output as an `.org` file in `kb/artifacts/`.
 2. Consider whether the answer reveals insights that should be absorbed back into relevant wiki pages.
 3. Append a log entry:

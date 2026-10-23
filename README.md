@@ -17,7 +17,7 @@ Private repo: blog + LLM-powered knowledge base.
 git clone git@github.com:bufrr/bufrr.github.io.git ~/bufrr.github.io
 cd ~/bufrr.github.io
 npm ci
-cp .blogrc.example .blogrc  # edit with your values
+cp .blogrc.example .blogrc # edit with your values
 ```
 
 ### 3. Doom Emacs config
@@ -35,24 +35,25 @@ The Doom config lives in `~/.config/doom/` (separate [emacs-config](https://gith
 After cloning the emacs-config, run:
 
 ```bash
-doom sync    # installs org-roam, org-roam-ui, org-ql
+doom sync # installs org-roam, org-roam-ui, org-ql
 ```
 
 ### 4. Verify everything works
 
 ```bash
 # Blog
-./build.sh                   # should generate HTML in public/
+./build.sh # should generate HTML in public/
 
 # Knowledge base (requires Claude Code CLI)
 claude -p "Read CLAUDE.md. Then read kb/wiki/index.org. Report what you see."
 
 # Or use Makefile shortcuts
-make kb-lint                 # health check
-make kb-absorb               # compile new raw files
+make kb-lint   # health check
+make kb-absorb # compile new raw files
 ```
 
 In Emacs:
+
 - `SPC g w` — should open `gtd/current.org`
 - `SPC k k` — should open `kb/wiki/` directory
 - `SPC B n` — should create a new blog post
@@ -107,16 +108,16 @@ claude -p "Read kb/skills/query.md. Based on my wiki, draft a blog post about Et
 ### Weekly maintenance
 
 ```bash
-make kb-lint        # find issues
-make kb-breakdown   # find missing articles
+make kb-lint      # find issues
+make kb-breakdown # find missing articles
 ```
 
 ## Blog
 
 ```bash
-./build.sh              # build site
-make serve              # preview at localhost:8000
-make build-prod         # build + minify
+./build.sh      # build site
+make serve      # preview at localhost:8000
+make build-prod # build + minify
 ```
 
 Create posts in `posts/` using `YYYY-MM-DD-slug.org` naming with `#+TITLE:`, `#+AUTHOR:`, `#+DATE:` headers. Set `#+DRAFT: true` to keep unpublished.
@@ -129,20 +130,20 @@ GTD lives separately at `~/org/gtd/` (not in this repo). Managed in Doom Emacs w
 
 ## Keybindings
 
-| Prefix | System | Keys |
-|--------|--------|------|
-| `SPC k` | KB | `n` new raw, `c` compile file, `C` compile all new, `k` browse wiki, `g` graph, `h` health check, `p` publish draft |
-| `SPC B` | Blog | `n` new post, `p` publish |
-| `SPC g` | GTD (separate) | `c` capture, `a` agenda, `w` current work, `A` archive |
+| Prefix  | System         | Keys                                                                                                                |
+| ------- | -------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `SPC k` | KB             | `n` new raw, `c` compile file, `C` compile all new, `k` browse wiki, `g` graph, `h` health check, `p` publish draft |
+| `SPC B` | Blog           | `n` new post, `p` publish                                                                                           |
+| `SPC g` | GTD (separate) | `c` capture, `a` agenda, `w` current work, `A` archive                                                              |
 
 ## KB Commands Reference
 
-| Command | CLI | Makefile | What it does |
-|---------|-----|----------|-------------|
-| Ingest | `claude -p "Read kb/skills/ingest.md. Ingest ..."` | — | Import source into raw/ |
-| Absorb | `claude -p "Read kb/skills/absorb.md. Absorb ..."` | `make kb-absorb` | Compile raw → wiki |
-| Query | `claude -p "Read kb/skills/query.md. ..."` | — | Answer questions from wiki |
-| Lint | `claude -p "Read kb/skills/lint.md. ..."` | `make kb-lint` | Health check |
-| Breakdown | `claude -p "Read kb/skills/breakdown.md. ..."` | `make kb-breakdown` | Find missing articles |
-| Reorganize | `claude -p "Read kb/skills/reorganize.md. ..."` | — | Restructure categories |
-| Rebuild Index | `claude -p "Read kb/skills/rebuild-index.md. ..."` | — | Regenerate index.org |
+| Command       | CLI                                                | Makefile            | What it does               |
+| ------------- | -------------------------------------------------- | ------------------- | -------------------------- |
+| Ingest        | `claude -p "Read kb/skills/ingest.md. Ingest ..."` | —                   | Import source into raw/    |
+| Absorb        | `claude -p "Read kb/skills/absorb.md. Absorb ..."` | `make kb-absorb`    | Compile raw → wiki         |
+| Query         | `claude -p "Read kb/skills/query.md. ..."`         | —                   | Answer questions from wiki |
+| Lint          | `claude -p "Read kb/skills/lint.md. ..."`          | `make kb-lint`      | Health check               |
+| Breakdown     | `claude -p "Read kb/skills/breakdown.md. ..."`     | `make kb-breakdown` | Find missing articles      |
+| Reorganize    | `claude -p "Read kb/skills/reorganize.md. ..."`    | —                   | Restructure categories     |
+| Rebuild Index | `claude -p "Read kb/skills/rebuild-index.md. ..."` | —                   | Regenerate index.org       |
