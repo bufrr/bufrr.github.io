@@ -99,6 +99,62 @@
    ;; If htmlize fails to load, continue without syntax highlighting
    (message "Warning: htmlize not available, syntax highlighting disabled")))
 
+;; Per-page SEO and sharing tags. Crawlers and link previews don't run JS,
+;; so these are written into the HTML at export time.
+(setq blog-url (string-remove-suffix "/" (or (getenv "BLOG_URL") "https://bytenoob.io")))
+
+(defun blog/page-url (name)
+  "Public URL of the page exported as NAME.html."
+  (if (string= name "index") (concat blog-url "/") (concat blog-url "/" name ".html")))
+
+(defun blog/seo-head (info)
+  "Return head tags for the page described by export INFO."
+  (let* ((file (plist-get info :input-file))
+         (dir (file-name-directory file))
+         (name (file-name-base file))
+         (cn (string-suffix-p "-cn" name))
+         (base (string-remove-suffix "-cn" name))
+         (title (blog/html-escape
+                 (string-trim (org-element-interpret-data (plist-get info :title)))))
+         (desc (blog/html-escape (string-trim (or (plist-get info :description) ""))))
+         (date (and (string-match "\\`\\([0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\}\\)-" name)
+                    (match-string 1 name)))
+         (url (blog/page-url name))
+         (meta (lambda (attr key value)
+                 (format "<meta %s=\"%s\" content=\"%s\" />\n" attr key value))))
+    (if (string= name "404")
+        "<meta name=\"robots\" content=\"noindex\" />\n"
+      (concat
+       (format "<link rel=\"canonical\" href=\"%s\" />\n" url)
+       (funcall meta "property" "og:type" (if date "article" "website"))
+       (funcall meta "property" "og:title" title)
+       (funcall meta "property" "og:url" url)
+       (funcall meta "property" "og:site_name" blog-title)
+       (funcall meta "property" "og:locale" (if cn "zh_CN" "en_US"))
+       (if (string-empty-p desc) ""
+         (funcall meta "property" "og:description" desc))
+       (funcall meta "name" "twitter:card" "summary")
+       (if date (funcall meta "property" "article:published_time" date) "")
+       ;; Link EN/CN translations when both exist
+       (let ((en-name base) (cn-name (concat base "-cn")))
+         (if (and (file-exists-p (expand-file-name (concat en-name ".org") dir))
+                  (file-exists-p (expand-file-name (concat cn-name ".org") dir)))
+             (concat
+              (format "<link rel=\"alternate\" hreflang=\"en\" href=\"%s\" />\n" (blog/page-url en-name))
+              (format "<link rel=\"alternate\" hreflang=\"zh-CN\" href=\"%s\" />\n" (blog/page-url cn-name))
+              (format "<link rel=\"alternate\" hreflang=\"x-default\" href=\"%s\" />\n" (blog/page-url en-name)))
+           ""))))))
+
+(defun blog/seo-filter (output backend info)
+  "Insert per-page SEO tags before </head> in HTML OUTPUT."
+  (if (org-export-derived-backend-p backend 'html)
+      ;; Build the tags first: blog/seo-head clobbers the match data
+      (let ((tags (blog/seo-head info)))
+        (if (string-match "</head>" output)
+            (replace-match (concat tags "</head>") t t output)
+          output))
+    output))
+
 ;; Common HTML head content
 (defun blog/html-head ()
   (concat "<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self';\">
@@ -251,6 +307,7 @@
          :html-head ,(blog/html-head)
          :html-preamble blog/preamble
          :html-postamble blog/postamble
+         :filter-final-output (blog/seo-filter)
          :html-head-include-default-style nil
          :html-head-include-scripts nil
          :auto-sitemap t
@@ -279,6 +336,7 @@
          :html-head ,(blog/html-head)
          :html-preamble blog/preamble
          :html-postamble blog/postamble
+         :filter-final-output (blog/seo-filter)
          :html-head-include-default-style nil
          :html-head-include-scripts nil
          :exclude ".*"
