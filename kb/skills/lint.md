@@ -4,15 +4,15 @@ Health check the knowledge base for data integrity issues.
 
 ## Checks
 
-Scan all files in `kb/wiki/` and report:
+Scan all wiki pages in `kb/wiki/` (excluding `index.org` and `log.org`, which are not pages) and report:
 
-1. **Missing metadata**: Pages without `#+title:`, `#+filetags:`, or `#+date:`.
+1. **Missing metadata**: Pages without a leading `:ID:` property drawer, `#+title:`, `#+filetags:`, or `#+date:`, or whose first filetag is not a section tag (see `rebuild-index.md`).
 2. **Orphan pages**: Wiki pages with no inbound links from other pages.
-3. **Missing pages**: Concepts mentioned via `[[id:...]]` links that point to non-existent pages.
+3. **Missing pages**: `[[id:...]]` links whose ID does not appear as an `:ID:` in any wiki page.
 4. **Broken links**: Links to pages that have been renamed or deleted.
 5. **Contradictions**: Claims in one page that conflict with claims in another (check above-the-line content).
 6. **Stale content**: Pages not updated in 90+ days that reference active topics.
-7. **Uncompiled raw**: Files in `kb/raw/` that have no corresponding absorb entry in `kb/wiki/log.org`.
+7. **Uncompiled raw**: Files in `kb/raw/` (ignoring `.gitkeep`) with no `absorb` log entry whose `:SOURCE:` is that file. An `ingest` entry alone does not count.
 8. **Index drift**: Pages that exist in `kb/wiki/` but are missing from `index.org`, or entries in `index.org` that point to deleted pages.
 
 ## Output Format

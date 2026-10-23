@@ -7,12 +7,12 @@ Compile raw source material into structured wiki entries. This is the core skill
 Every wiki page uses a two-part structure separated by a horizontal rule:
 
 ```org
+:PROPERTIES:
+:ID: <new UUID from uuidgen>
+:END:
 #+title: Topic Name
 #+date: [YYYY-MM-DD]
-#+filetags: :category:tag1:tag2:
-:PROPERTIES:
-:ID: (org-id, auto-generated)
-:END:
+#+filetags: :technical:tag1:tag2:
 
 * Summary
 One paragraph overview of this topic.
@@ -32,6 +32,15 @@ Key facts extracted from this source.
 Direct quote if valuable. Max 1-2 per source.
 #+end_quote
 ```
+
+**File-level metadata** (org-roam reads the drawer only when it is the first thing in the file):
+
+- `:ID:` — a new UUID for every new page, generated with `uuidgen` (or `python3 -c 'import uuid; print(uuid.uuid4())'`). Never invent, reuse, or change an ID.
+- `#+date:` — the last time the above-the-line content changed. Update it whenever you rewrite the page.
+- `#+filetags:` — the first tag is the page's index section, one of `:core:`, `:culture:`, `:technical:`, `:narrative:`, `:work:` (see `rebuild-index.md`). Further tags are free-form topics.
+- File name — `kb/wiki/<slug>.org`, where the slug is the title in lowercase kebab-case ASCII (e.g. `ethereum-block-building.org`).
+
+**Linking**: To link to a page, read its `:ID:` from the target file and write `[[id:<that ID>][Display Text]]`. Never link to a page that does not exist yet; create it first or leave plain text.
 
 **Above the line**: The compiled truth. LLM rewrites and updates this freely as new information arrives.
 
@@ -63,7 +72,7 @@ Direct quote if valuable. Max 1-2 per source.
 4. If the source introduces a new topic not covered by existing pages:
    - Create a new wiki page following the page structure above
    - Add cross-references from related existing pages
-5. Update `kb/wiki/index.org` with any new or significantly changed pages.
+5. Update `kb/wiki/index.org`: add an entry for each new page under the section named by its first filetag, using the entry format in `rebuild-index.md`; refresh the summary of significantly changed pages.
 6. Append a log entry to `kb/wiki/log.org`:
 
 ```org
@@ -76,8 +85,9 @@ Direct quote if valuable. Max 1-2 per source.
 
 ## Rules
 
-- A single absorb can touch 10-15 wiki pages. This is normal and expected.
+- Touch every page the source is genuinely relevant to — sometimes one, often several. Do not pad pages or create thin ones to reach a number.
 - Always update the index after absorbing.
 - Always append to the log after absorbing.
-- Never delete content from above the line — rewrite it to incorporate new information.
+- Above the line may be rewritten, merged, or moved: when a subtopic moves to its own page (anti-cramming), leave a one-line summary linking to it. Never drop a claim that is still supported by evidence below the line.
 - Never modify content below the line — only append.
+- Wiki pages are public. Never copy personal data (private individuals' names, emails, phone numbers, addresses) or verbatim quotes from private sources such as chats and emails into the wiki; paraphrase the knowledge instead. In non-interactive runs, skip private sources that have not been redacted and list them in the log entry under `:SKIPPED:`.

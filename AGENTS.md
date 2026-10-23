@@ -71,7 +71,9 @@ Rules:
 
 - Never modify files in `kb/raw/`. Raw sources are immutable.
 - Always update `kb/wiki/index.org` after creating or changing wiki pages.
-- Always append to `kb/wiki/log.org` after any operation.
+- New wiki pages need a fresh UUID `:ID:` drawer at the top of the file; link with `[[id:...]]` using the target page's ID.
+- `kb/raw/chats/` and `kb/raw/tweets/` are gitignored for private material; never copy personal data into wiki pages or artifacts.
+- Append to `kb/wiki/log.org` after every KB operation (ingest, absorb, lint, breakdown, rebuild-index; reorganize once the user decides; query only when it saves an artifact).
 
 ## Testing Guidelines
 

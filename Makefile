@@ -94,7 +94,7 @@ kb-lint:
 
 kb-absorb:
 	@echo "Absorbing new raw files..."
-	@claude -p "Read kb/skills/absorb.md. Check kb/raw/ for files not yet in kb/wiki/log.org and absorb them."
+	@claude -p "Read kb/skills/absorb.md. Absorb every file in kb/raw/ (ignoring .gitkeep) that has no absorb entry in kb/wiki/log.org whose :SOURCE: is that file."
 
 kb-breakdown:
 	@echo "Finding missing articles..."

@@ -40,7 +40,7 @@ Review and restructure the wiki's category organization.
 - Do not execute changes. Only propose.
 - The user must confirm the plan before execution.
 - When confirmed, update `#+filetags:` on affected pages and rebuild the index.
-- Append a log entry:
+- Append one log entry after the user decides (applied, partly applied, or rejected), not when proposing:
 
 ```org
 ** [YYYY-MM-DD] reorganize | Wiki restructure

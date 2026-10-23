@@ -69,6 +69,12 @@ logs/
 *.temp
 tmp/
 temp/
+# Private KB sources stay local (the repo is public)
+kb/raw/chats/*
+kb/raw/tweets/*
+!kb/raw/chats/.gitkeep
+!kb/raw/tweets/.gitkeep
+
 # Local config and tooling
 .blogrc
 .mcp.json

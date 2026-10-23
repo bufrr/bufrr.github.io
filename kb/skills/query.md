@@ -38,5 +38,6 @@ When an answer is substantial and worth preserving:
 
 - Never modify wiki pages during a query. The only writes allowed are the output file in `kb/artifacts/` and the log entry in `kb/wiki/log.org`.
 - Always cite which wiki pages your answer draws from.
+- Artifacts in `kb/artifacts/` are committed to a public repo and may become blog posts. Do not include personal data or verbatim quotes from private sources.
 - If you cannot answer from the wiki alone, say so. Suggest what sources to ingest.
 - Prefer depth over breadth — read fewer pages thoroughly rather than many superficially.

@@ -80,8 +80,8 @@ kb/           Knowledge base
 ### Add knowledge
 
 ```bash
-# Option A: save a file directly
-cp article.org kb/raw/articles/
+# Option A: ingest a file or URL (adds metadata, logs it)
+claude -p "Read kb/skills/ingest.md. Ingest ~/Downloads/article.md"
 
 # Option B: use Emacs capture
 # SPC k n → paste content → save

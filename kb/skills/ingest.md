@@ -17,7 +17,7 @@ Import raw source material into the knowledge base.
    - `kb/raw/podcasts/` — podcast notes, transcripts
    - `kb/raw/tweets/` — tweets, threads, social media
    - `kb/raw/chats/` — AI conversations, chat logs
-3. Ensure the file has an Org-mode property drawer with metadata:
+3. Write the file with this metadata when you create it — before it is saved in `kb/raw/`, since raw files are immutable afterwards. Files that were copied into `kb/raw/` by hand without metadata are not edited; record their metadata in the log entry instead:
 
 ```org
 #+title: Source Title
@@ -43,6 +43,7 @@ Import raw source material into the knowledge base.
 
 - The repository is public: anything saved under `kb/` is readable on GitHub. Before ingesting private material (chat logs, emails, unpublished notes), confirm with the user and redact personal data (names of private individuals, emails, phone numbers, keys).
 - Never modify raw files after ingestion. Raw is immutable.
+- `kb/raw/chats/` and `kb/raw/tweets/` are gitignored (only `.gitkeep` is tracked), so private sources stay on this machine. Put anything personal there, even after redaction.
 - One source per file.
 - If the input is a URL, fetch the content and save it. Do not leave URLs as placeholders.
 - If the input is Markdown, convert to Org-mode syntax (headings, links, emphasis).

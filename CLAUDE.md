@@ -43,7 +43,7 @@ Always read the skill file before executing. The skill files contain the rules.
 ## Key Files
 
 - `kb/wiki/index.org` — Master index of all wiki pages. Read this first when navigating.
-- `kb/wiki/log.org` — Chronological log of all operations. Append after every operation.
+- `kb/wiki/log.org` — Chronological log of KB operations (see Rules for which ones).
 - `kb/skills/*.md` — Skill definitions. These are your instruction manuals.
 
 ## Wiki Page Format
@@ -73,6 +73,7 @@ emacs --batch --load build.el --funcall blog/publish-all
 - This repo is public. Never commit credentials, tokens, private notes, or personal data (emails, phone numbers, addresses). Ask before ingesting private conversations or documents into `kb/`, and redact personal details.
 - Never modify files in `kb/raw/`. Raw sources are immutable.
 - Always update `kb/wiki/index.org` after creating or significantly changing wiki pages.
-- Always append to `kb/wiki/log.org` after any operation.
-- Use `[[id:xxx][Display Text]]` format for wiki cross-references (org-roam compatible).
-- Use `#+title:`, `#+filetags:`, `#+date:` headers on all wiki pages.
+- Append to `kb/wiki/log.org` after every KB operation (ingest, absorb, lint, breakdown, rebuild-index; reorganize once the user decides; query only when it saves an artifact).
+- Use `[[id:xxx][Display Text]]` for wiki cross-references, with the ID read from the target page's `:ID:` drawer. Every new page gets a fresh UUID (`uuidgen`) in a property drawer at the top of the file (see `kb/skills/absorb.md`).
+- Use `#+title:`, `#+filetags:`, `#+date:` headers on all wiki pages; the first filetag is the index section (`core`, `culture`, `technical`, `narrative`, `work`).
+- Wiki pages and artifacts are public: never copy personal data or verbatim quotes from private sources into them. Private raw material goes in the gitignored `kb/raw/chats/` and `kb/raw/tweets/`.
