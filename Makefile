@@ -66,16 +66,26 @@ new-post:
 	    templates/post-template.org > "$$file"; \
 	echo "Created $$file (#+DRAFT: true)"
 
-# Publish to GitHub Pages or other hosting
+# Publish: commit blog content (posts/, static/, templates/) and push main;
+# the GitHub Actions publish workflow builds and deploys the site
+PUBLISH_PATHS := posts static templates
+
 publish: build
+	@git rev-parse --git-dir >/dev/null 2>&1 || { echo "No git repository found."; exit 1; }
+	@[ "$$(git rev-parse --abbrev-ref HEAD)" = "main" ] || { echo "Switch to main before publishing."; exit 1; }
 	@echo "Publishing blog..."
-	@if [ -d ".git" ]; then \
-		git add -A; \
-		git commit -m "Update blog - $$(date)"; \
-		git push origin main; \
+	@git add -A -- $(PUBLISH_PATHS)
+	@if git diff --cached --quiet; then \
+		echo "No content changes to commit."; \
 	else \
-		echo "No git repository found. Initialize with 'git init' first."; \
+		git commit -q -m "update blog" && git log --oneline -1; \
 	fi
+	@others=$$(git status --porcelain -- . $(addprefix ':!',$(PUBLISH_PATHS))); \
+	if [ -n "$$others" ]; then \
+		echo "Not committed (outside $(PUBLISH_PATHS)):"; \
+		echo "$$others"; \
+	fi
+	@git push origin main
 
 # Knowledge base operations
 kb-lint:
@@ -100,7 +110,7 @@ help:
 	@echo "  make dev            - Development mode with auto-rebuild"
 	@echo "  make install-deps   - Install required dependencies"
 	@echo "  make new-post TITLE=\"...\" - Create a new draft post"
-	@echo "  make publish        - Build and publish to git"
+	@echo "  make publish        - Commit posts/static/templates on main and push"
 	@echo "  make kb-lint        - Run KB health check"
 	@echo "  make kb-absorb      - Absorb new raw files into wiki"
 	@echo "  make kb-breakdown   - Find missing articles in wiki"
