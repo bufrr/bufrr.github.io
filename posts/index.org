@@ -1,5 +1,6 @@
 #+TITLE: My Blog
 #+AUTHOR:
+#+DESCRIPTION: A technical blog about programming and technology
 #+OPTIONS: author:nil toc:nil num:nil h:0
 
 - [[file:2026-02-12-block-builder-buildernet-1.org][Block Builder Deep Dive: Ethereum BuilderNet (I)]]
