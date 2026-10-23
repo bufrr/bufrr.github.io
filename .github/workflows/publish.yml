@@ -6,12 +6,16 @@ on:
       - main
   workflow_dispatch:
 
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
 env:
+  BLOG_TITLE: ${{ secrets.BLOG_TITLE || 'My Blog' }}
   BLOG_URL: ${{ secrets.BLOG_URL || 'https://bytenoob.io' }}
   BLOG_AUTHOR: ${{ secrets.BLOG_AUTHOR || 'bytenoob' }}
   BLOG_EMAIL: ${{ secrets.BLOG_EMAIL || 'blog@example.com' }}
   BLOG_DESCRIPTION: ${{ secrets.BLOG_DESCRIPTION || 'A technical blog about programming and technology' }}
-  MINIFY_ASSETS: 'true'
 
 jobs:
   publish:
@@ -42,16 +46,6 @@ jobs:
             npm install -g terser cssnano postcss postcss-cli
           fi
 
-      - name: Cache Emacs packages
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.emacs.d/.local/straight
-            ~/.emacs.d/.local/cache
-          key: ${{ runner.os }}-emacs-${{ hashFiles('**/packages.el') }}
-          restore-keys: |
-            ${{ runner.os }}-emacs-
-
       - name: Install Emacs
         run: |
           sudo apt update
@@ -77,7 +71,6 @@ jobs:
           fi
 
       - name: Minify assets for production
-        if: github.ref == 'refs/heads/main'
         run: |
           if [ -f minify.sh ]; then
             chmod +x minify.sh

@@ -18,32 +18,32 @@ jobs:
           sudo apt update
           sudo apt-get install -y emacs
 
-      - name: Check Org files syntax
+      - name: Lint Org files (advisory)
         run: |
-          echo "🔍 Checking Org files syntax..."
+          echo "🔍 Running org-lint (warnings only; does not fail the build)..."
           for file in posts/*.org; do
-            if [ -f "$file" ]; then
-              echo "Checking: $file"
-              emacs --batch --eval "(progn (find-file \"$file\") (org-lint))" 2>&1 | grep -E "(Warning|Error)" || true
-            fi
+            emacs --batch --eval "(progn (require 'org-lint) (find-file \"$file\")
+              (dolist (i (org-lint))
+                (princ (format \"::warning file=%s,line=%s::%s\\n\" \"$file\" (aref (cadr i) 0) (aref (cadr i) 2)))))" 2>/dev/null
           done
 
       - name: Validate metadata
         run: |
           echo "📋 Validating post metadata..."
           for file in posts/*.org; do
-            if [ -f "$file" ] && [[ "$file" != "posts/index.org" ]] && [[ "$file" != "posts/about.org" ]] && [[ "$file" != "posts/404.org" ]]; then
+            case "$file" in posts/index.org | posts/index-cn.org | posts/about.org | posts/404.org) continue ;; esac
+            if [ -f "$file" ]; then
               echo "Checking: $file"
               # Check for required metadata
-              if ! grep -q "^#+TITLE:" "$file"; then
+              if ! grep -qE "^#\\+TITLE:[[:space:]]*[^[:space:]]" "$file"; then
                 echo "❌ Missing TITLE in $file"
                 exit 1
               fi
-              if ! grep -q "^#+AUTHOR:" "$file"; then
+              if ! grep -qE "^#\\+AUTHOR:[[:space:]]*[^[:space:]]" "$file"; then
                 echo "❌ Missing AUTHOR in $file"
                 exit 1
               fi
-              if ! grep -q "^#+DATE:" "$file"; then
+              if ! grep -qE "^#\\+DATE:[[:space:]]*[^[:space:]]" "$file"; then
                 echo "❌ Missing DATE in $file"
                 exit 1
               fi
@@ -99,7 +99,11 @@ jobs:
 
           # Check that all expected HTML files exist
           for org_file in posts/*.org; do
-            if [ -f "$org_file" ] && [[ "$org_file" != "posts/404.org" ]]; then
+            # Drafts are intentionally not published
+            if grep -qiE '^#\+DRAFT:[[:space:]]*(true|t|yes)[[:space:]]*$' "$org_file"; then
+              continue
+            fi
+            if [ -f "$org_file" ]; then
               base_name=$(basename "$org_file" .org)
               html_file="public/${base_name}.html"
               if [ ! -f "$html_file" ]; then
@@ -122,11 +126,11 @@ jobs:
           for html_file in *.html; do
             if [ -f "$html_file" ]; then
               # Extract internal links
-              grep -oE 'href="[^"]*\.html"' "$html_file" 2>/dev/null | sed 's/href="//;s/"//' | sort -u | while read -r link; do
+              grep -oE 'href="[^"#]*\.html(#[^"]*)?"' "$html_file" 2>/dev/null | sed 's/href="//;s/"//;s/#.*//' | sort -u | while read -r link; do
                 if [ -n "$link" ] && [[ ! "$link" =~ ^https?:// ]]; then
                   # Handle both relative and absolute paths
                   check_file="${link#/}"
-                  if [ ! -f "$check_file" ] && [ ! -f "../$check_file" ]; then
+                  if [ ! -f "$check_file" ]; then
                     echo "❌ Broken link in $html_file: $link" | tee -a "$broken_file"
                   fi
                 fi
