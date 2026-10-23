@@ -101,7 +101,7 @@
 
 ;; Common HTML head content
 (defun blog/html-head ()
-  (concat "<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self';\">
+  (concat "<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self';\">
 <meta name=\"referrer\" content=\"strict-origin-when-cross-origin\">
 <link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/favicon.svg\">
 <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">

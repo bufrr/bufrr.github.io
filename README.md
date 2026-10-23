@@ -11,7 +11,7 @@ Source for the public blog at [bytenoob.io](https://bytenoob.io), plus an LLM-po
 - [Emacs](https://www.gnu.org/software/emacs/) (for blog build + GTD)
 - [Doom Emacs](https://github.com/doomemacs/doomemacs) (with config from [bufrr/emacs-config](https://github.com/bufrr/emacs-config))
 - [Claude Code](https://claude.ai/code) CLI (`claude` command available in PATH)
-- Node.js 16+ and npm (for blog asset minification)
+- Node.js 22+ and npm (for blog asset minification and formatting)
 
 ### 2. Clone and install
 
