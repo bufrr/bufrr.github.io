@@ -2,7 +2,7 @@
 #+AUTHOR:
 #+DATE: 2025-07-01
 #+DESCRIPTION: 关于编程与技术的技术博客
-#+OPTIONS: author:nil toc:nil num:nil h:0
+#+OPTIONS: author:nil toc:nil num:nil
 
 - [[file:2026-02-12-block-builder-buildernet-1-cn.org][Block Builder 深度解析：Ethereum BuilderNet（一）]]
 - [[file:2024-10-02-babylon-cn.org][什么是 Babylon？]]

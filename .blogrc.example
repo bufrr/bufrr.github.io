@@ -1,15 +1,17 @@
 # Blog configuration example
-# Copy this file to .blogrc and customize
+# Copy this file to .blogrc and customize. .blogrc is gitignored.
+# Variables already exported in the environment (e.g. CI secrets) take
+# precedence over values set here; see config.sh.
 
-# Blog title
-export BLOG_TITLE="My Awesome Blog"
+# Site metadata
+export BLOG_TITLE="My Blog"
+export BLOG_DESCRIPTION="A technical blog about programming and technology"
+export BLOG_URL="https://bytenoob.io"
 
 # Author information
 export BLOG_AUTHOR="Your Name"
 export BLOG_EMAIL="your.email@example.com"
+export GITHUB_USERNAME="your-github-username"
 
 # Enable incremental builds (only rebuild changed files)
 # export INCREMENTAL_BUILD=true
-
-# Additional Emacs load paths (if you have custom elisp packages)
-# export EMACS_LOAD_PATH="/path/to/custom/packages"

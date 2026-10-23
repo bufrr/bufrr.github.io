@@ -167,7 +167,33 @@
   (with-temp-buffer
     (insert-file-contents file)
     (goto-char (point-min))
-    (re-search-forward "^#\\+DRAFT:\\s-*\\(true\\|t\\|yes\\)" nil t)))
+    (re-search-forward "^#\\+DRAFT:\\s-*\\(true\\|t\\|yes\\)\\s-*$" nil t)))
+
+;; Special pages and Chinese variants are published by "blog-pages" and kept
+;; out of the post index. org-publish matches :exclude against file names
+;; relative to the base directory, so anchor at the start of the string.
+(setq blog-page-regexp "\\`\\(404\\|about\\|index-cn\\)\\.org\\'\\|-cn\\.org\\'")
+
+(defun blog/draft-files ()
+  "Return absolute paths of draft posts in `blog-posts-directory'."
+  (seq-filter #'blog/is-draft-p
+              (directory-files blog-posts-directory t "\\.org\\'")))
+
+(defun blog/posts-exclude-regexp ()
+  "Regexp of files to keep out of the post index: special pages and drafts."
+  (mapconcat #'identity
+             (cons blog-page-regexp
+                   (mapcar (lambda (f)
+                             (concat "\\`"
+                                     (regexp-quote (file-relative-name f blog-posts-directory))
+                                     "\\'"))
+                           (blog/draft-files)))
+             "\\|"))
+
+(defun blog/page-files ()
+  "Return file names, relative to posts/, published by \"blog-pages\"."
+  (seq-filter (lambda (f) (string-match-p blog-page-regexp f))
+              (directory-files blog-posts-directory nil "\\.org\\'")))
 
 ;; Function to check if file needs rebuilding
 (defun blog/needs-rebuild-p (org-file html-file)
@@ -199,7 +225,7 @@
             (if (and desc (not (string-empty-p desc)))
                 (concat "#+DESCRIPTION: " desc "\n")
               ""))
-          "#+OPTIONS: author:nil toc:nil num:nil h:0\n\n"
+          "#+OPTIONS: author:nil toc:nil num:nil\n\n"
           (org-list-to-org list)))
 
 ;; Publishing configuration
@@ -230,7 +256,7 @@
                                          entry
                                          (org-publish-find-title entry project)))
          :sitemap-function blog/sitemap-function
-         :exclude "404\\.org\\|about\\.org\\|-cn\\.org\\|index-cn\\.org")
+         :exclude ,(blog/posts-exclude-regexp))
         
         ("blog-pages"
          :base-directory ,blog-posts-directory
@@ -248,7 +274,8 @@
          :html-postamble blog/postamble
          :html-head-include-default-style nil
          :html-head-include-scripts nil
-         :include ("about.org" "index-cn.org"))
+         :exclude ".*"
+         :include ,(blog/page-files))
         
         ("blog-static"
          :base-directory ,blog-static-directory

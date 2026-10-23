@@ -5,17 +5,13 @@
 
 set -euo pipefail
 
-# Configuration
-BLOG_TITLE="${BLOG_TITLE:-Noob Notes}"
-BLOG_AUTHOR="${BLOG_AUTHOR:-bytenoob}"
-BLOG_EMAIL="${BLOG_EMAIL:-noreply@example.com}"
-INCREMENTAL_BUILD="${INCREMENTAL_BUILD:-false}"
+# Run from the repository root so relative paths work from any directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
-# Source configuration if available
-if [ -f ".blogrc" ]; then
-  # shellcheck source=/dev/null
-  source .blogrc
-fi
+# Configuration (environment > .blogrc > defaults)
+# shellcheck source=config.sh
+source ./config.sh
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -43,9 +39,6 @@ JS_VERSION=$(stat -c %Y static/js/blog.js 2> /dev/null || stat -f %m static/js/b
 export CSS_VERSION
 export JS_VERSION
 
-# Get the directory where this script is located
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
 # Run Emacs in batch mode to publish the blog
 if ! emacs --batch \
   --load "$SCRIPT_DIR/build.el" \
@@ -53,6 +46,9 @@ if ! emacs --batch \
   echo -e "${YELLOW}Error:${NC} build failed."
   exit 1
 fi
+
+# robots.txt must live at the site root, not under static/
+cp static/robots.txt public/robots.txt
 
 echo -e "${GREEN}Build complete!${NC} HTML files generated in public/"
 
@@ -63,7 +59,7 @@ fi
 
 # Show build statistics
 if [ -d "public" ]; then
-  POST_COUNT=$(find public -name "*.html" -not -name "index.html" -not -name "index-cn.html" | wc -l)
+  POST_COUNT=$(find public -maxdepth 1 -name "[0-9][0-9][0-9][0-9]-*.html" -not -name "*-cn.html" | wc -l)
   TOTAL_SIZE=$(du -sh public | cut -f1)
   echo -e "${GREEN}Generated:${NC} $POST_COUNT posts"
   echo -e "${GREEN}Total size:${NC} $TOTAL_SIZE"

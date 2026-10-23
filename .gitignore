@@ -69,6 +69,6 @@ logs/
 *.temp
 tmp/
 temp/
-EOF < /dev/null
-
+# Local config and tooling
+.blogrc
 .mcp.json
