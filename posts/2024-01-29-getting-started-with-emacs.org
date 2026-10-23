@@ -64,7 +64,7 @@ Here's a minimal configuration to get you started:
 
 ** File Management with Dired
 
-Dired is Emacs' built-in file manager. Press =SPC .= to open a file, or =SPC f f= to browse files. Some useful Dired commands:
+Dired is Emacs' built-in file manager. Press =SPC o -= to open Dired in the current file's directory (=C-x d= in vanilla Emacs); choosing a directory from =SPC .= opens it too. Some useful Dired commands:
 
 - =d= - Mark for deletion
 - =u= - Unmark

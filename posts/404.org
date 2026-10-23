@@ -14,6 +14,7 @@ Sorry, the page you're looking for doesn't exist.
 
 ** You might be interested in:
 
-- [[file:2024-01-29-getting-started-with-emacs.org][Getting Started with Emacs: A Modern Approach]]
-- [[file:2024-06-16-waku.org][The Waku Network]]
+- [[file:2026-02-12-block-builder-buildernet-1.org][Block Builder Deep Dive: Ethereum BuilderNet (I)]]
 - [[file:2024-10-02-babylon.org][What is Babylon?]]
+- [[file:2024-06-16-waku.org][The Waku Network]]
+- [[file:2024-01-29-getting-started-with-emacs.org][Getting Started with Emacs: A Modern Approach]]

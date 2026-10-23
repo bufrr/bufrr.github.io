@@ -1,7 +1,7 @@
 #+TITLE: Block Builder Deep Dive: Ethereum BuilderNet (I)
 #+DATE: 2026-02-12
 #+AUTHOR: bytenoob
-#+DESCRIPTION: Reorganized English Org version adapted from 1.pdf
+#+DESCRIPTION: How BuilderNet decentralizes Ethereum block building: TEE-based builder nodes, shared orderflow, its refund mechanism, and how it compares with Titan and MEV-Boost relays.
 #+KEYWORDS: ethereum,buildernet,mev,flashbots,pbs
 #+FILETAGS: :ethereum:buildernet:mev:
 #+LASTMOD: 2026-02-12
@@ -50,6 +50,7 @@ Main roles:
 Orderflow Source includes wallets, applications, searchers, and end users.
 
 #+CAPTION: BuilderNet high-level architecture
+#+ATTR_HTML: :alt BuilderNet architecture: users and wallets send orderflow to a builder node directly or through Flashbots infrastructure (Bundle Relay, Protect, MEV-Share, Orderflow Proxy). BuilderHub supplies secrets, config, peers and keys. Builder nodes share orderflow with each other, send bids to the Redistribution Archive, and submit blocks to external MEV-Boost relays.
 [[./static/images/posts/buildernet-1/img-001.png]]
 
 ** Flashbots Infrastructure
@@ -84,6 +85,7 @@ Flow:
 12. Start orderflow-proxy and begin receiving orderflow
 
 #+CAPTION: Builder node boot sequence
+#+ATTR_HTML: :alt Builder instance boot sequence: start system services, time sync and CVM proxies; download secrets and config from Flashbots; mount the encrypted disk; start the operator API and observability tools; start Lighthouse, sync and start Reth; start rbuilder, the bidding service and HAProxy; then start the orderflow proxy, which registers keys and exchanges orderflow with Flashbots and other builders.
 [[./static/images/posts/buildernet-1/img-002.png]]
 
 ** How to Become an Operator
@@ -122,6 +124,7 @@ Node-to-node links are TLS encrypted, and peer certificates are matched against 
 Users can also use aTLS to verify node identity before sending orderflow.
 
 #+CAPTION: Trusted connectivity between node and infrastructure
+#+ATTR_HTML: :alt Trusted connectivity: the builder node holds client-aTLS, server-aTLS and local TLS certificates and keeps an attested connection to Flashbots' cvm-proxy in front of BuilderHub. Users fetch the node certificate from /cert and send orderflow directly or via Bundle Relay, Protect, MEV-Share and the Orderflow Proxy, and can check node measurements through the Measurements Proxy.
 [[./static/images/posts/buildernet-1/img-003.png]]
 
 * Block Building Pipeline
