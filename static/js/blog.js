@@ -47,30 +47,6 @@
         timeout = setTimeout(later, wait);
       };
     },
-
-    // Safe date parsing
-    parseDate(dateStr) {
-      try {
-        const date = new Date(dateStr);
-        return isNaN(date.getTime()) ? null : date;
-      } catch (e) {
-        return null;
-      }
-    },
-
-    // Format date consistently
-    formatDate(date) {
-      if (!date) return '';
-      try {
-        return date.toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        });
-      } catch (e) {
-        return date.toDateString();
-      }
-    },
   };
 
   // Module: Table of Contents functionality
@@ -288,59 +264,230 @@
     },
   };
 
-  // Module: Sidebar layout
-  const Sidebar = {
+  // Build a YYYY-MM-DD string into a local date (avoids UTC off-by-one)
+  const dateFromSlug = (str) => {
+    const m = str && str.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return null;
+    const date = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    return isNaN(date.getTime()) ? null : date;
+  };
+
+  const shortDate = (date) =>
+    date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+
+  const el = (tag, className, text) => {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  };
+
+  // Module: Page layout (hero header, left rail, prose column)
+  const Layout = {
     init() {
-      const toc = utils.$('#table-of-contents');
       const content = utils.$('#content');
+      const title = content && utils.$('h1.title', content);
+      if (!content || !title) return;
 
-      if (!toc || !content) return;
+      const isIndex =
+        Boolean(utils.$(':scope > .org-ul', content)) &&
+        !utils.$(':scope > [class^="outline-"]', content);
+      document.documentElement.setAttribute('data-pg', isIndex ? 'index' : 'article');
 
-      try {
-        // Create wrapper structure using DocumentFragment for performance
-        const fragment = document.createDocumentFragment();
-        const wrapper = document.createElement('div');
-        wrapper.className = 'page-wrapper';
+      const toc = utils.$('#table-of-contents', content);
+      const fragment = document.createDocumentFragment();
 
-        const sidebar = document.createElement('aside');
-        sidebar.className = 'sidebar-left';
-        sidebar.setAttribute('role', 'navigation');
-        sidebar.setAttribute('aria-label', 'Table of contents');
+      // Hero
+      const hero = el('header', 'hero');
+      const hd = el('div', 'hd');
+      hd.appendChild(title);
+      const description = utils.$('meta[name="description"]');
+      if (description && description.content.trim()) {
+        hd.appendChild(el('p', 'standfirst', description.content.trim()));
+      }
+      const meta = Metadata.build(isIndex);
+      if (meta) hd.appendChild(meta);
+      hero.appendChild(hd);
 
-        const mainContent = document.createElement('div');
-        mainContent.className = 'main-content';
-        mainContent.setAttribute('role', 'main');
+      // Body grid
+      const grid = el('div', 'body-grid');
+      const rail = el('aside', 'rail');
+      const prose = el('div', 'prose');
+      prose.setAttribute('role', 'main');
 
-        // Move TOC to sidebar
-        sidebar.appendChild(toc);
+      if (toc) {
+        rail.setAttribute('aria-label', 'Table of contents');
+        const heading = utils.$('h2', toc);
+        if (heading) heading.remove();
+        rail.appendChild(el('div', 'rail-title', title.textContent));
+        // Collapsible on narrow screens, where the rail sits above the prose
+        const toggle = el('button', 'th rail-toggle', 'TREE');
+        toggle.type = 'button';
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-controls', 'table-of-contents');
+        toggle.addEventListener('click', () => {
+          const open = rail.classList.toggle('open');
+          toggle.setAttribute('aria-expanded', String(open));
+        });
+        rail.appendChild(toggle);
+        rail.appendChild(toc);
+        utils.$$('a', toc).forEach((a) => a.setAttribute('title', a.textContent));
+      }
 
-        // Move remaining content to main area
-        while (content.firstChild) {
-          if (content.firstChild !== toc) {
-            mainContent.appendChild(content.firstChild);
-          } else {
-            content.removeChild(content.firstChild);
-          }
-        }
+      while (content.firstChild) {
+        prose.appendChild(content.firstChild);
+      }
 
-        // Build the new structure
-        wrapper.appendChild(sidebar);
-        wrapper.appendChild(mainContent);
-        fragment.appendChild(wrapper);
-        content.appendChild(fragment);
+      if (isIndex) PostList.init(prose, rail);
 
-        // Initialize TOC functionality after DOM restructure with a small delay
-        // This ensures the DOM has fully settled
-        setTimeout(() => {
-          TOC.init();
-        }, 100);
-      } catch (error) {
-        console.error('Error creating sidebar layout:', error);
+      // Wrap tables so wide ones scroll instead of overflowing the column
+      utils.$$('table', prose).forEach((table) => {
+        const wrap = el('div', 'table-wrap');
+        table.parentNode.insertBefore(wrap, table);
+        wrap.appendChild(table);
+      });
+
+      grid.appendChild(rail);
+      grid.appendChild(prose);
+      fragment.appendChild(hero);
+      fragment.appendChild(grid);
+      content.appendChild(fragment);
+
+      if (toc) {
+        setTimeout(() => TOC.init(), 100);
+        ReadProgress.init();
       }
     },
   };
 
-  // Module: Code Copy Button
+  // Module: Metadata grid under the title (AUTHOR / TAGS / PUBLISHED / READING TIME)
+  const Metadata = {
+    build(isIndex) {
+      if (isIndex) return null;
+
+      const fields = [];
+      const author = utils.$('meta[name="author"]');
+      if (author && author.content.trim()) fields.push(['AUTHOR', author.content.trim()]);
+
+      const keywords = utils.$('meta[name="keywords"]');
+      if (keywords && keywords.content.trim()) {
+        const tags = keywords.content
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean);
+        fields.push(['TAGS', tags.join(' · ')]);
+      }
+
+      const published = dateFromSlug(window.location.pathname);
+      if (published) {
+        fields.push(['PUBLISHED', shortDate(published)]);
+        fields.push(['READING TIME', `${this.readingMinutes()} min`]);
+      }
+
+      if (!fields.length) return null;
+
+      const metaDiv = el('div', 'meta');
+      fields.forEach(([label, value]) => {
+        const cell = el('div');
+        cell.appendChild(el('div', 'lb', label));
+        cell.appendChild(el('div', 'vv', value));
+        metaDiv.appendChild(cell);
+      });
+      return metaDiv;
+    },
+
+    readingMinutes() {
+      const content = utils.$('#content');
+      const text = content ? content.textContent : '';
+      const cjk = (text.match(/[㐀-鿿]/g) || []).length;
+      const words = (text.replace(/[㐀-鿿]/g, ' ').match(/\S+/g) || []).length;
+      return Math.max(1, Math.round(cjk / 400 + words / 230));
+    },
+  };
+
+  // Module: Index page post list (date column + title)
+  const PostList = {
+    init(prose, rail) {
+      const list = utils.$(':scope > .org-ul', prose);
+      if (!list) return;
+
+      list.classList.add('post-list');
+      const items = utils.$$(':scope > li', list);
+      items.forEach((li) => {
+        const link = utils.$('a', li);
+        const date = link && dateFromSlug(link.getAttribute('href'));
+        if (date) li.insertBefore(el('span', 'd', shortDate(date)), li.firstChild);
+      });
+
+      rail.appendChild(el('div', 'th', 'ARCHIVE'));
+      rail.appendChild(el('div', 'count', `${items.length} posts`));
+    },
+  };
+
+  // Module: 1px reading progress bar pinned to the top of the viewport
+  const ReadProgress = {
+    init() {
+      const bar = el('div');
+      bar.id = 'topProg';
+      bar.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(bar);
+
+      let ticking = false;
+      const update = () => {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = max > 0 ? Math.min(1, window.pageYOffset / max) : 0;
+        bar.style.width = `${pct * 100}%`;
+        ticking = false;
+      };
+      window.addEventListener(
+        'scroll',
+        () => {
+          if (!ticking) {
+            window.requestAnimationFrame(update);
+            ticking = true;
+          }
+        },
+        { passive: true }
+      );
+      update();
+    },
+  };
+
+  // Module: Single-key navigation matching the [K] labels in the nav
+  const KeyNav = {
+    init() {
+      const links = new Map();
+      utils.$$('.nav-links a[data-key]').forEach((a) => {
+        links.set(a.getAttribute('data-key').toLowerCase(), a);
+      });
+      if (!links.size) return;
+
+      const path = window.location.pathname.replace(/index(-cn)?\.html$/, '');
+      links.forEach((a) => {
+        if (a.host === window.location.host && a.pathname === path) {
+          a.setAttribute('aria-current', 'page');
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.metaKey || e.ctrlKey || e.altKey || e.shiftKey || e.isComposing) return;
+        const target = e.target;
+        if (
+          target &&
+          (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))
+        ) {
+          return;
+        }
+        const link = links.get(e.key.toLowerCase());
+        if (link) {
+          e.preventDefault();
+          link.click();
+        }
+      });
+    },
+  };
+
+  // Module: Code block header with language label and copy button
   const CodeCopy = {
     init() {
       const codeBlocks = utils.$$('.org-src-container pre, pre.src');
@@ -348,31 +495,38 @@
       if (!codeBlocks.length) return;
 
       codeBlocks.forEach((pre) => {
-        // Create wrapper div
-        const wrapper = document.createElement('div');
-        wrapper.className = 'code-block-wrapper';
+        const wrapper = el('div', 'code-block-wrapper');
         pre.parentNode.insertBefore(wrapper, pre);
+
+        const header = el('div', 'ch');
+        const label = el('span', null, 'CODE');
+        const langClass = pre.className.split(' ').find((c) => c.startsWith('src-'));
+        if (langClass) label.appendChild(el('span', 'lang', langClass.replace('src-', '')));
+        header.appendChild(label);
+
+        const button = el('button', 'code-copy-button', 'COPY');
+        button.type = 'button';
+        button.setAttribute('aria-label', 'Copy code');
+        header.appendChild(button);
+
+        wrapper.appendChild(header);
         wrapper.appendChild(pre);
 
-        // Create copy button
-        const button = document.createElement('button');
-        button.className = 'code-copy-button';
-        button.setAttribute('aria-label', 'Copy code');
-        button.innerHTML = 'Copy';
+        const flash = (text, copied) => {
+          button.textContent = text;
+          button.classList.toggle('copied', copied);
+          setTimeout(() => {
+            button.textContent = 'COPY';
+            button.classList.remove('copied');
+          }, 2000);
+        };
 
-        // Add click handler
         button.addEventListener('click', async () => {
           const code = pre.textContent || pre.innerText;
 
           try {
             await navigator.clipboard.writeText(code);
-            button.innerHTML = '✓ Copied!';
-            button.classList.add('copied');
-
-            setTimeout(() => {
-              button.innerHTML = 'Copy';
-              button.classList.remove('copied');
-            }, 2000);
+            flash('COPIED', true);
           } catch (err) {
             // Fallback for older browsers
             const textArea = document.createElement('textarea');
@@ -384,144 +538,14 @@
 
             try {
               document.execCommand('copy');
-              button.innerHTML = '✓ Copied!';
-              button.classList.add('copied');
-
-              setTimeout(() => {
-                button.innerHTML = 'Copy';
-                button.classList.remove('copied');
-              }, 2000);
+              flash('COPIED', true);
             } catch (fallbackErr) {
-              button.innerHTML = '✗ Failed';
-              setTimeout(() => {
-                button.innerHTML = 'Copy';
-              }, 2000);
+              flash('FAILED', false);
             }
-
             document.body.removeChild(textArea);
           }
         });
-
-        wrapper.appendChild(button);
       });
-    },
-  };
-
-  // Module: Metadata display
-  const Metadata = {
-    init() {
-      const title = utils.$('h1.title');
-      if (!title) return;
-
-      try {
-        const metadata = this.extractMetadata();
-        if (Object.keys(metadata).length > 0) {
-          const metaElement = this.createMetadataElement(metadata);
-          if (metaElement) {
-            title.insertAdjacentElement('afterend', metaElement);
-          }
-        }
-      } catch (error) {
-        console.error('Error displaying metadata:', error);
-      }
-    },
-
-    extractMetadata() {
-      const metadata = {};
-
-      // Extract from meta tags
-      const metaTags = utils.$$('meta[name]');
-      metaTags.forEach((meta) => {
-        const name = meta.getAttribute('name');
-        const content = meta.getAttribute('content');
-        if (content) {
-          switch (name) {
-            case 'author':
-              metadata.author = content;
-              break;
-            case 'keywords':
-              metadata.keywords = content;
-              break;
-            case 'description':
-              metadata.description = content;
-              break;
-          }
-        }
-      });
-
-      // Extract dates more efficiently
-      // Published date from URL
-      const urlPath = window.location.pathname;
-      const dateMatch = urlPath.match(/(\d{4}-\d{2}-\d{2})/);
-      if (dateMatch) {
-        const date = utils.parseDate(dateMatch[1]);
-        if (date) {
-          metadata.publishDate = utils.formatDate(date);
-        }
-      }
-
-      // Last modified from comment in head section only
-      const headElement = document.head;
-      if (headElement) {
-        // Get the HTML of just the head element
-        const headHTML = headElement.innerHTML;
-        const dateComment = headHTML.match(/<!-- (\d{4}-\d{2}-\d{2} \w{3}) -->/);
-        if (dateComment) {
-          const date = utils.parseDate(dateComment[1]);
-          if (date) {
-            metadata.lastModDate = utils.formatDate(date);
-          }
-        }
-      }
-
-      return metadata;
-    },
-
-    createMetadataElement(metadata) {
-      const metaDiv = document.createElement('div');
-      metaDiv.className = 'article-meta';
-
-      // Author
-      if (metadata.author) {
-        const authorSpan = document.createElement('span');
-        authorSpan.className = 'author';
-        authorSpan.setAttribute('data-icon', '👤');
-        authorSpan.textContent = `By ${metadata.author}`;
-        metaDiv.appendChild(authorSpan);
-      }
-
-      // Published date
-      if (metadata.publishDate) {
-        const dateSpan = document.createElement('span');
-        dateSpan.className = 'date';
-        dateSpan.setAttribute('data-icon', '📅');
-        dateSpan.textContent = metadata.publishDate;
-        metaDiv.appendChild(dateSpan);
-      }
-
-      // Last modified (only if different from publish date)
-      if (metadata.lastModDate && metadata.lastModDate !== metadata.publishDate) {
-        const updatedSpan = document.createElement('span');
-        updatedSpan.className = 'updated';
-        updatedSpan.setAttribute('data-icon', '🔄');
-        updatedSpan.textContent = `Updated: ${metadata.lastModDate}`;
-        metaDiv.appendChild(updatedSpan);
-      }
-
-      // Tags
-      if (metadata.keywords) {
-        const tagsDiv = document.createElement('div');
-        tagsDiv.className = 'tags';
-        metadata.keywords.split(',').forEach((tag) => {
-          const tagSpan = document.createElement('span');
-          tagSpan.className = 'tag';
-          tagSpan.textContent = tag.trim();
-          tagsDiv.appendChild(tagSpan);
-        });
-        metaDiv.appendChild(tagsDiv);
-      }
-
-      return metaDiv.children.length > 0 ? metaDiv : null;
     },
   };
 
@@ -1046,11 +1070,11 @@
       }
     };
 
-    // Initialize sidebar first (it restructures DOM)
-    initModule('Sidebar', () => Sidebar.init());
+    // Initialize layout first (it restructures DOM)
+    initModule('Layout', () => Layout.init());
 
-    // Then initialize metadata
-    initModule('Metadata', () => Metadata.init());
+    // Single-key shortcuts for the nav
+    initModule('KeyNav', () => KeyNav.init());
 
     // Initialize code copy buttons
     initModule('CodeCopy', () => CodeCopy.init());
@@ -1069,7 +1093,7 @@
       setTimeout(initSyntaxHighlighting, 100);
     }
 
-    // TOC is initialized by Sidebar if applicable
+    // TOC is initialized by Layout if applicable
     // If no sidebar, initialize TOC directly
     if (!utils.$('#table-of-contents')) {
       initModule('TOC', () => TOC.init());

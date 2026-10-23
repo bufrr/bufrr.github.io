@@ -108,35 +108,56 @@
 <link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/favicon.svg\">
 <link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">
 <link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>
-<link href=\"https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&display=swap\" rel=\"stylesheet\">
+<link href=\"https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap\" rel=\"stylesheet\">
 <link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/blog.css?v=" (or (getenv "CSS_VERSION") "1") "\" />
 <script src=\"/static/js/blog.js?v=" (or (getenv "JS_VERSION") "1") "\" defer></script>"))
 
 ;; Custom HTML preamble and postamble
+(setq blog-github-user (or (getenv "GITHUB_USERNAME") "bufrr"))
+
+(defun blog/nav-link (key label href &optional external)
+  "Render a keyboard-style nav link: [KEY] LABEL."
+  (concat "<a href=\"" href "\" data-key=\"" key "\""
+          (if external " rel=\"noopener\"" "")
+          "><span class=\"k\">[" key "]</span><span class=\"w\">" label "</span></a>"))
+
 (defun blog/preamble (info)
   (concat
    "<header class=\"site-header\">"
-   "<div class=\"container\">"
-   "<h1 class=\"site-title\"><a href=\"/\">" blog-title "</a></h1>"
-   "<nav class=\"site-nav\">"
-   "<a href=\"/\">Home</a>"
-   "<a href=\"/about.html\">About</a>"
+   "<nav class=\"nav\" aria-label=\"Primary\">"
+   "<a class=\"nav-brand\" href=\"/\">" blog-title "<span class=\"cursor\" aria-hidden=\"true\">_</span></a>"
+   "<div class=\"nav-links\">"
+   (blog/nav-link "H" "HOME" "/")
+   (blog/nav-link "A" "ABOUT" "/about.html")
+   (blog/nav-link "G" "GITHUB" (concat "https://github.com/" (blog/html-escape blog-github-user)) t)
+   "</div>"
    "<div class=\"lang-switcher\">"
    "<button class=\"lang-btn active\" data-lang=\"en\">EN</button>"
-   "<span class=\"lang-divider\">|</span>"
+   "<span class=\"lang-divider\">/</span>"
    "<button class=\"lang-btn\" data-lang=\"cn\">中文</button>"
    "</div>"
    "</nav>"
-   "</div>"
    "</header>"))
 
 (defun blog/postamble (info)
   (concat
    "<footer class=\"site-footer\">"
-   "<div class=\"container\">"
-   "<p>&copy; " (format-time-string "%Y") 
-   " - Built with Emacs " emacs-version 
-   " & Org-mode " (org-version) "</p>"
+   "<div class=\"fb-brand\">"
+   "<a class=\"wm\" href=\"/\">" blog-title "</a>"
+   "<span class=\"cc\">&copy; " (format-time-string "%Y") " " (blog/html-escape user-full-name) "</span>"
+   "</div>"
+   "<div class=\"fb-col\">"
+   "<div class=\"th\">SITE</div>"
+   "<a href=\"/\">Home</a>"
+   "<a href=\"/about.html\">About</a>"
+   "</div>"
+   "<div class=\"fb-col\">"
+   "<div class=\"th\">ELSEWHERE</div>"
+   "<a href=\"https://github.com/" (blog/html-escape blog-github-user) "\" rel=\"noopener\">GitHub</a>"
+   "</div>"
+   "<div class=\"fb-built\">"
+   "<div class=\"th\">BUILT WITH</div>"
+   "<span>Emacs " emacs-version " &amp; Org-mode " (org-version) "</span>"
    "</div>"
    "</footer>"))
 
@@ -174,6 +195,10 @@
   "Generate sitemap as an Org file without author metadata and draft posts."
   (concat "#+TITLE: " blog-title-raw "\n"
           "#+AUTHOR:\n"
+          (let ((desc (getenv "BLOG_DESCRIPTION")))
+            (if (and desc (not (string-empty-p desc)))
+                (concat "#+DESCRIPTION: " desc "\n")
+              ""))
           "#+OPTIONS: author:nil toc:nil num:nil h:0\n\n"
           (org-list-to-org list)))
 
