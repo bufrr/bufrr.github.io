@@ -161,11 +161,16 @@
 
 ;; Function to check if a file is a draft
 (defun blog/is-draft-p (file)
-  "Check if FILE has #+DRAFT: true property."
+  "Check if FILE has #+DRAFT: true in its header (before the first heading)."
   (with-temp-buffer
     (insert-file-contents file)
     (goto-char (point-min))
-    (re-search-forward "^#\\+DRAFT:\\s-*\\(true\\|t\\|yes\\)\\s-*$" nil t)))
+    (let ((case-fold-search t)
+          (header-end (save-excursion
+                        (if (re-search-forward "^\\*+ " nil t)
+                            (match-beginning 0)
+                          (point-max)))))
+      (re-search-forward "^#\\+DRAFT:\\s-*\\(true\\|t\\|yes\\)\\s-*$" header-end t))))
 
 ;; Special pages and Chinese variants are published by "blog-pages" and kept
 ;; out of the post index. org-publish matches :exclude against file names
@@ -235,7 +240,8 @@
          :base-directory ,blog-posts-directory
          :base-extension "org"
          :publishing-directory ,blog-publish-directory
-         :recursive t
+         ;; Posts live directly in posts/; subdirectories are not supported
+         :recursive nil
          :publishing-function blog/publish-to-html
          :headline-levels 4
          :section-numbers nil

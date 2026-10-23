@@ -102,8 +102,9 @@ jobs:
 
           # Check that all expected HTML files exist
           for org_file in posts/*.org; do
-            # Drafts are intentionally not published
-            if grep -qiE '^#\+DRAFT:[[:space:]]*(true|t|yes)[[:space:]]*$' "$org_file"; then
+            # Drafts are intentionally not published (only the header counts,
+            # matching blog/is-draft-p in build.el)
+            if awk '/^\*+ /{exit} tolower($0) ~ /^#\+draft:[[:space:]]*(true|t|yes)[[:space:]]*$/{found=1; exit} END{exit !found}' "$org_file"; then
               continue
             fi
             if [ -f "$org_file" ]; then
@@ -129,7 +130,7 @@ jobs:
           for html_file in *.html; do
             if [ -f "$html_file" ]; then
               # Extract internal links
-              grep -oE 'href="[^"#]*\.html(#[^"]*)?"' "$html_file" 2>/dev/null | sed 's/href="//;s/"//;s/#.*//' | sort -u | while read -r link; do
+              { grep -oE 'href="[^"#]*\.html(#[^"]*)?"' "$html_file" || true; } | sed 's/href="//;s/"//;s/#.*//;s/&amp;/\&/g' | sort -u | while read -r link; do
                 if [ -n "$link" ] && [[ ! "$link" =~ ^https?:// ]]; then
                   # Handle both relative and absolute paths
                   check_file="${link#/}"

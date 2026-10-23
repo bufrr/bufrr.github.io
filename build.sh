@@ -40,6 +40,12 @@ export CSS_VERSION
 export JS_VERSION
 
 # Run Emacs in batch mode to publish the blog
+# Full builds start from a clean slate so deleted or re-drafted posts don't
+# linger in public/ (incremental builds keep existing output)
+if [ "$INCREMENTAL_BUILD" != "true" ] && [ -d public ]; then
+  rm -f public/*.html public/sitemap.xml
+fi
+
 if ! emacs --batch \
   --load "$SCRIPT_DIR/build.el" \
   --funcall blog/publish-all; then

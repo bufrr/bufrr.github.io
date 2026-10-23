@@ -51,19 +51,30 @@ install-deps:
 	@npm ci || echo "Warning: npm ci failed, skipping JS/CSS tooling"
 
 # Create a new draft post from the template: make new-post TITLE="My post" [SLUG=my-post]
+# TITLE and SLUG are read from the environment, never pasted into shell code.
+ifdef TITLE
+# Keep "$" in titles literal instead of letting make expand it
+override TITLE := $(value TITLE)
+export TITLE
+endif
+
 new-post:
-	@[ -n "$(TITLE)" ] || { echo 'Usage: make new-post TITLE="Post title" [SLUG=post-slug]'; exit 1; }
-	@today=$$(date +%Y-%m-%d); \
-	slug="$(SLUG)"; \
-	[ -n "$$slug" ] || slug=$$(printf '%s' "$(TITLE)" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$$//'); \
-	[ -n "$$slug" ] || { echo 'Could not derive a slug from TITLE; pass SLUG=...'; exit 1; }; \
+	@set -eu; \
+	title="$${TITLE:-}"; slug="$${SLUG:-}"; \
+	[ -n "$$title" ] || { echo 'Usage: make new-post TITLE="Post title" [SLUG=post-slug]'; exit 1; }; \
+	today=$$(date +%Y-%m-%d); \
+	[ -n "$$slug" ] || slug=$$(printf '%s' "$$title" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$$//'); \
+	case "$$slug" in ""|*[!a-z0-9-]*) echo 'Could not derive a slug from TITLE; pass SLUG=lowercase-words-with-hyphens'; exit 1;; esac; \
 	file="posts/$$today-$$slug.org"; \
 	[ ! -e "$$file" ] || { echo "$$file already exists"; exit 1; }; \
-	sed -e "s|^#+TITLE: *$$|#+TITLE: $(TITLE)|" \
-	    -e "s|^#+DATE: *$$|#+DATE: $$today|" \
-	    -e "s|^#+LASTMOD: *$$|#+LASTMOD: $$today|" \
-	    -e "s|^#+AUTHOR: *$$|#+AUTHOR: $${BLOG_AUTHOR:-bytenoob}|" \
-	    templates/post-template.org > "$$file"; \
+	tmp=$$(mktemp); \
+	TODAY="$$today" AUTHOR="$${BLOG_AUTHOR:-bytenoob}" awk ' \
+		/^#\+TITLE:/   { print "#+TITLE: " ENVIRON["TITLE"]; next } \
+		/^#\+DATE:/    { print "#+DATE: " ENVIRON["TODAY"]; next } \
+		/^#\+LASTMOD:/ { print "#+LASTMOD: " ENVIRON["TODAY"]; next } \
+		/^#\+AUTHOR:/  { print "#+AUTHOR: " ENVIRON["AUTHOR"]; next } \
+		{ print }' templates/post-template.org > "$$tmp"; \
+	mv "$$tmp" "$$file"; \
 	echo "Created $$file (#+DRAFT: true)"
 
 # Publish: commit blog content (posts/, static/, templates/) and push main;
@@ -75,10 +86,10 @@ publish: build
 	@[ "$$(git rev-parse --abbrev-ref HEAD)" = "main" ] || { echo "Switch to main before publishing."; exit 1; }
 	@echo "Publishing blog..."
 	@git add -A -- $(PUBLISH_PATHS)
-	@if git diff --cached --quiet; then \
+	@if git diff --cached --quiet -- $(PUBLISH_PATHS); then \
 		echo "No content changes to commit."; \
 	else \
-		git commit -q -m "update blog" && git log --oneline -1; \
+		git commit -q -m "update blog" -- $(PUBLISH_PATHS) && git log --oneline -1; \
 	fi
 	@others=$$(git status --porcelain -- . $(addprefix ':!',$(PUBLISH_PATHS))); \
 	if [ -n "$$others" ]; then \

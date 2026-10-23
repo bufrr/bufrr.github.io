@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 
 # Shared configuration loader, sourced by build.sh and generate-sitemap.sh.
-# Precedence: exported environment (e.g. CI secrets) > .blogrc > defaults.
+# Precedence: non-empty exported environment (e.g. CI secrets) > .blogrc > defaults.
+# Uses only indexed arrays so it also runs on macOS's bash 3.2.
 
 CONFIG_VARS=(BLOG_TITLE BLOG_AUTHOR BLOG_EMAIL BLOG_URL BLOG_DESCRIPTION GITHUB_USERNAME INCREMENTAL_BUILD)
 
-declare -A env_config=()
+env_config=()
 for var in "${CONFIG_VARS[@]}"; do
-  if [ -n "${!var+x}" ]; then
-    env_config[$var]="${!var}"
+  if [ -n "${!var:-}" ]; then
+    env_config+=("$var=${!var}")
   fi
 done
 
@@ -17,10 +18,10 @@ if [ -f ".blogrc" ]; then
   source .blogrc
 fi
 
-for var in "${!env_config[@]}"; do
-  printf -v "$var" '%s' "${env_config[$var]}"
+for kv in ${env_config[@]+"${env_config[@]}"}; do
+  printf -v "${kv%%=*}" '%s' "${kv#*=}"
 done
-unset env_config var
+unset env_config var kv
 
 : "${BLOG_TITLE:=Noob Notes}"
 : "${BLOG_AUTHOR:=bytenoob}"
@@ -29,5 +30,6 @@ unset env_config var
 : "${BLOG_DESCRIPTION:=}"
 : "${GITHUB_USERNAME:=bufrr}"
 : "${INCREMENTAL_BUILD:=false}"
+BLOG_URL="${BLOG_URL%/}"
 
 export "${CONFIG_VARS[@]}"
