@@ -5,9 +5,6 @@
 # Default target
 all: build
 
-# Load configuration
--include .blogrc
-
 # Build the blog
 build:
 	@echo "Building blog..."
@@ -36,6 +33,7 @@ server: serve
 # Development mode with auto-rebuild
 dev:
 	@echo "Starting development mode..."
+	@command -v inotifywait >/dev/null 2>&1 || { echo "inotifywait is required (install inotify-tools)"; exit 1; }
 	@echo "Watching for changes in posts/ and static/"
 	@while true; do \
 		inotifywait -r -e modify,create,delete posts/ static/ 2>/dev/null; \
@@ -49,16 +47,24 @@ install-deps:
 	@command -v emacs >/dev/null 2>&1 || { echo "Emacs is required but not installed."; exit 1; }
 	@command -v python3 >/dev/null 2>&1 || echo "Warning: Python 3 not found (needed for local server)"
 	@command -v inotifywait >/dev/null 2>&1 || echo "Warning: inotify-tools not found (needed for dev mode)"
-	@echo "Installing optional Node.js tools for minification..."
-	@npm install -g terser cssnano-cli 2>/dev/null || echo "Warning: npm not available, skipping JS/CSS minification tools"
+	@echo "Installing Node.js tooling (formatting and minification)..."
+	@npm ci || echo "Warning: npm ci failed, skipping JS/CSS tooling"
 
-# Create a new blog post
+# Create a new draft post from the template: make new-post TITLE="My post" [SLUG=my-post]
 new-post:
-	@echo "To create a new blog post, use Doom Emacs:"
-	@echo "  SPC B n - Create new post"
-	@echo "  SPC B p - Publish blog"
-	@echo ""
-	@echo "Or run: emacs --eval '(blog/new-post)'"
+	@[ -n "$(TITLE)" ] || { echo 'Usage: make new-post TITLE="Post title" [SLUG=post-slug]'; exit 1; }
+	@today=$$(date +%Y-%m-%d); \
+	slug="$(SLUG)"; \
+	[ -n "$$slug" ] || slug=$$(printf '%s' "$(TITLE)" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$$//'); \
+	[ -n "$$slug" ] || { echo 'Could not derive a slug from TITLE; pass SLUG=...'; exit 1; }; \
+	file="posts/$$today-$$slug.org"; \
+	[ ! -e "$$file" ] || { echo "$$file already exists"; exit 1; }; \
+	sed -e "s|^#+TITLE: *$$|#+TITLE: $(TITLE)|" \
+	    -e "s|^#+DATE: *$$|#+DATE: $$today|" \
+	    -e "s|^#+LASTMOD: *$$|#+LASTMOD: $$today|" \
+	    -e "s|^#+AUTHOR: *$$|#+AUTHOR: $${BLOG_AUTHOR:-bytenoob}|" \
+	    templates/post-template.org > "$$file"; \
+	echo "Created $$file (#+DRAFT: true)"
 
 # Publish to GitHub Pages or other hosting
 publish: build
@@ -93,7 +99,7 @@ help:
 	@echo "  make serve          - Serve blog locally on port 8000"
 	@echo "  make dev            - Development mode with auto-rebuild"
 	@echo "  make install-deps   - Install required dependencies"
-	@echo "  make new-post       - Create a new blog post"
+	@echo "  make new-post TITLE=\"...\" - Create a new draft post"
 	@echo "  make publish        - Build and publish to git"
 	@echo "  make kb-lint        - Run KB health check"
 	@echo "  make kb-absorb      - Absorb new raw files into wiki"

@@ -36,8 +36,8 @@ Scan all files in `kb/wiki/` and report:
 
 ## Rules
 
-- This is a read-only operation. Do not fix issues — only report them.
-- Always append a log entry after running:
+- Do not fix issues or edit wiki pages — only report them. The one write allowed is the log entry below.
+- Always append a log entry to `kb/wiki/log.org` after running:
 
 ```org
 ** [YYYY-MM-DD] lint | Health check

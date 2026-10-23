@@ -9,7 +9,7 @@ This is a private repo containing blog + LLM-powered knowledge base:
 ```
 bufrr.github.io/
 ├── posts/            # Blog source files (.org)
-├── build-site.el     # Blog build script
+├── build.el          # Blog build logic (org-publish)
 ├── public/           # Generated HTML (GitHub Pages serves from here)
 ├── static/           # CSS, JS, assets
 ├── templates/        # Blog post templates
@@ -59,12 +59,12 @@ All wiki pages use the above-the-line / below-the-line structure (defined in `kb
 # Build the site (generates HTML from Org files)
 ./build.sh
 
-# Or directly with Emacs
-emacs -Q --script build-site.el
+# Or directly with Emacs (skips .blogrc, sitemap, and robots.txt)
+emacs --batch --load build.el --funcall blog/publish-all
 ```
 
 - Source: `posts/*.org`
-- Build: `build-site.el` uses `ox-publish`
+- Build: `build.el` uses `ox-publish`; `build.sh` wraps it with config, sitemap, and robots.txt
 - Output: `public/` directory (GitHub Pages)
 - Blog drafts from `kb/artifacts/` can be published to `posts/`
 
