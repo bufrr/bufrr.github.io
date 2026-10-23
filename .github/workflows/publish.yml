@@ -10,6 +10,7 @@ env:
   BLOG_URL: ${{ secrets.BLOG_URL || 'https://bytenoob.io' }}
   BLOG_AUTHOR: ${{ secrets.BLOG_AUTHOR || 'bytenoob' }}
   BLOG_EMAIL: ${{ secrets.BLOG_EMAIL || 'blog@example.com' }}
+  BLOG_DESCRIPTION: ${{ secrets.BLOG_DESCRIPTION || 'A technical blog about programming and technology' }}
   MINIFY_ASSETS: 'true'
 
 jobs:
