@@ -41,6 +41,7 @@ Import raw source material into the knowledge base.
 
 ## Rules
 
+- The repository is public: anything saved under `kb/` is readable on GitHub. Before ingesting private material (chat logs, emails, unpublished notes), confirm with the user and redact personal data (names of private individuals, emails, phone numbers, keys).
 - Never modify raw files after ingestion. Raw is immutable.
 - One source per file.
 - If the input is a URL, fetch the content and save it. Do not leave URLs as placeholders.

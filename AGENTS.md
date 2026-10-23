@@ -2,9 +2,9 @@
 
 ## Project Structure
 
-This is a private monorepo with two systems:
+This is a public monorepo (source for https://bytenoob.io) with two systems. Everything committed, including `kb/`, is readable on GitHub; only `posts/` is published to the website.
 
-- **Blog** (`posts/`, `static/`, `templates/`, `build.el`, `build.sh`) — Org-mode static site generator → `public/` → GitHub Pages
+- **Blog** (`posts/`, `static/`, `templates/`, `build.el`, `build.sh`) — Org-mode static site generator → `public/` (gitignored) → GitHub Pages via the Publish workflow
 - **Knowledge Base** (`kb/`) — LLM-powered personal wiki compiled from raw sources
 
 Note: GTD lives separately at `~/org/gtd/` and is not part of this repo.
@@ -90,6 +90,7 @@ Rules:
 
 ## Configuration & Security
 
+- The repository and website are public. Never commit secrets or personal data; anything ingested into `kb/` is public too.
 - Start from `.blogrc.example`; keep personal or deployment-specific values in `.blogrc` (gitignored) or environment variables. Exported environment values win over `.blogrc`.
 - Do not commit `.blogrc` with real credentials or any other secrets; CI reads `BLOG_URL`, `BLOG_AUTHOR`, and `BLOG_EMAIL` from environment/secrets.
-- `BLOG_DESCRIPTION` (optional) becomes the home page standfirst via the generated `index.org`; CI does not set it today.
+- `BLOG_DESCRIPTION` becomes the home page standfirst via the generated `index.org`. The Publish workflow sets `BLOG_TITLE` and `BLOG_DESCRIPTION` from secrets, with defaults.

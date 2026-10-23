@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Structure
 
-This is a private repo containing blog + LLM-powered knowledge base:
+This is a public repo: the source for the blog at https://bytenoob.io plus an LLM-powered knowledge base. Everything committed, including `kb/`, is publicly readable on GitHub; the website only publishes `posts/`.
 
 ```
 bufrr.github.io/
 ├── posts/            # Blog source files (.org)
 ├── build.el          # Blog build logic (org-publish)
-├── public/           # Generated HTML (GitHub Pages serves from here)
+├── public/           # Generated HTML (gitignored; CI builds and deploys it)
 ├── static/           # CSS, JS, assets
 ├── templates/        # Blog post templates
 ├── kb/               # Knowledge base
@@ -65,11 +65,12 @@ emacs --batch --load build.el --funcall blog/publish-all
 
 - Source: `posts/*.org`
 - Build: `build.el` uses `ox-publish`; `build.sh` wraps it with config, sitemap, and robots.txt
-- Output: `public/` directory (GitHub Pages)
+- Output: `public/` (gitignored); the Publish workflow builds it and deploys to GitHub Pages
 - Blog drafts from `kb/artifacts/` can be published to `posts/`
 
 ## Rules
 
+- This repo is public. Never commit credentials, tokens, private notes, or personal data (emails, phone numbers, addresses). Ask before ingesting private conversations or documents into `kb/`, and redact personal details.
 - Never modify files in `kb/raw/`. Raw sources are immutable.
 - Always update `kb/wiki/index.org` after creating or significantly changing wiki pages.
 - Always append to `kb/wiki/log.org` after any operation.

@@ -1,6 +1,8 @@
 # bufrr.github.io
 
-Private repo: blog + LLM-powered knowledge base.
+Source for the public blog at [bytenoob.io](https://bytenoob.io), plus an LLM-powered knowledge base.
+
+> **This repository is public.** Everything committed here is readable on GitHub, including `kb/` (raw sources and wiki). Only `posts/` is published to the website. Never commit credentials, private notes, or personal data.
 
 ## Setup (after clone)
 
@@ -64,7 +66,7 @@ In Emacs:
 posts/        Blog source files (.org)
 static/       CSS, JS, assets
 templates/    Blog post templates
-public/       Generated HTML (GitHub Pages)
+public/       Generated HTML (gitignored; built and deployed by CI)
 kb/           Knowledge base
   raw/        Immutable source material
   wiki/       LLM-maintained wiki (org-roam nodes)
@@ -122,7 +124,7 @@ make build-prod # build + minify
 
 Create posts in `posts/` using `YYYY-MM-DD-slug.org` naming with `#+TITLE:`, `#+AUTHOR:`, `#+DATE:` headers. Set `#+DRAFT: true` to keep unpublished.
 
-Push to `main` to deploy via GitHub Pages.
+Push to `main` (or run `make publish`): the Publish workflow builds the site and deploys it to GitHub Pages at <https://bytenoob.io>.
 
 ## GTD
 
