@@ -135,10 +135,12 @@
          (funcall meta "property" "og:description" desc))
        (funcall meta "name" "twitter:card" "summary")
        (if date (funcall meta "property" "article:published_time" date) "")
-       ;; Link EN/CN translations when both exist
-       (let ((en-name base) (cn-name (concat base "-cn")))
-         (if (and (file-exists-p (expand-file-name (concat en-name ".org") dir))
-                  (file-exists-p (expand-file-name (concat cn-name ".org") dir)))
+       ;; Link EN/CN translations when both are published (exist, not drafts)
+       (let* ((en-name base) (cn-name (concat base "-cn"))
+              (en-file (expand-file-name (concat en-name ".org") dir))
+              (cn-file (expand-file-name (concat cn-name ".org") dir)))
+         (if (and (file-exists-p en-file) (file-exists-p cn-file)
+                  (not (blog/is-draft-p en-file)) (not (blog/is-draft-p cn-file)))
              (concat
               (format "<link rel=\"alternate\" hreflang=\"en\" href=\"%s\" />\n" (blog/page-url en-name))
               (format "<link rel=\"alternate\" hreflang=\"zh-CN\" href=\"%s\" />\n" (blog/page-url cn-name))
@@ -292,7 +294,12 @@ tab title of every page except the home pages with the site name."
                 (concat "#+DESCRIPTION: " desc "\n")
               ""))
           "#+OPTIONS: author:nil toc:nil num:nil\n\n"
-          (org-list-to-org list)))
+          ;; Newest first by the date-prefixed file name. Org's own date sort
+          ;; falls back to file mtimes for bare #+DATE values.
+          (org-list-to-org
+           (cons (car list)
+                 (sort (copy-sequence (cdr list))
+                       (lambda (a b) (string> (car a) (car b))))))))
 
 ;; Publishing configuration
 (setq org-publish-project-alist
@@ -317,7 +324,7 @@ tab title of every page except the home pages with the site name."
          :auto-sitemap t
          :sitemap-filename "index.org"
          :sitemap-title "Posts"
-         :sitemap-sort-files anti-chronologically
+         :sitemap-sort-files alphabetically
          :sitemap-style list
          :sitemap-format-entry (lambda (entry style project)
                                  (format "[[file:%s][%s]]"

@@ -33,3 +33,9 @@ unset env_config var kv
 BLOG_URL="${BLOG_URL%/}"
 
 export "${CONFIG_VARS[@]}"
+
+# True if an Org file is a draft: #+DRAFT: true/t/yes in its header, before
+# the first heading (same rule as blog/is-draft-p in build.el)
+is_draft() {
+  awk '/^\*+ /{exit} tolower($0) ~ /^#\+draft:[[:space:]]*(true|t|yes)[[:space:]]*$/{found=1; exit} END{exit !found}' "$1"
+}

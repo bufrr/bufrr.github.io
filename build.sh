@@ -43,11 +43,24 @@ JS_VERSION=$(file_version static/js/blog.js)
 export CSS_VERSION
 export JS_VERSION
 
-# Run Emacs in batch mode to publish the blog
-# Full builds start from a clean slate so deleted or re-drafted posts don't
-# linger in public/ (incremental builds keep existing output)
-if [ "$INCREMENTAL_BUILD" != "true" ] && [ -d public ]; then
-  rm -f public/*.html public/sitemap.xml
+# Incremental builds only re-export posts whose own Org file changed, so any
+# change to shared inputs (templates, config, assets) forces a full build
+INPUTS_STAMP=public/.build-inputs
+inputs_hash=$({
+  cat build.el config.sh static/css/blog.css static/js/blog.js
+  [ -f .blogrc ] && cat .blogrc
+  env | grep -E '^(BLOG_|GITHUB_USERNAME=)' | sort
+} | { sha256sum 2> /dev/null || shasum -a 256; } | cut -c1-16)
+if [ "$INCREMENTAL_BUILD" = "true" ] && [ "$(cat "$INPUTS_STAMP" 2> /dev/null)" != "$inputs_hash" ]; then
+  echo -e "${YELLOW}Shared build inputs changed:${NC} doing a full build"
+  INCREMENTAL_BUILD=false
+  export INCREMENTAL_BUILD
+fi
+
+# Full builds start from an empty public/ so removed posts and assets don't
+# linger (incremental builds keep existing output and prune it below)
+if [ "$INCREMENTAL_BUILD" != "true" ]; then
+  rm -rf public
 fi
 
 if ! emacs --batch \
@@ -57,8 +70,20 @@ if ! emacs --batch \
   exit 1
 fi
 
-# robots.txt must live at the site root, not under static/
-cp static/robots.txt public/robots.txt
+# Remove pages whose Org source was deleted or turned back into a draft
+shopt -s nullglob
+for html in public/*.html; do
+  org="posts/$(basename "$html" .html).org"
+  if [ ! -f "$org" ] || is_draft "$org"; then
+    echo "Removing stale page: $html"
+    rm -f "$html"
+  fi
+done
+shopt -u nullglob
+
+# robots.txt must live at the site root, pointing at this site's sitemap
+sed "s#^Sitemap:.*#Sitemap: $BLOG_URL/sitemap.xml#" static/robots.txt > public/robots.txt
+echo "$inputs_hash" > "$INPUTS_STAMP"
 
 echo -e "${GREEN}Build complete!${NC} HTML files generated in public/"
 

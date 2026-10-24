@@ -24,18 +24,18 @@ org_keyword_date() {
   grep -m1 -oiE "^#\+$1:[[:space:]]*[<[]?[0-9]{4}-[0-9]{2}-[0-9]{2}" "$2" | grep -oE '[0-9-]{10}$' || true
 }
 
-# Last-modified date for a page: #+LASTMOD, then #+DATE of its Org source,
-# then the last commit touching it, then today.
+# Last-modified date for a page: the newest of its Org source's #+LASTMOD,
+# #+DATE and last commit date (so edits count even if #+LASTMOD is stale),
+# or today when none is known.
 page_lastmod() {
-  local org="posts/${1%.html}.org" value=""
+  local org="posts/${1%.html}.org" value="" candidate
   if [ -f "$org" ]; then
-    value=$(org_keyword_date LASTMOD "$org")
-    if [ -z "$value" ]; then
-      value=$(org_keyword_date DATE "$org")
-    fi
-    if [ -z "$value" ]; then
-      value=$(git log -1 --format=%cs -- "$org" 2> /dev/null || true)
-    fi
+    for candidate in "$(org_keyword_date LASTMOD "$org")" "$(org_keyword_date DATE "$org")" \
+      "$(git log -1 --format=%cs -- "$org" 2> /dev/null || true)"; do
+      if [[ "$candidate" > "$value" ]]; then
+        value="$candidate"
+      fi
+    done
   fi
   echo "${value:-$TODAY}"
 }

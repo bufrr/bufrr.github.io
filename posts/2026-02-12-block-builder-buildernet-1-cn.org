@@ -50,7 +50,7 @@ BuilderNet 的目标很明确：多个运营商跑同一套开源 builder，共�
 
 #+CAPTION: BuilderNet 整体架构
 #+ATTR_HTML: :alt BuilderNet 架构：用户和钱包直接或经由 Flashbots 基础设施（Bundle Relay、Protect、MEV-Share、Orderflow Proxy）向构建节点发送订单流；BuilderHub 提供密钥、配置和节点信息；构建节点之间共享订单流，向 Redistribution Archive 提交出价，并向外部 MEV-Boost 中继提交区块。 :width 1280 :height 962 :loading lazy :decoding async
-[[./static/images/posts/buildernet-1/img-001.png]]
+[[../static/images/posts/buildernet-1/img-001.png]]
 
 ** Flashbots 基础设施
 当前仍有两个中心化组件：
@@ -85,7 +85,7 @@ BuilderNet 节点不是 Docker 容器，而是基于 Yocto 构建的完整 Linux
 
 #+CAPTION: Builder 节点启动序列
 #+ATTR_HTML: :alt 构建节点启动序列：启动系统服务、时间同步和 CVM 代理；从 Flashbots 下载密钥和配置；挂载加密磁盘；启动运营者 API 和可观测性工具；启动 Lighthouse，同步并启动 Reth；启动 rbuilder、出价服务和 HAProxy；最后启动订单流代理，由它注册密钥并与 Flashbots 及其他构建者交换订单流。 :width 1280 :height 1053 :loading lazy :decoding async
-[[./static/images/posts/buildernet-1/img-002.png]]
+[[../static/images/posts/buildernet-1/img-002.png]]
 
 ** 如何成为 Operator
 当前是许可制。
@@ -123,7 +123,7 @@ orderflow-proxy 在 TEE 内生成 TLS 证书和 ECDSA 密钥并注册到 Builder
 
 #+CAPTION: 节点与基础设施的可信连接路径
 #+ATTR_HTML: :alt 可信连接：构建节点持有客户端 aTLS、服务端 aTLS 和本地 TLS 证书，并与位于 BuilderHub 前端的 Flashbots cvm-proxy 保持经过证明的连接；用户通过 /cert 获取节点证书，直接或经由 Bundle Relay、Protect、MEV-Share 和 Orderflow Proxy 发送订单流，并可通过 Measurements Proxy 校验节点度量值。 :width 1280 :height 576 :loading lazy :decoding async
-[[./static/images/posts/buildernet-1/img-003.png]]
+[[../static/images/posts/buildernet-1/img-003.png]]
 
 * 区块构建过程
 核心组件是 rbuilder（Rust 实现，基于 Reth）
