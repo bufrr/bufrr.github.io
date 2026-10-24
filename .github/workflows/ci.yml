@@ -30,30 +30,6 @@ jobs:
                 (princ (format \"::warning file=%s,line=%s::%s\\n\" \"$file\" (aref (cadr i) 0) (aref (cadr i) 2)))))" 2>/dev/null
           done
 
-      - name: Validate metadata
-        run: |
-          echo "📋 Validating post metadata..."
-          for file in posts/*.org; do
-            case "$file" in posts/index.org | posts/index-cn.org | posts/about.org | posts/404.org) continue ;; esac
-            if [ -f "$file" ]; then
-              echo "Checking: $file"
-              # Check for required metadata
-              if ! grep -qE "^#\\+TITLE:[[:space:]]*[^[:space:]]" "$file"; then
-                echo "❌ Missing TITLE in $file"
-                exit 1
-              fi
-              if ! grep -qE "^#\\+AUTHOR:[[:space:]]*[^[:space:]]" "$file"; then
-                echo "❌ Missing AUTHOR in $file"
-                exit 1
-              fi
-              if ! grep -qE "^#\\+DATE:[[:space:]]*[^[:space:]]" "$file"; then
-                echo "❌ Missing DATE in $file"
-                exit 1
-              fi
-            fi
-          done
-          echo "✅ All metadata valid"
-
   shellcheck:
     runs-on: ubuntu-latest
     steps:
@@ -77,6 +53,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
+
+      - name: Install Node.js dependencies
+        run: npm ci
 
       - name: Install Emacs
         run: |
@@ -91,64 +71,9 @@ jobs:
           CI: true
           GITHUB_WORKSPACE: ${{ github.workspace }}
 
-      - name: Validate HTML output
-        run: |
-          echo "🔍 Validating HTML files..."
-          # Check that index.html exists
-          if [ ! -f "public/index.html" ]; then
-            echo "❌ public/index.html not found"
-            exit 1
-          fi
+      - name: Minify assets
+        run: ./minify.sh
 
-          # Check that all expected HTML files exist
-          for org_file in posts/*.org; do
-            # Drafts are intentionally not published (only the header counts,
-            # matching blog/is-draft-p in build.el)
-            if awk '/^\*+ /{exit} tolower($0) ~ /^#\+draft:[[:space:]]*(true|t|yes)[[:space:]]*$/{found=1; exit} END{exit !found}' "$org_file"; then
-              continue
-            fi
-            if [ -f "$org_file" ]; then
-              base_name=$(basename "$org_file" .org)
-              html_file="public/${base_name}.html"
-              if [ ! -f "$html_file" ]; then
-                echo "❌ Expected $html_file not found"
-                exit 1
-              fi
-            fi
-          done
-
-          echo "✅ All HTML files generated successfully"
-
-      - name: Check for broken internal links
-        run: |
-          echo "🔗 Checking for broken internal links..."
-          cd public
-
-          # Use a temporary file to track broken links
-          broken_file=$(mktemp)
-
-          for html_file in *.html; do
-            if [ -f "$html_file" ]; then
-              # Extract internal links
-              { grep -oE 'href="[^"#]*\.html(#[^"]*)?"' "$html_file" || true; } | sed 's/href="//;s/"//;s/#.*//;s/&amp;/\&/g' | sort -u | while read -r link; do
-                if [ -n "$link" ] && [[ ! "$link" =~ ^https?:// ]]; then
-                  # Handle both relative and absolute paths
-                  check_file="${link#/}"
-                  if [ ! -f "$check_file" ]; then
-                    echo "❌ Broken link in $html_file: $link" | tee -a "$broken_file"
-                  fi
-                fi
-              done
-            fi
-          done
-
-          # Count broken links
-          broken_count=$(wc -l < "$broken_file" 2>/dev/null || echo "0")
-          rm -f "$broken_file"
-
-          if [ "$broken_count" -gt 0 ]; then
-            echo "❌ Found $broken_count broken links"
-            exit 1
-          else
-            echo "✅ No broken internal links found"
-          fi
+      - name: Check site
+        # Metadata, published pages and internal links (shared with publish)
+        run: ./check-site.sh

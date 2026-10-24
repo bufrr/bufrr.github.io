@@ -80,6 +80,10 @@ jobs:
             ./minify.sh
           fi
 
+      - name: Check site
+        # Same validation as CI, so a direct push can't deploy a broken site
+        run: ./check-site.sh
+
       - name: List generated files
         run: |
           echo "📁 Checking build output:"

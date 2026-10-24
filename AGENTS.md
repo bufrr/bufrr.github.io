@@ -80,10 +80,10 @@ Rules:
 
 - There is no unit-test suite; quality gates are lint/build checks.
 - Run before push:
-  - `./build.sh`
+  - `./build.sh && ./check-site.sh` (or `make check`)
   - `shellcheck *.sh`
   - `npm run format:check`
-- CI additionally validates Org metadata and checks generated HTML internal links.
+- `check-site.sh` validates post metadata, that every published post has a page, and every internal `href`/`src` including `#anchors`. CI runs it after minifying, and the Publish workflow runs it again before deploying.
 
 ## Commit & Pull Request Guidelines
 

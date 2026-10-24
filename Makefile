@@ -1,6 +1,6 @@
 # Makefile for blog operations
 
-.PHONY: all build clean serve server dev install-deps new-post publish help kb-lint kb-absorb kb-breakdown
+.PHONY: all build check clean serve server dev install-deps new-post publish help kb-lint kb-absorb kb-breakdown
 
 # Default target
 all: build
@@ -9,6 +9,10 @@ all: build
 build:
 	@echo "Building blog..."
 	@bash build.sh
+
+# Validate the built site: metadata, published pages, internal links
+check: build
+	@bash check-site.sh
 
 # Build for production (with minification)
 build-prod: build
@@ -36,7 +40,7 @@ dev:
 	@command -v inotifywait >/dev/null 2>&1 || { echo "inotifywait is required (install inotify-tools)"; exit 1; }
 	@echo "Watching for changes in posts/ and static/"
 	@while true; do \
-		inotifywait -r -e modify,create,delete posts/ static/ 2>/dev/null; \
+		inotifywait -r -e modify,create,delete,moved_to,moved_from posts/ static/ 2>/dev/null; \
 		make build; \
 	done
 
@@ -68,7 +72,8 @@ new-post:
 	file="posts/$$today-$$slug.org"; \
 	[ ! -e "$$file" ] || { echo "$$file already exists"; exit 1; }; \
 	tmp=$$(mktemp); \
-	TODAY="$$today" AUTHOR="$${BLOG_AUTHOR:-bytenoob}" awk ' \
+	author=$$(bash -c 'source ./config.sh && printf "%s" "$$BLOG_AUTHOR"'); \
+	TODAY="$$today" AUTHOR="$$author" awk ' \
 		/^#\+TITLE:/   { print "#+TITLE: " ENVIRON["TITLE"]; next } \
 		/^#\+DATE:/    { print "#+DATE: " ENVIRON["TODAY"]; next } \
 		/^#\+LASTMOD:/ { print "#+LASTMOD: " ENVIRON["TODAY"]; next } \
@@ -116,6 +121,7 @@ help:
 	@echo "Blog Makefile - Available targets:"
 	@echo "  make build          - Build the blog"
 	@echo "  make build-prod     - Build for production (with minification)"
+	@echo "  make check          - Build and validate metadata and internal links"
 	@echo "  make clean          - Remove build artifacts"
 	@echo "  make serve          - Serve blog locally on port 8000"
 	@echo "  make dev            - Development mode with auto-rebuild"

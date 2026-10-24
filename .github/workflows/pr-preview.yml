@@ -9,6 +9,11 @@ env:
   BLOG_AUTHOR: ${{ secrets.BLOG_AUTHOR || 'bytenoob' }}
   BLOG_EMAIL: ${{ secrets.BLOG_EMAIL || 'blog@example.com' }}
 
+# A newer push to the same PR supersedes the running preview
+concurrency:
+  group: pr-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   preview:
     runs-on: ubuntu-latest
@@ -51,6 +56,9 @@ jobs:
             chmod +x generate-sitemap.sh
             ./generate-sitemap.sh
           fi
+
+      - name: Check site
+        run: ./check-site.sh
 
       - name: Collect build statistics
         id: stats
