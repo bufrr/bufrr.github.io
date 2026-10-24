@@ -302,17 +302,23 @@
       const toc = utils.$('#table-of-contents', content);
       const fragment = document.createDocumentFragment();
 
-      // Hero
-      const hero = el('header', 'hero');
-      const hd = el('div', 'hd');
-      hd.appendChild(title);
-      const description = utils.$('meta[name="description"]');
-      if (description && description.content.trim()) {
-        hd.appendChild(el('p', 'standfirst', description.content.trim()));
+      // Hero (posts and pages only). The index starts at the post list; its
+      // title stays in the prose for screen readers and search engines.
+      let hero = null;
+      if (isIndex) {
+        title.classList.add('sr-only');
+      } else {
+        hero = el('header', 'hero');
+        const hd = el('div', 'hd');
+        hd.appendChild(title);
+        const description = utils.$('meta[name="description"]');
+        if (description && description.content.trim()) {
+          hd.appendChild(el('p', 'standfirst', description.content.trim()));
+        }
+        const meta = Metadata.build(isIndex);
+        if (meta) hd.appendChild(meta);
+        hero.appendChild(hd);
       }
-      const meta = Metadata.build(isIndex);
-      if (meta) hd.appendChild(meta);
-      hero.appendChild(hd);
 
       // Body grid
       const grid = el('div', 'body-grid');
@@ -356,7 +362,7 @@
 
       grid.appendChild(rail);
       grid.appendChild(prose);
-      fragment.appendChild(hero);
+      if (hero) fragment.appendChild(hero);
       fragment.appendChild(grid);
       content.appendChild(fragment);
 
