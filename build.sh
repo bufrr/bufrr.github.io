@@ -31,9 +31,13 @@ if ! command -v emacs > /dev/null 2>&1; then
   exit 1
 fi
 
-# Get version numbers for cache busting based on file modification time
-CSS_VERSION=$(stat -c %Y static/css/blog.css 2> /dev/null || stat -f %m static/css/blog.css 2> /dev/null || echo "1")
-JS_VERSION=$(stat -c %Y static/js/blog.js 2> /dev/null || stat -f %m static/js/blog.js 2> /dev/null || echo "1")
+# Cache-busting versions from file contents, so URLs change only when the
+# file does (mtimes differ on every CI checkout)
+file_version() {
+  { sha256sum "$1" 2> /dev/null || shasum -a 256 "$1"; } | cut -c1-10
+}
+CSS_VERSION=$(file_version static/css/blog.css)
+JS_VERSION=$(file_version static/js/blog.js)
 
 # Export for use in Emacs
 export CSS_VERSION

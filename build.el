@@ -157,12 +157,11 @@
 
 ;; Common HTML head content
 (defun blog/html-head ()
-  (concat "<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self';\">
+  (concat "<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data: https:; connect-src 'self';\">
 <meta name=\"referrer\" content=\"strict-origin-when-cross-origin\">
 <link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/favicon.svg\">
-<link rel=\"preconnect\" href=\"https://fonts.googleapis.com\">
-<link rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>
-<link href=\"https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap\" rel=\"stylesheet\">
+<link rel=\"preload\" href=\"/static/fonts/geist-latin.woff2\" as=\"font\" type=\"font/woff2\" crossorigin>
+<link rel=\"preload\" href=\"/static/fonts/geist-mono-latin.woff2\" as=\"font\" type=\"font/woff2\" crossorigin>
 <link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/blog.css?v=" (or (getenv "CSS_VERSION") "1") "\" />
 <script src=\"/static/js/blog.js?v=" (or (getenv "JS_VERSION") "1") "\" defer></script>"))
 
@@ -344,7 +343,7 @@
         
         ("blog-static"
          :base-directory ,blog-static-directory
-         :base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf\\|svg\\|woff\\|woff2\\|ico\\|webp\\|avif"
+         :base-extension "css\\|js\\|txt\\|png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf\\|svg\\|woff\\|woff2\\|ico\\|webp\\|avif"
          :publishing-directory ,(concat blog-publish-directory "static/")
          :recursive t
          :publishing-function org-publish-attachment)
