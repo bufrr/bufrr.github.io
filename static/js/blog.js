@@ -303,7 +303,6 @@
         rail.setAttribute('aria-label', 'Table of contents');
         const heading = utils.$('h2', toc);
         if (heading) heading.remove();
-        rail.appendChild(el('div', 'rail-title', title.textContent));
         // Plain label on wide screens; a collapse toggle on narrow screens,
         // where the rail sits above the prose (CSS shows one or the other)
         rail.appendChild(el('div', 'th rail-label', 'TREE'));
@@ -341,8 +340,10 @@
 
   // Module: Metadata grid under the title (AUTHOR / TAGS / PUBLISHED / READING TIME)
   const Metadata = {
+    // Only dated posts get the metadata grid; pages like About don't need it
     build(isIndex) {
-      if (isIndex) return null;
+      const published = dateFromSlug(window.location.pathname);
+      if (isIndex || !published) return null;
 
       const fields = [];
       const author = utils.$('meta[name="author"]');
@@ -357,13 +358,8 @@
         fields.push(['TAGS', tags.join(' · ')]);
       }
 
-      const published = dateFromSlug(window.location.pathname);
-      if (published) {
-        fields.push(['PUBLISHED', shortDate(published)]);
-        fields.push(['READING TIME', `${this.readingMinutes()} min`]);
-      }
-
-      if (!fields.length) return null;
+      fields.push(['PUBLISHED', shortDate(published)]);
+      fields.push(['READING TIME', `${this.readingMinutes()} min`]);
 
       const metaDiv = el('div', 'meta');
       fields.forEach(([label, value]) => {

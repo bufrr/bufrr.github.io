@@ -235,23 +235,13 @@ are published, otherwise to that language's home page (marked as fallback)."
 (defun blog/postamble (info)
   (concat
    "<footer class=\"site-footer\">"
-   "<div class=\"fb-brand\">"
-   "<a class=\"wm\" href=\"/\">" blog-title "</a>"
    "<span class=\"cc\">&copy; " (format-time-string "%Y") " " (blog/html-escape user-full-name) "</span>"
-   "</div>"
-   "<div class=\"fb-col\">"
-   "<div class=\"th\">SITE</div>"
+   "<nav class=\"fb-links\" aria-label=\"Footer\">"
    "<a href=\"/\">Home</a>"
    "<a href=\"/about.html\">About</a>"
-   "</div>"
-   "<div class=\"fb-col\">"
-   "<div class=\"th\">ELSEWHERE</div>"
    "<a href=\"https://github.com/" (blog/html-escape blog-github-user) "\" rel=\"noopener\">GitHub</a>"
-   "</div>"
-   "<div class=\"fb-built\">"
-   "<div class=\"th\">BUILT WITH</div>"
-   "<span>Emacs " emacs-version " &amp; Org-mode " (org-version) "</span>"
-   "</div>"
+   "</nav>"
+   "<span class=\"fb-built\">Built with Emacs " emacs-version " &amp; Org-mode " (org-version) "</span>"
    "</footer>"))
 
 ;; Function to check if a file is a draft
