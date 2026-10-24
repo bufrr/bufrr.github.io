@@ -124,7 +124,6 @@ package main
 
 import (
     "fmt"
-    "net/http"
     "time"
 )
 
@@ -218,9 +217,10 @@ impl BlogPost {
     
     // 获取文章摘要
     pub fn summary(&self) -> String {
-        let max_len = 100;
-        if self.content.len() > max_len {
-            format!("{}...", &self.content[..max_len])
+        let max_chars = 100;
+        if self.content.chars().count() > max_chars {
+            let prefix: String = self.content.chars().take(max_chars).collect();
+            format!("{}...", prefix)
         } else {
             self.content.clone()
         }
