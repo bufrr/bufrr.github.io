@@ -167,8 +167,6 @@ tab title of every page except the home pages with the site name."
 <meta name=\"referrer\" content=\"strict-origin-when-cross-origin\">
 <link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/favicon.svg\">
 <link rel=\"apple-touch-icon\" href=\"/static/apple-touch-icon.png\">
-<link rel=\"preload\" href=\"/static/fonts/geist-latin.woff2\" as=\"font\" type=\"font/woff2\" crossorigin>
-<link rel=\"preload\" href=\"/static/fonts/geist-mono-latin.woff2\" as=\"font\" type=\"font/woff2\" crossorigin>
 <link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/blog.css?v=" (or (getenv "CSS_VERSION") "1") "\" />
 <script src=\"/static/js/blog.js?v=" (or (getenv "JS_VERSION") "1") "\" defer></script>"))
 
