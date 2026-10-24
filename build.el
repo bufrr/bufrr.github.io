@@ -235,7 +235,7 @@ are published, otherwise to that language's home page (marked as fallback)."
 (defun blog/postamble (info)
   (concat
    "<footer class=\"site-footer\">"
-   "<span class=\"cc\">&copy; " (format-time-string "%Y") " " (blog/html-escape user-full-name) "</span>"
+   "<span class=\"cc\">&copy; " (format-time-string "%Y") "</span>"
    "<nav class=\"fb-links\" aria-label=\"Footer\">"
    "<a href=\"/\">Home</a>"
    "<a href=\"/about.html\">About</a>"
