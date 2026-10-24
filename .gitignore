@@ -72,8 +72,10 @@ logs/
 tmp/
 temp/
 # Private KB sources stay local (the repo is public)
+kb/raw/private/*
 kb/raw/chats/*
 kb/raw/tweets/*
+!kb/raw/private/.gitkeep
 !kb/raw/chats/.gitkeep
 !kb/raw/tweets/.gitkeep
 

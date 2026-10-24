@@ -2,3 +2,30 @@
 #+filetags: :log:
 
 * Log
+
+** [2026-04-06] ingest | Getting Started with Emacs: A Modern Approach
+:PROPERTIES:
+:SOURCE: kb/raw/articles/2024-01-29-getting-started-with-emacs.org
+:SOURCE_TYPE: article
+:SOURCE_URL: https://bytenoob.io/2024-01-29-getting-started-with-emacs.html
+:INGESTED: [2026-04-06]
+:NOTE: Copied by hand (commit 2e4303f) from posts/2024-01-29-getting-started-with-emacs.org, identical to the published post at that time; backfilled.
+:END:
+
+** [2026-04-06] ingest | The Waku Network
+:PROPERTIES:
+:SOURCE: kb/raw/articles/2024-06-16-waku.org
+:SOURCE_TYPE: article
+:SOURCE_URL: https://bytenoob.io/2024-06-16-waku.html
+:INGESTED: [2026-04-06]
+:NOTE: Copied by hand (commit 2e4303f) from posts/2024-06-16-waku.org, identical to the published post at that time; backfilled.
+:END:
+
+** [2026-04-06] ingest | What is Babylon?
+:PROPERTIES:
+:SOURCE: kb/raw/articles/2024-10-02-babylon.org
+:SOURCE_TYPE: article
+:SOURCE_URL: https://bytenoob.io/2024-10-02-babylon.html
+:INGESTED: [2026-04-06]
+:NOTE: Copied by hand (commit 2e4303f) from posts/2024-10-02-babylon.org, identical to the published post at that time; backfilled.
+:END:

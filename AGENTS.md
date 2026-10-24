@@ -73,7 +73,7 @@ Rules:
 - Never modify files in `kb/raw/`. Raw sources are immutable.
 - Always update `kb/wiki/index.org` after creating or changing wiki pages.
 - New wiki pages need a fresh UUID `:ID:` drawer at the top of the file; link with `[[id:...]]` using the target page's ID.
-- `kb/raw/chats/` and `kb/raw/tweets/` are gitignored for private material; never copy personal data into wiki pages or artifacts.
+- `kb/raw/private/`, `kb/raw/chats/` and `kb/raw/tweets/` are gitignored for private material; never copy personal data into wiki pages or artifacts.
 - Append to `kb/wiki/log.org` after every KB operation (ingest, absorb, lint, breakdown, rebuild-index; reorganize once the user decides; query only when it saves an artifact).
 
 ## Testing Guidelines
@@ -96,4 +96,4 @@ Rules:
 - The repository and website are public. Never commit secrets or personal data; anything ingested into `kb/` is public too.
 - Start from `.blogrc.example`; keep personal or deployment-specific values in `.blogrc` (gitignored) or environment variables. Exported environment values win over `.blogrc`.
 - Do not commit `.blogrc` with real credentials or any other secrets; CI reads `BLOG_URL`, `BLOG_AUTHOR`, and `BLOG_EMAIL` from environment/secrets.
-- `BLOG_DESCRIPTION` becomes the home page standfirst via the generated `index.org`. The Publish workflow sets `BLOG_TITLE` and `BLOG_DESCRIPTION` from secrets, with defaults.
+- `BLOG_DESCRIPTION` becomes the home page's meta description (search snippet) via the generated `index.org`; it is not shown on the page. The Publish workflow sets `BLOG_TITLE` and `BLOG_DESCRIPTION` from secrets, with defaults.

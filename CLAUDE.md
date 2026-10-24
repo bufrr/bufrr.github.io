@@ -14,7 +14,7 @@ bufrr.github.io/
 ├── static/           # CSS, JS, assets
 ├── templates/        # Blog post templates
 ├── kb/               # Knowledge base
-│   ├── raw/          # Immutable source material (articles, tweets, chats)
+│   ├── raw/          # Immutable source material (articles, podcasts; private/, chats/, tweets/ are gitignored)
 │   ├── wiki/         # LLM-maintained wiki (you write and maintain this)
 │   ├── brainstorm/   # Brainstorming drafts
 │   ├── artifacts/    # Query outputs, blog drafts, reports
@@ -76,4 +76,4 @@ emacs --batch --load build.el --funcall blog/publish-all
 - Append to `kb/wiki/log.org` after every KB operation (ingest, absorb, lint, breakdown, rebuild-index; reorganize once the user decides; query only when it saves an artifact).
 - Use `[[id:xxx][Display Text]]` for wiki cross-references, with the ID read from the target page's `:ID:` drawer. Every new page gets a fresh UUID (`uuidgen`) in a property drawer at the top of the file (see `kb/skills/absorb.md`).
 - Use `#+title:`, `#+filetags:`, `#+date:` headers on all wiki pages; the first filetag is the index section (`core`, `culture`, `technical`, `narrative`, `work`).
-- Wiki pages and artifacts are public: never copy personal data or verbatim quotes from private sources into them. Private raw material goes in the gitignored `kb/raw/chats/` and `kb/raw/tweets/`.
+- Wiki pages and artifacts are public: never copy personal data or verbatim quotes from private sources into them. Private raw material of any type goes in the gitignored `kb/raw/private/` (or `chats/`, `tweets/`).

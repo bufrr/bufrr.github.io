@@ -80,13 +80,11 @@ kb/           Knowledge base
 ### Add knowledge
 
 ```bash
-# Option A: ingest a file or URL (adds metadata, logs it)
+# Option A: ingest a file or URL (adds metadata, logs it, then absorbs it)
 claude -p "Read kb/skills/ingest.md. Ingest ~/Downloads/article.md"
 
-# Option B: use Emacs capture
+# Option B: Emacs capture, then compile it into the wiki yourself
 # SPC k n → paste content → save
-
-# Then compile it into wiki
 claude -p "Read kb/skills/absorb.md. Absorb kb/raw/articles/article.org"
 ```
 
@@ -99,7 +97,8 @@ claude -p "Read kb/skills/query.md. Summarize everything I know about Solana."
 ### Write a blog post from wiki knowledge
 
 ```bash
-claude -p "Read kb/skills/query.md. Based on my wiki, draft a blog post about Ethereum block building. Save to kb/artifacts/eth-block-building.org"
+claude -p "Read kb/skills/query.md. Based on my wiki, draft a blog post about Ethereum block building."
+# → kb/artifacts/YYYY-MM-DD-eth-block-building.org, with post headers and #+DRAFT: true
 
 # Then publish
 # SPC k p → select draft → copies to posts/

@@ -34,6 +34,10 @@ When an answer is substantial and worth preserving:
 :END:
 ```
 
+## Blog Drafts
+
+When asked to draft a blog post, save it as `kb/artifacts/YYYY-MM-DD-slug.org` (today's date, lowercase kebab-case slug) with the headers from `templates/post-template.org`: `#+TITLE`, `#+AUTHOR`, `#+DATE`, `#+DESCRIPTION`, `#+KEYWORDS`, and `#+DRAFT: true`. The file can then move to `posts/` unchanged; publishing means removing the draft flag. Cite the wiki pages it draws from in the log entry, not in the post.
+
 ## Rules
 
 - Never modify wiki pages during a query. The only writes allowed are the output file in `kb/artifacts/` and the log entry in `kb/wiki/log.org`.
