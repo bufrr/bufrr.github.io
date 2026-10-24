@@ -71,12 +71,14 @@
   --ink: #141413;
   --ink-rgb: 20, 20, 19;
   --ink-2: #4c4b45;
-  --ink-3: #73726b;
+  --ink-3: #6c6b65;
   --ink-4: #a8a69d;
   --line: #14141338;
   --line-soft: #1414131c;
   --accent: #c15f3c;
   --accent-deep: #a94e2f;
+  /* Accent for small text: at least 4.5:1 on --bg and --bg-raised */
+  --accent-text: #a94e2f;
 
   --syn-blue: #3065d7;
   --syn-purple: #914dbe;
@@ -109,6 +111,7 @@
     --line-soft: #faf9f517;
     --accent: #d97757;
     --accent-deep: #c15f3c;
+    --accent-text: #d97757;
 
     --syn-blue: #82aaff;
     --syn-purple: #c792ea;
@@ -148,7 +151,7 @@ body {
 }
 
 ::selection {
-  background: var(--accent);
+  background: var(--accent-text);
   color: var(--bg);
 }
 
@@ -248,7 +251,7 @@ video {
 }
 
 .nav-links a {
-  color: var(--ink-3);
+  color: var(--ink-2);
   white-space: nowrap;
   transition: color 0.15s;
 }
@@ -266,7 +269,7 @@ video {
 }
 
 .nav-links .k {
-  color: var(--ink-4);
+  color: var(--ink-3);
   margin-right: 6px;
   transition: color 0.15s;
 }
@@ -693,7 +696,7 @@ video {
 }
 
 .code-copy-button.copied {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 pre,
@@ -850,7 +853,7 @@ tbody:last-child tr:last-child td {
 sup a {
   font-family: var(--mono);
   font-size: 0.75em;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 /* ===== Index: post list ===== */
@@ -907,7 +910,7 @@ sup a {
 }
 
 .prose .post-list a:hover {
-  color: var(--accent-deep);
+  color: var(--accent-text);
 }
 
 .prose .post-list a:hover::after {
@@ -1024,7 +1027,7 @@ sup a {
 
 .org-constant,
 .org-nv {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .org-variable-name {
@@ -1049,7 +1052,7 @@ sup a {
 }
 
 .org-warning {
-  color: var(--accent-deep);
+  color: var(--accent-text);
   font-weight: 500;
 }
 
@@ -1119,7 +1122,7 @@ sup a {
 
   .rail-toggle::after {
     content: ' [+]';
-    color: var(--ink-4);
+    color: var(--ink-3);
   }
 
   .rail.open .rail-toggle {
@@ -1219,6 +1222,27 @@ sup a {
 
 /* ===== Print ===== */
 @media print {
+  /* Always print the light palette, even when the OS is in dark mode */
+  :root {
+    --bg: #fff;
+    --bg-raised: #f6f5f1;
+    --bg-panel: #ece9e0;
+    --ink: #000;
+    --ink-rgb: 0, 0, 0;
+    --ink-2: #222;
+    --ink-3: #555;
+    --ink-4: #888;
+    --line: #00000038;
+    --line-soft: #0000001c;
+    --accent: #a94e2f;
+    --accent-deep: #a94e2f;
+    --accent-text: #a94e2f;
+    --syn-blue: #3065d7;
+    --syn-purple: #914dbe;
+    --syn-green: #567527;
+    --syn-cyan: #16749a;
+  }
+
   #preamble,
   #postamble,
   .rail,

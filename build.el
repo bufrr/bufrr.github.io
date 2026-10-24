@@ -103,9 +103,22 @@
 ;; so these are written into the HTML at export time.
 (setq blog-url (string-remove-suffix "/" (or (getenv "BLOG_URL") "https://bytenoob.io")))
 
+(defun blog/page-path (name)
+  "Site-relative path of the page exported as NAME.html."
+  (if (string= name "index") "/" (concat "/" name ".html")))
+
 (defun blog/page-url (name)
   "Public URL of the page exported as NAME.html."
-  (if (string= name "index") (concat blog-url "/") (concat blog-url "/" name ".html")))
+  (concat blog-url (blog/page-path name)))
+
+(defun blog/translated-p (dir base)
+  "Non-nil if both BASE.org and BASE-cn.org in DIR are published (not drafts).
+about and 404 are English-only pages."
+  (let ((en (expand-file-name (concat base ".org") dir))
+        (cn (expand-file-name (concat base "-cn.org") dir)))
+    (and (not (member base '("about" "404")))
+         (file-exists-p en) (file-exists-p cn)
+         (not (blog/is-draft-p en)) (not (blog/is-draft-p cn)))))
 
 (defun blog/seo-head (info)
   "Return head tags for the page described by export INFO."
@@ -135,17 +148,13 @@
          (funcall meta "property" "og:description" desc))
        (funcall meta "name" "twitter:card" "summary")
        (if date (funcall meta "property" "article:published_time" date) "")
-       ;; Link EN/CN translations when both are published (exist, not drafts)
-       (let* ((en-name base) (cn-name (concat base "-cn"))
-              (en-file (expand-file-name (concat en-name ".org") dir))
-              (cn-file (expand-file-name (concat cn-name ".org") dir)))
-         (if (and (file-exists-p en-file) (file-exists-p cn-file)
-                  (not (blog/is-draft-p en-file)) (not (blog/is-draft-p cn-file)))
-             (concat
-              (format "<link rel=\"alternate\" hreflang=\"en\" href=\"%s\" />\n" (blog/page-url en-name))
-              (format "<link rel=\"alternate\" hreflang=\"zh-CN\" href=\"%s\" />\n" (blog/page-url cn-name))
-              (format "<link rel=\"alternate\" hreflang=\"x-default\" href=\"%s\" />\n" (blog/page-url en-name)))
-           ""))))))
+       ;; Link EN/CN translations when both are published
+       (if (blog/translated-p dir base)
+           (concat
+            (format "<link rel=\"alternate\" hreflang=\"en\" href=\"%s\" />\n" (blog/page-url base))
+            (format "<link rel=\"alternate\" hreflang=\"zh-CN\" href=\"%s\" />\n" (blog/page-url (concat base "-cn")))
+            (format "<link rel=\"alternate\" hreflang=\"x-default\" href=\"%s\" />\n" (blog/page-url base)))
+         "")))))
 
 (defun blog/seo-filter (output backend info)
   "Insert per-page SEO tags before </head> in HTML OUTPUT, and suffix the
@@ -156,6 +165,9 @@ tab title of every page except the home pages with the site name."
             (name (file-name-base (plist-get info :input-file))))
         (when (string-match "</head>" output)
           (setq output (replace-match (concat tags "</head>") t t output)))
+        ;; Scroll container for wide tables (works without JS)
+        (setq output (replace-regexp-in-string "<table\\b" "<div class=\"table-wrap\"><table" output t t))
+        (setq output (replace-regexp-in-string "</table>" "</table></div>" output t t))
         (when (and (not (member name '("index" "index-cn")))
                    (string-match "<title>\\(.*?\\)</title>" output))
           (setq output (replace-match
@@ -181,6 +193,31 @@ tab title of every page except the home pages with the site name."
           (if external " rel=\"noopener\"" "")
           "><span class=\"k\">[" key "]</span><span class=\"w\">" label "</span></a>"))
 
+(defun blog/lang-switcher (info)
+  "EN/中文 links for the page in INFO: to its translation when both versions
+are published, otherwise to that language's home page (marked as fallback)."
+  (let* ((file (plist-get info :input-file))
+         (name (file-name-base file))
+         (cn (string-suffix-p "-cn" name))
+         (base (string-remove-suffix "-cn" name))
+         (pair (blog/translated-p (file-name-directory file) base))
+         (link (lambda (lang label href active)
+                 (format "<a class=\"lang-btn%s\" data-lang=\"%s\" href=\"%s\"%s%s>%s</a>"
+                         (if active " active" "") lang href
+                         (if active " aria-current=\"true\"" "")
+                         (if (or pair active) "" " data-fallback=\"true\"")
+                         label))))
+    (concat
+     "<div class=\"lang-switcher\" role=\"group\" aria-label=\"Language\">"
+     (funcall link "en" "EN"
+              (cond (pair (blog/page-path base)) (cn "/") (t (blog/page-path name)))
+              (not cn))
+     "<span class=\"lang-divider\" aria-hidden=\"true\">/</span>"
+     (funcall link "cn" "中文"
+              (cond (pair (blog/page-path (concat base "-cn"))) (cn (blog/page-path name)) (t "/index-cn.html"))
+              cn)
+     "</div>")))
+
 (defun blog/preamble (info)
   (concat
    "<header class=\"site-header\">"
@@ -191,11 +228,7 @@ tab title of every page except the home pages with the site name."
    (blog/nav-link "A" "ABOUT" "/about.html")
    (blog/nav-link "G" "GITHUB" (concat "https://github.com/" (blog/html-escape blog-github-user)) t)
    "</div>"
-   "<div class=\"lang-switcher\">"
-   "<button class=\"lang-btn active\" data-lang=\"en\">EN</button>"
-   "<span class=\"lang-divider\">/</span>"
-   "<button class=\"lang-btn\" data-lang=\"cn\">中文</button>"
-   "</div>"
+   (blog/lang-switcher info)
    "</nav>"
    "</header>"))
 

@@ -8,10 +8,17 @@
 
   // Feature detection
   const features = {
-    intersectionObserver: 'IntersectionObserver' in window,
     scrollBehavior: 'scrollBehavior' in document.documentElement.style,
     history: window.history && 'pushState' in window.history,
   };
+
+  // Smooth scrolling only when supported and the visitor hasn't asked for
+  // reduced motion (the CSS media query can't reach JS scroll options)
+  const scrollBehavior = () =>
+    features.scrollBehavior &&
+    !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+      ? 'smooth'
+      : 'auto';
 
   // Utility functions
   const utils = {
@@ -53,8 +60,6 @@
   const TOC = {
     linkMap: new Map(),
     activeId: null,
-    scrollHandler: null,
-    observer: null,
     clickLockUntil: 0,
     clickLockTimer: null,
 
@@ -99,9 +104,13 @@
 
             // scrollIntoView honours the headings' CSS scroll-margin-top,
             // which clears the sticky nav at every viewport width
-            targetElement.scrollIntoView(
-              features.scrollBehavior ? { behavior: 'smooth', block: 'start' } : true
-            );
+            targetElement.scrollIntoView({ behavior: scrollBehavior(), block: 'start' });
+
+            // Move keyboard focus to the section so Tab continues from there
+            if (!targetElement.hasAttribute('tabindex')) {
+              targetElement.setAttribute('tabindex', '-1');
+            }
+            targetElement.focus({ preventScroll: true });
 
             // Update URL without jumping
             if (features.history) {
@@ -122,26 +131,9 @@
       this.clickLockTimer = setTimeout(() => {
         this.clickLockUntil = 0;
         this.clickLockTimer = null;
+        // The reader may have scrolled elsewhere during the lock
+        if (this.refresh) this.refresh();
       }, durationMs);
-    },
-
-    setupIntersectionObserver(headings) {
-      const options = {
-        rootMargin: '-20% 0px -70% 0px',
-        threshold: [0, 0.5, 1],
-      };
-
-      this.observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio > 0) {
-            this.setActiveLink(entry.target.id);
-          }
-        });
-      }, options);
-
-      headings.forEach((heading) => {
-        this.observer.observe(heading);
-      });
     },
 
     setupScrollTracking(headings) {
@@ -204,8 +196,7 @@
         }
       };
 
-      // Store handler reference for cleanup
-      this.scrollHandler = onScroll;
+      this.refresh = findActiveHeading;
 
       window.addEventListener('scroll', onScroll, { passive: true });
 
@@ -243,29 +234,11 @@
           if (linkRect.top < railRect.top || linkRect.bottom > railRect.bottom) {
             rail.scrollTo({
               top: rail.scrollTop + linkRect.top - railRect.top - rail.clientHeight / 2,
-              behavior: features.scrollBehavior ? 'smooth' : 'auto',
+              behavior: scrollBehavior(),
             });
           }
         }
       }
-    },
-
-    destroy() {
-      if (this.scrollHandler) {
-        window.removeEventListener('scroll', this.scrollHandler);
-        this.scrollHandler = null;
-      }
-      if (this.observer) {
-        this.observer.disconnect();
-        this.observer = null;
-      }
-      if (this.clickLockTimer) {
-        clearTimeout(this.clickLockTimer);
-        this.clickLockTimer = null;
-      }
-      this.linkMap.clear();
-      this.activeId = null;
-      this.clickLockUntil = 0;
     },
   };
 
@@ -352,13 +325,6 @@
       }
 
       if (isIndex) PostList.init(prose, rail);
-
-      // Wrap tables so wide ones scroll instead of overflowing the column
-      utils.$$('table', prose).forEach((table) => {
-        const wrap = el('div', 'table-wrap');
-        table.parentNode.insertBefore(wrap, table);
-        wrap.appendChild(table);
-      });
 
       grid.appendChild(rail);
       grid.appendChild(prose);
@@ -466,6 +432,35 @@
     },
   };
 
+  // Module: Make overflowing tables and code blocks keyboard-scrollable.
+  // Some browsers (Safari) don't put scroll containers in the tab order.
+  const ScrollRegions = {
+    update() {
+      utils.$$('.table-wrap, .code-block-wrapper pre, pre.example').forEach((region) => {
+        if (region.scrollWidth > region.clientWidth + 1) {
+          region.setAttribute('tabindex', '0');
+          region.setAttribute('role', 'region');
+          region.setAttribute(
+            'aria-label',
+            region.classList.contains('table-wrap') ? 'Scrollable table' : 'Scrollable code'
+          );
+        } else if (region.getAttribute('role') === 'region') {
+          region.removeAttribute('tabindex');
+          region.removeAttribute('role');
+          region.removeAttribute('aria-label');
+        }
+      });
+    },
+
+    init() {
+      this.update();
+      window.addEventListener(
+        'resize',
+        utils.debounce(() => this.update(), 200)
+      );
+    },
+  };
+
   // Module: Single-key navigation matching the [K] labels in the nav
   const KeyNav = {
     init() {
@@ -502,6 +497,20 @@
 
   // Module: Code block header with language label and copy button
   const CodeCopy = {
+    // Screen readers don't notice the button's text change, so copy results
+    // are announced through a polite live region
+    announce(message) {
+      if (!this.status) {
+        this.status = el('span', 'sr-only');
+        this.status.setAttribute('role', 'status');
+        document.body.appendChild(this.status);
+      }
+      this.status.textContent = '';
+      setTimeout(() => {
+        this.status.textContent = message;
+      }, 50);
+    },
+
     init() {
       const codeBlocks = utils.$$('.org-src-container pre, pre.src');
 
@@ -527,6 +536,7 @@
 
         const flash = (text, copied) => {
           button.textContent = text;
+          CodeCopy.announce(copied ? 'Code copied to clipboard' : 'Copy failed');
           button.classList.toggle('copied', copied);
           setTimeout(() => {
             button.textContent = 'COPY';
@@ -920,8 +930,10 @@
   };
 
   // Language Switcher Module - Define before init()
-  // A page's language comes from its URL (-cn.html is Chinese). Visitors are
-  // only auto-redirected after they explicitly pick a language.
+  // The EN/中文 links are rendered at build time: each points to the page's
+  // translation, or to that language's home page when there is none
+  // (data-fallback). JS only remembers the visitor's choice and, on later
+  // visits, follows that explicit choice to a real translation.
   const LanguageSwitcher = {
     storageKey: 'blog-language',
     memoryPref: null,
@@ -944,94 +956,29 @@
       }
     },
 
-    pageFile() {
-      return window.location.pathname.split('/').pop() || 'index.html';
-    },
-
-    pageLang() {
-      return this.pageFile().endsWith('-cn.html') ? 'cn' : 'en';
-    },
-
-    // Path of this page in the other language, or null for pages that are
-    // only published in one language
-    translationPath(lang) {
-      const file = this.pageFile();
-      if (file === 'index.html' || file === 'index-cn.html') {
-        return lang === 'cn' ? '/index-cn.html' : '/index.html';
-      }
-      if (!file.endsWith('.html') || file === 'about.html' || file === '404.html') {
-        return null;
-      }
-      const dir = window.location.pathname.slice(0, -file.length);
-      const base = file.replace(/(-cn)?\.html$/, '');
-      return dir + base + (lang === 'cn' ? '-cn.html' : '.html');
-    },
-
     isNotFoundPage() {
       return Boolean(utils.$('meta[name="blog-page"][content="404"]'));
     },
 
     init() {
-      const langButtons = utils.$$('.lang-btn');
-      if (!langButtons.length) return;
+      const links = utils.$$('.lang-btn[data-lang]');
+      if (!links.length) return;
 
-      langButtons.forEach((btn) => {
-        btn.addEventListener('click', (e) => {
-          e.preventDefault();
-          const lang = btn.getAttribute('data-lang');
-          if (lang) {
-            this.switchLanguage(lang);
-          }
-        });
+      links.forEach((link) => {
+        link.addEventListener('click', () => this.savePreference(link.dataset.lang));
       });
 
-      const pageLang = this.pageLang();
-      this.markActive(pageLang);
-      document.documentElement.setAttribute('lang', pageLang === 'cn' ? 'zh-CN' : 'en');
-
+      const current = links.find((link) => link.classList.contains('active'));
       const preferred = this.getPreference();
-      if (preferred && preferred !== pageLang && !this.isNotFoundPage()) {
-        // Automatic redirect: replace, so Back skips the bounced page
-        this.goTo(this.translationPath(preferred), null, true);
-      }
-    },
-
-    markActive(lang) {
-      utils.$$('.lang-btn').forEach((btn) => {
-        const active = btn.getAttribute('data-lang') === lang;
-        btn.classList.toggle('active', active);
-        btn.setAttribute('aria-pressed', String(active));
-      });
-    },
-
-    switchLanguage(lang) {
-      this.savePreference(lang);
-      if (lang === this.pageLang()) return;
-
-      const home = lang === 'cn' ? '/index-cn.html' : '/index.html';
-      this.goTo(this.translationPath(lang), home, false);
-    },
-
-    // Navigate to path if it exists, otherwise to fallback (if any)
-    goTo(path, fallback, replace) {
-      const navigate = (target) => {
-        if (target && target !== window.location.pathname) {
-          if (replace) {
-            window.location.replace(target);
-          } else {
-            window.location.assign(target);
-          }
-        }
-      };
-
-      if (!path) {
-        navigate(fallback);
+      if (!current || !preferred || preferred === current.dataset.lang || this.isNotFoundPage()) {
         return;
       }
 
-      fetch(path, { method: 'HEAD' })
-        .then((response) => navigate(response.ok ? path : fallback))
-        .catch(() => navigate(fallback));
+      // Automatic redirect: replace, so Back skips the bounced page
+      const target = links.find(
+        (link) => link.dataset.lang === preferred && link.dataset.fallback !== 'true'
+      );
+      if (target) window.location.replace(target.href);
     },
   };
 
@@ -1061,6 +1008,9 @@
     // Initialize code copy buttons
     initModule('CodeCopy', () => CodeCopy.init());
 
+    // After layout and code wrappers exist
+    initModule('ScrollRegions', () => ScrollRegions.init());
+
     // Initialize syntax highlighting fallback lazily
     const initSyntaxHighlighting = () => {
       if (utils.$$('pre.src').length > 0) {
@@ -1084,9 +1034,4 @@
     // Initialize Language Switcher
     initModule('LanguageSwitcher', () => LanguageSwitcher.init());
   }
-
-  // Cleanup on page unload
-  window.addEventListener('beforeunload', () => {
-    TOC.destroy();
-  });
 })();
