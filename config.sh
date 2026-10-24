@@ -23,7 +23,7 @@ for kv in ${env_config[@]+"${env_config[@]}"}; do
 done
 unset env_config var kv
 
-: "${BLOG_TITLE:=Noob Notes}"
+: "${BLOG_TITLE:=bytenoob}"
 : "${BLOG_AUTHOR:=bytenoob}"
 : "${BLOG_EMAIL:=noreply@example.com}"
 : "${BLOG_URL:=https://bytenoob.io}"

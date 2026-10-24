@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  BLOG_TITLE: ${{ secrets.BLOG_TITLE || 'My Blog' }}
+  BLOG_TITLE: ${{ secrets.BLOG_TITLE || 'bytenoob' }}
   BLOG_URL: ${{ secrets.BLOG_URL || 'https://bytenoob.io' }}
   BLOG_AUTHOR: ${{ secrets.BLOG_AUTHOR || 'bytenoob' }}
   BLOG_EMAIL: ${{ secrets.BLOG_EMAIL || 'blog@example.com' }}

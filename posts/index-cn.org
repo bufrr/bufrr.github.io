@@ -1,4 +1,4 @@
-#+TITLE: Noob Notes
+#+TITLE: bytenoob
 #+AUTHOR:
 #+DATE: 2025-07-01
 #+DESCRIPTION: 关于编程与技术的技术博客

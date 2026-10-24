@@ -43,7 +43,7 @@
 ;; Set user info (use environment variables for security)
 (setq user-full-name (or (getenv "BLOG_AUTHOR") "bytenoob"))
 (setq user-mail-address (or (getenv "BLOG_EMAIL") "noreply@example.com"))
-(setq blog-title-raw (or (getenv "BLOG_TITLE") "Noob Notes"))
+(setq blog-title-raw (or (getenv "BLOG_TITLE") "bytenoob"))
 (setq blog-title (blog/html-escape blog-title-raw))
 
 ;; Load org and ox-publish
@@ -146,13 +146,19 @@
            ""))))))
 
 (defun blog/seo-filter (output backend info)
-  "Insert per-page SEO tags before </head> in HTML OUTPUT."
+  "Insert per-page SEO tags before </head> in HTML OUTPUT, and suffix the
+tab title of every page except the home pages with the site name."
   (if (org-export-derived-backend-p backend 'html)
       ;; Build the tags first: blog/seo-head clobbers the match data
-      (let ((tags (blog/seo-head info)))
-        (if (string-match "</head>" output)
-            (replace-match (concat tags "</head>") t t output)
-          output))
+      (let ((tags (blog/seo-head info))
+            (name (file-name-base (plist-get info :input-file))))
+        (when (string-match "</head>" output)
+          (setq output (replace-match (concat tags "</head>") t t output)))
+        (when (and (not (member name '("index" "index-cn")))
+                   (string-match "<title>\\(.*?\\)</title>" output))
+          (setq output (replace-match
+                        (concat "<title>\\1 · " blog-title "</title>") t nil output)))
+        output)
     output))
 
 ;; Common HTML head content
@@ -160,6 +166,7 @@
   (concat "<meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data: https:; connect-src 'self';\">
 <meta name=\"referrer\" content=\"strict-origin-when-cross-origin\">
 <link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/favicon.svg\">
+<link rel=\"apple-touch-icon\" href=\"/static/apple-touch-icon.png\">
 <link rel=\"preload\" href=\"/static/fonts/geist-latin.woff2\" as=\"font\" type=\"font/woff2\" crossorigin>
 <link rel=\"preload\" href=\"/static/fonts/geist-mono-latin.woff2\" as=\"font\" type=\"font/woff2\" crossorigin>
 <link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/blog.css?v=" (or (getenv "CSS_VERSION") "1") "\" />

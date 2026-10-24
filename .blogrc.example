@@ -4,7 +4,7 @@
 # precedence over values set here; see config.sh.
 
 # Site metadata
-export BLOG_TITLE="My Blog"
+export BLOG_TITLE="bytenoob"
 export BLOG_DESCRIPTION="A technical blog about programming and technology"
 export BLOG_URL="https://bytenoob.io"
 
