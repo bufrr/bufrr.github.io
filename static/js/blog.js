@@ -457,6 +457,62 @@
     },
   };
 
+  // Module: Share links. "Post on X" is rendered at build time; this adds
+  // copy-link and the native share sheet, and repeats the links at the bottom
+  // of the desktop TOC rail.
+  const Share = {
+    addActions(container, url, title) {
+      const copy = el('button', 'share-btn', 'Copy link');
+      copy.type = 'button';
+      copy.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(url);
+          copy.textContent = 'Copied';
+          CodeCopy.announce('Link copied to clipboard');
+        } catch (e) {
+          copy.textContent = 'Copy failed';
+          CodeCopy.announce('Copy failed');
+        }
+        setTimeout(() => {
+          copy.textContent = 'Copy link';
+        }, 2000);
+      });
+      container.appendChild(copy);
+
+      if (navigator.share) {
+        const native = el('button', 'share-btn', 'Share…');
+        native.type = 'button';
+        native.addEventListener('click', () => {
+          navigator.share({ title, url }).catch(() => {});
+        });
+        container.appendChild(native);
+      }
+    },
+
+    init() {
+      const block = utils.$('.prose .share');
+      if (!block) return;
+
+      const canonical = utils.$('link[rel="canonical"]');
+      const url = canonical ? canonical.href : window.location.href.split('#')[0];
+      const heading = utils.$('h1.title');
+      const title = heading ? heading.textContent.trim() : document.title;
+      this.addActions(block, url, title);
+
+      const rail = utils.$('.rail');
+      const xLink = utils.$('.share-x', block);
+      if (rail && xLink && utils.$('#table-of-contents', rail)) {
+        const railShare = el('div', 'share rail-share');
+        railShare.setAttribute('role', 'group');
+        railShare.setAttribute('aria-label', 'Share this post');
+        railShare.appendChild(el('span', 'th', 'SHARE'));
+        railShare.appendChild(xLink.cloneNode(true));
+        this.addActions(railShare, url, title);
+        rail.appendChild(railShare);
+      }
+    },
+  };
+
   // Module: Single-key navigation matching the [K] labels in the nav
   const KeyNav = {
     init() {
@@ -1006,6 +1062,9 @@
 
     // After layout and code wrappers exist
     initModule('ScrollRegions', () => ScrollRegions.init());
+
+    // Copy-link / native share, after layout built the rail
+    initModule('Share', () => Share.init());
 
     // Initialize syntax highlighting fallback lazily
     const initSyntaxHighlighting = () => {

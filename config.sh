@@ -4,7 +4,7 @@
 # Precedence: non-empty exported environment (e.g. CI secrets) > .blogrc > defaults.
 # Uses only indexed arrays so it also runs on macOS's bash 3.2.
 
-CONFIG_VARS=(BLOG_TITLE BLOG_AUTHOR BLOG_EMAIL BLOG_URL BLOG_DESCRIPTION GITHUB_USERNAME INCREMENTAL_BUILD)
+CONFIG_VARS=(BLOG_TITLE BLOG_AUTHOR BLOG_EMAIL BLOG_URL BLOG_DESCRIPTION GITHUB_USERNAME TWITTER_USERNAME INCREMENTAL_BUILD)
 
 env_config=()
 for var in "${CONFIG_VARS[@]}"; do
@@ -29,6 +29,7 @@ unset env_config var kv
 : "${BLOG_URL:=https://bytenoob.io}"
 : "${BLOG_DESCRIPTION:=}"
 : "${GITHUB_USERNAME:=bufrr}"
+: "${TWITTER_USERNAME:=winddyseed}"
 : "${INCREMENTAL_BUILD:=false}"
 BLOG_URL="${BLOG_URL%/}"
 

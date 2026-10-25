@@ -12,6 +12,8 @@ export BLOG_URL="https://bytenoob.io"
 export BLOG_AUTHOR="Your Name"
 export BLOG_EMAIL="your.email@example.com"
 export GITHUB_USERNAME="your-github-username"
+# X/Twitter handle without @ (share links "via" and card attribution)
+export TWITTER_USERNAME="your-x-handle"
 
 # Enable incremental builds (only rebuild changed files)
 # export INCREMENTAL_BUILD=true

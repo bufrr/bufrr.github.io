@@ -49,7 +49,7 @@ INPUTS_STAMP=public/.build-inputs
 inputs_hash=$({
   cat build.el config.sh static/css/blog.css static/js/blog.js
   [ -f .blogrc ] && cat .blogrc
-  env | grep -E '^(BLOG_|GITHUB_USERNAME=)' | sort
+  env | grep -E '^(BLOG_|GITHUB_USERNAME=|TWITTER_USERNAME=)' | sort
 } | { sha256sum 2> /dev/null || shasum -a 256; } | cut -c1-16)
 if [ "$INCREMENTAL_BUILD" = "true" ] && [ "$(cat "$INPUTS_STAMP" 2> /dev/null)" != "$inputs_hash" ]; then
   echo -e "${YELLOW}Shared build inputs changed:${NC} doing a full build"

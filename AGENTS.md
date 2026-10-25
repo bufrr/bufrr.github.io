@@ -26,6 +26,7 @@ Note: GTD lives separately at `~/org/gtd/` and is not part of this repo.
 - `static/css/blog.css` — Design tokens live on `:root` (light) and under `prefers-color-scheme: dark`; reuse the `--ink-*`, `--line*`, `--bg*`, and `--syn-*` variables rather than hard-coding colors.
 - `static/js/blog.js` — `Layout` restructures Org's `#content` at runtime into `.hero` (title, `#+DESCRIPTION` standfirst, metadata grid) and `.body-grid` (`.rail` table of contents + `.prose`). Selectors in the CSS depend on this structure.
 - Post metadata shown in the hero comes from `#+AUTHOR`, `#+KEYWORDS`, `#+DESCRIPTION`, and the date in the filename.
+- Posts get share links at build time (`blog/share-block`: Post on X with `via` = `TWITTER_USERNAME`); `blog.js` adds Copy link and the native share sheet. Every page uses `static/og-default.png` as its 1200×630 share card.
 
 ### Knowledge Base
 

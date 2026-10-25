@@ -847,6 +847,59 @@ sup a {
   color: var(--accent-text);
 }
 
+/* ===== Share ===== */
+.share {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 22px;
+  max-width: var(--measure);
+  margin-top: 3rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line-soft);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+}
+
+.share .th {
+  margin: 0 4px 0 0;
+}
+
+.share a,
+.share-btn {
+  font-family: var(--mono);
+  font-size: inherit;
+  letter-spacing: inherit;
+  color: var(--ink-2);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.share a::before,
+.share-btn::before {
+  content: '└ ';
+  color: var(--ink-4);
+}
+
+.share a:hover,
+.share-btn:hover {
+  color: var(--ink);
+}
+
+.rail-share {
+  flex-direction: column;
+  gap: 4px;
+  max-width: none;
+  margin-top: 26px;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.rail-share .th {
+  margin-bottom: 8px;
+}
+
 /* ===== Index: post list ===== */
 .prose .post-list,
 #content > .org-ul {
@@ -1073,7 +1126,8 @@ sup a {
   }
 
   .rail:empty,
-  html[data-pg='index'] .rail {
+  html[data-pg='index'] .rail,
+  .rail-share {
     display: none;
   }
 

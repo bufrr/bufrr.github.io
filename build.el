@@ -49,6 +49,7 @@
 ;; Load org and ox-publish
 (require 'org)
 (require 'ox-publish)
+(require 'url-util)
 
 ;; Try to load htmlize for syntax highlighting
 (condition-case nil
@@ -102,6 +103,9 @@
 ;; Per-page SEO and sharing tags. Crawlers and link previews don't run JS,
 ;; so these are written into the HTML at export time.
 (setq blog-url (string-remove-suffix "/" (or (getenv "BLOG_URL") "https://bytenoob.io")))
+(setq blog-twitter-user (or (getenv "TWITTER_USERNAME") "winddyseed"))
+;; Share card image (1200x630) used for every page
+(setq blog-og-image "/static/og-default.png")
 
 (defun blog/page-path (name)
   "Site-relative path of the page exported as NAME.html."
@@ -146,7 +150,14 @@ about and 404 are English-only pages."
        (funcall meta "property" "og:locale" (if cn "zh_CN" "en_US"))
        (if (string-empty-p desc) ""
          (funcall meta "property" "og:description" desc))
-       (funcall meta "name" "twitter:card" "summary")
+       (funcall meta "property" "og:image" (concat blog-url blog-og-image))
+       (funcall meta "property" "og:image:width" "1200")
+       (funcall meta "property" "og:image:height" "630")
+       (funcall meta "property" "og:image:alt" blog-title)
+       (funcall meta "name" "twitter:card" "summary_large_image")
+       (if (string-empty-p blog-twitter-user) ""
+         (concat (funcall meta "name" "twitter:site" (concat "@" blog-twitter-user))
+                 (funcall meta "name" "twitter:creator" (concat "@" blog-twitter-user))))
        (if date (funcall meta "property" "article:published_time" date) "")
        ;; Link EN/CN translations when both are published
        (if (blog/translated-p dir base)
@@ -156,15 +167,35 @@ about and 404 are English-only pages."
             (format "<link rel=\"alternate\" hreflang=\"x-default\" href=\"%s\" />\n" (blog/page-url base)))
          "")))))
 
+(defun blog/share-block (info)
+  "Share links for the dated post in INFO, or nil for other pages.
+Plain links so sharing works without JS; blog.js adds copy/native share."
+  (let* ((name (file-name-base (plist-get info :input-file)))
+         (title (string-trim (org-element-interpret-data (plist-get info :title)))))
+    (when (string-match-p "\\`[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\}-" name)
+      (let ((intent (concat "https://x.com/intent/tweet?text=" (url-hexify-string title)
+                            "&url=" (url-hexify-string (blog/page-url name))
+                            (if (string-empty-p blog-twitter-user) ""
+                              (concat "&via=" (url-hexify-string blog-twitter-user))))))
+        (concat "<div class=\"share\" role=\"group\" aria-label=\"Share this post\">"
+                "<span class=\"th\">SHARE</span>"
+                "<a class=\"share-x\" href=\"" (blog/html-escape intent)
+                "\" target=\"_blank\" rel=\"noopener noreferrer\">Post on X</a>"
+                "</div>\n")))))
+
 (defun blog/seo-filter (output backend info)
   "Insert per-page SEO tags before </head> in HTML OUTPUT, and suffix the
 tab title of every page except the home pages with the site name."
   (if (org-export-derived-backend-p backend 'html)
       ;; Build the tags first: blog/seo-head clobbers the match data
       (let ((tags (blog/seo-head info))
+            (share (blog/share-block info))
             (name (file-name-base (plist-get info :input-file))))
         (when (string-match "</head>" output)
           (setq output (replace-match (concat tags "</head>") t t output)))
+        ;; Share links at the end of the post body
+        (when (and share (string-match "</div>\n<div id=\"postamble\"" output))
+          (setq output (replace-match (concat share "</div>\n<div id=\"postamble\"") t t output)))
         ;; Scroll container for wide tables (works without JS)
         (setq output (replace-regexp-in-string "<table\\b" "<div class=\"table-wrap\"><table" output t t))
         (setq output (replace-regexp-in-string "</table>" "</table></div>" output t t))
