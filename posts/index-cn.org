@@ -4,6 +4,7 @@
 #+DESCRIPTION: 关于编程与技术的技术博客
 #+OPTIONS: author:nil toc:nil num:nil
 
+- [[file:2026-10-26-bnb-new-l1-fast-ordering-late-results-cn.org][BNB New L1：排序很快，结果很慢]]
 - [[file:2026-02-12-block-builder-buildernet-1-cn.org][Block Builder 深度解析：Ethereum BuilderNet（一）]]
 - [[file:2024-10-02-babylon-cn.org][什么是 Babylon？]]
 - [[file:2024-06-30-syntax-highlighting-test-cn.org][语法高亮测试]]

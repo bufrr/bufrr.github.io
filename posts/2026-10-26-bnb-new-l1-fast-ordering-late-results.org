@@ -1,0 +1,115 @@
+#+TITLE: BNB New L1: Fast Ordering, Late Results
+#+DATE: 2026-10-26
+#+AUTHOR: bytenoob
+#+DESCRIPTION: BNB Chain's New L1 pairs BSC's Parlia consensus with Monad-style asynchronous execution. A transaction can land in the same block as its trigger, but its result shows up D blocks later. What that means for traders, wallets, and latency measurement.
+#+KEYWORDS: bnb,new l1,consensus,parlia,monad,async execution,latency
+#+LASTMOD: 2026-10-26
+#+OPTIONS: toc:t num:nil ^:nil
+
+* What New L1 is
+
+BNB Chain is building a new EVM L1 for latency-sensitive work: trading, payments, and agents. It runs 200 ms blocks, has no global mempool, charges gas by the declared limit, and ships native account abstraction and a privacy pool.
+
+It is early. The network is an internal devnet: there is no public RPC, testnet, or mainnet, the chain ID isn't final, and only the [[https://docs.bnbchain.org/newl1/get-started/network-info/][documentation]] is public. Everything below comes from those docs, checked on 2026-10-26.
+
+The short version of its design: *BSC's consensus, Monad's execution model, and Tempo's account abstraction.* The first two decide how fast a transaction lands and how fast anyone learns what it did. Those turn out to be two different numbers.
+
+* Consensus: BSC's Parlia, not MonadBFT
+
+New L1 reuses Parlia, the Proof-of-Staked-Authority protocol behind BNB Smart Chain, with BLS fast finality.
+
+- Up to 64 validators take turns proposing, 16 blocks each (3.2 s per turn).
+- Validators sign BLS votes on the head block. Once two-thirds have voted, the next proposer aggregates the votes into one attestation in its header.
+- A block is usually justified one block later and finalized two blocks later, about 0.5 s at 200 ms blocks.
+- The votes cover the block's *ordering*, not its execution result.
+
+That makes it a faster BSC, not a Monad. [[https://docs.monad.xyz/monad-arch/consensus/monad-bft][MonadBFT]] is a pipelined, leader-based BFT protocol from the HotStuff family: the leader rotates every round by stake, and blocks finalize in two rounds (600 ms). Parlia keeps one proposer for a run of blocks and finalizes through a separate voting step.
+
+BNB says Parlia is only the current default. [[https://arxiv.org/abs/2508.10862][Minimmit]], a two-round-finality BFT protocol from Commonware, is under evaluation as "Consensus 2.0". Commonware also built the Simplex consensus that Tempo runs, so a switch would move New L1 toward Tempo's family.
+
+| | New L1 | BSC | Monad | Tempo |
+|---------------+--------------------------+----------------------+------------------------+------------------------|
+| Consensus | Parlia PoSA + BLS | Parlia PoSA + BLS | MonadBFT | Simplex BFT |
+| Proposer | rotating, 16 blocks each | rotating | new leader every round | VRF-selected leader |
+| Block time | 200 ms | 0.45 s | 300 ms minimum | about 600 ms |
+| Finality | about 0.5 s | within about 2 blocks | 600 ms | deterministic, sub-second |
+| Execution | async, D blocks behind | sync | async, 3 blocks behind | — |
+| Gas charged on | declared limit | gas used | declared limit | paid in stablecoins |
+
+* Execution: Monad's design
+
+The execution side is where New L1 looks like [[https://docs.monad.xyz/monad-arch/consensus/asynchronous-execution][Monad]]:
+
+- Consensus orders transactions without running them.
+- The EVM runs block N afterwards, and the result (state root, receipts, logs) is committed in the header of block N+D.
+- D adapts between 1 and a governance-set maximum, moving by at most one per block. It sits near 1 when the chain is quiet and grows under load. BNB hasn't published the maximum. Monad fixes D at 3.
+- Because the proposer can't know actual gas use when it orders a block, you pay =tip × gas_limit= whatever the EVM consumes, with no refund. Monad charges the limit for the same reason.
+- Admission checks your balance minus everything you already have in flight. That's the equivalent of Monad's reserve balance rule.
+
+The payoff is throughput: block production never waits for execution, and the gas limit no longer has to fit the slowest validator's execution time.
+
+* The life of a transaction
+
+Here is what happens to a transaction included in block N:
+
+| Stage | When | Time after block N |
+|---------------------+------------------------------------+------------------------------|
+| Pre-confirmed | the proposer streams a signed sub-block containing it | about 20 ms, revocable |
+| Ordered | block N is imported | within the block |
+| Order-finalized | block N+2 | about 0.5 s |
+| Executed | your node has run the EVM on block N | D blocks behind the newest block |
+| Execution-finalized | block N+D is finalized, at N+D+2 | about (D + 2) × 200 ms |
+
+The last row is my estimate from the documented design, not a published number: about 0.6 s when D is 1 and about 1 s when D is 3. It grows with load, and there's no published upper bound.
+
+Order finality is fast. The result is what comes late.
+
+* Landing at t+0 is possible
+
+If you trade on events, the question is whether your transaction can land in the same block as the transaction that triggered it. On Solana that's normal: bots read the leader's shreds and get in within the slot.
+
+On New L1, landing only needs ordering, and ordering only needs cheap checks: signature, nonce, and that balance check. Nothing waits for execution. So t+0 is possible, but only if you see the trigger within the same 200 ms block. Where you watch decides that:
+
+- *Standard RPC* (=eth_getLogs=, receipts, =latest=) reports executed state, which trails the newest ordered block by D. A bot reading it lands at t+D or later, which is worse than BSC.
+- *The sub-block stream* (=newl1_subscribeSubBlocks=) shows the trigger transaction about 20 ms after the proposer includes it. A bot that decides from the trigger's calldata, without waiting for state, and sends straight to the current proposer can land right behind it. Sub-blocks are append-only, and the same proposer holds the turn for 3.2 s, so the target doesn't move.
+
+There's no public mempool, so all of this goes through the proposer.
+
+* But nobody can read the result yet
+
+Landing at t+0 doesn't mean anyone can *use* the transaction at t+0. Its receipt, its logs, and the balances it changed appear over RPC only after execution, D blocks later. A wallet waiting for a receipt shows "success" a few hundred milliseconds after the chain actually fixed the outcome. A bot that waits to see its buy before selling waits too.
+
+Two things soften this:
+
+1. *The result is fixed when the order is.* Execution is deterministic, so once block N's order is final, its outcome can't change. It just hasn't been published. Anyone running their own fast executor knows the result immediately. Only clients relying on public RPC wait D blocks.
+2. *You can chain without waiting.* A follow-up transaction doesn't need the first one's result to be sent. Ordering guarantees it executes after the first, and it reverts if the first failed. The catch: a reverted transaction still pays its full gas limit. BNB the first transaction would earn doesn't count toward paying for the second, because the admission check only subtracts in-flight spending.
+
+So the design creates an asymmetry. Players with their own execution see results at t+0. Everyone on standard RPC sees them D blocks later. On Solana and BSC the leader executes while building the block, so the result exists as soon as the transaction is included. Monad has the same gap as New L1.
+
+* What changes for builders
+
+- *Wallets:* a pre-confirmation or an ordered transaction doesn't mean success. Show "included" and "succeeded" separately, and wait for execution finality before treating funds as settled.
+- *Bots:* watch sub-blocks, not logs. Run your own execution if you need results before RPC has them. Set tight gas limits, because padding is paid in full.
+- *Contracts ported from BSC:* =block.number= advances about five times a second, and =block.timestamp= repeats across about five blocks. =block.prevrandao= is the millisecond part of the timestamp, not randomness.
+- *Latency measurement:* report two numbers. One is when the transaction landed (t+N on the ordered head). The other is when its result became visible (t+N on the executed head, or receipt time). A product that lands at t+0 can still look slow to users who only see RPC.
+
+* Account abstraction comes from Tempo
+
+New L1's native account abstraction transaction is type =0x76=, with the same fields as [[https://tempo.xyz/developers/docs/protocol/transactions/spec-tempo-transaction.md][Tempo's]]: =calls=, =nonce_key=, =key_authorization=, =fee_payer_signature=, and =valid_after= / =valid_before=. It supports the same signature types (secp256k1, P256, WebAuthn), and the precompiles have the same names (=AccountKeychain= and =SignatureVerifier=). The differences: New L1 forces =nonce_key= to 0, pays gas in BNB rather than stablecoins, uses its own precompile addresses, and drops 7702-style delegation. Details are in the [[https://docs.bnbchain.org/newl1/core-concepts/account-abstraction/#limits][limits table]].
+
+* Open questions
+
+- How large D gets under real load. It decides how late results are, and BNB hasn't published the maximum.
+- Throughput. The docs give no TPS or gas-per-second figure, and parallel execution is still being designed.
+- How late in a block a proposer still accepts transactions, and the network latency to proposers. These decide whether t+0 is practical or only possible on paper.
+- How proposers are kept from front-running the order flow they see. The docs say there's no global mempool, but don't describe any constraint on proposers.
+
+None of this can be measured until there's a public network.
+
+* References
+
+- BNB Chain New L1: [[https://docs.bnbchain.org/newl1/core-concepts/consensus/][Consensus]], [[https://docs.bnbchain.org/newl1/core-concepts/async-execution/][Async Execution]], [[https://docs.bnbchain.org/newl1/core-concepts/tx-preconfirmation/][Pre-confirmation]], [[https://docs.bnbchain.org/newl1/developers/transaction-lifecycle/][Transaction Lifecycle]], [[https://docs.bnbchain.org/newl1/get-started/migrate-from-bsc/][Migrating from BSC]]
+- Monad: [[https://docs.monad.xyz/monad-arch/consensus/monad-bft][MonadBFT]], [[https://docs.monad.xyz/monad-arch/consensus/asynchronous-execution][Asynchronous Execution]], [[https://docs.monad.xyz/developer-essentials/gas-pricing][Gas Pricing]]
+- BSC: [[https://docs.bnbchain.org/bnb-smart-chain/introduction/][Introduction]], [[https://www.bnbchain.org/en/blog/how-bsc-achieved-sub-second-finality-a-70x-leap-from-45s-to-0-65s][sub-second finality]]
+- Tempo: [[https://tempo.xyz/developers/docs/protocol/blockspace/consensus.md][Consensus]], [[https://tempo.xyz/developers/docs/protocol/transactions/spec-tempo-transaction.md][Tempo Transaction]]
+- [[https://arxiv.org/abs/2508.10862][Minimmit: Fast Finality with Even Faster Blocks]]
