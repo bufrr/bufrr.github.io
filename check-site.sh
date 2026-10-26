@@ -40,10 +40,10 @@ for org in posts/*.org; do
 done
 
 echo "🔗 Checking internal links..."
-python3 -I - public << 'EOF' || errors=$((errors + 1))
+python3 -I - public "$BLOG_URL" << 'EOF' || errors=$((errors + 1))
 import html.parser, os, posixpath, sys, urllib.parse
 
-root = sys.argv[1]
+root, site_url = sys.argv[1], sys.argv[2].rstrip("/")
 
 class Page(html.parser.HTMLParser):
     def __init__(self):
@@ -58,6 +58,11 @@ class Page(html.parser.HTMLParser):
         for key in ("href", "src"):
             if attrs.get(key):
                 self.links.append((tag, attrs[key]))
+        # Share card images are absolute URLs on this site; check the file
+        if tag == "meta" and attrs.get("property") == "og:image":
+            content = attrs.get("content") or ""
+            if content.startswith(site_url + "/"):
+                self.links.append((tag, content[len(site_url):]))
 
 pages = {}
 for dirpath, _, files in os.walk(root):

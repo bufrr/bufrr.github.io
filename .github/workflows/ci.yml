@@ -61,7 +61,8 @@ jobs:
       - name: Install Emacs
         run: |
           sudo apt update
-          sudo apt-get install -y emacs
+          # CJK fonts and pngquant for the per-post share cards (Chrome is preinstalled)
+          sudo apt-get install -y emacs fonts-noto-cjk pngquant
 
       - name: Test build
         run: |

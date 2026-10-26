@@ -137,6 +137,9 @@ about and 404 are English-only pages."
          (date (and (string-match "\\`\\([0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\}\\)-" name)
                     (match-string 1 name)))
          (url (blog/page-url name))
+         ;; Per-post share card from generate-og.sh, else the site default
+         (card (concat "og/" name ".png"))
+         (own-card (file-exists-p (expand-file-name card blog-publish-directory)))
          (meta (lambda (attr key value)
                  (format "<meta %s=\"%s\" content=\"%s\" />\n" attr key value))))
     (if (string= name "404")
@@ -150,10 +153,11 @@ about and 404 are English-only pages."
        (funcall meta "property" "og:locale" (if cn "zh_CN" "en_US"))
        (if (string-empty-p desc) ""
          (funcall meta "property" "og:description" desc))
-       (funcall meta "property" "og:image" (concat blog-url blog-og-image))
+       (funcall meta "property" "og:image"
+                (concat blog-url (if own-card (concat "/" card) blog-og-image)))
        (funcall meta "property" "og:image:width" "1200")
        (funcall meta "property" "og:image:height" "630")
-       (funcall meta "property" "og:image:alt" blog-title)
+       (funcall meta "property" "og:image:alt" (if own-card title blog-title))
        (funcall meta "name" "twitter:card" "summary_large_image")
        (if (string-empty-p blog-twitter-user) ""
          (concat (funcall meta "name" "twitter:site" (concat "@" blog-twitter-user))

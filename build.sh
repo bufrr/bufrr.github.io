@@ -63,6 +63,9 @@ if [ "$INCREMENTAL_BUILD" != "true" ]; then
   rm -rf public
 fi
 
+# Per-post share cards first, so the export can reference them
+./generate-og.sh
+
 if ! emacs --batch \
   --load "$SCRIPT_DIR/build.el" \
   --funcall blog/publish-all; then
@@ -76,7 +79,7 @@ for html in public/*.html; do
   org="posts/$(basename "$html" .html).org"
   if [ ! -f "$org" ] || is_draft "$org"; then
     echo "Removing stale page: $html"
-    rm -f "$html"
+    rm -f "$html" "public/og/$(basename "$html" .html).png"
   fi
 done
 shopt -u nullglob

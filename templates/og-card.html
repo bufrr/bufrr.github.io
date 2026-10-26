@@ -1,0 +1,108 @@
+<!doctype html>
+<!-- Share card template (1200x630), rendered per post by generate-og.sh.
+     Placeholders: {{ROOT}} repo path, {{TITLE}} (HTML-escaped), {{DATE}},
+     {{SITE}}, {{HOST}}, {{TITLE_SIZE}} (px). -->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      @font-face {
+        font-family: 'Geist';
+        src: url('file://{{ROOT}}/static/fonts/geist-latin.woff2') format('woff2');
+        font-weight: 400 600;
+      }
+      @font-face {
+        font-family: 'Geist Mono';
+        src: url('file://{{ROOT}}/static/fonts/geist-mono-latin.woff2') format('woff2');
+        font-weight: 400 500;
+      }
+      @font-face {
+        font-family: 'Geist Mono';
+        src: url('file://{{ROOT}}/static/fonts/geist-mono-symbols2.woff2') format('woff2');
+        font-weight: 400 500;
+        unicode-range: U+2500-257F;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        background: #faf9f5;
+      }
+      .card {
+        position: relative;
+        box-sizing: border-box;
+        width: 1200px;
+        height: 630px;
+        padding: 72px 96px 0;
+        display: flex;
+        flex-direction: column;
+      }
+      .top {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        font: 400 28px 'Geist Mono', monospace;
+        letter-spacing: 0.02em;
+        color: #141413;
+      }
+      .top img {
+        width: 56px;
+        height: 56px;
+      }
+      .top .cursor {
+        color: #d97757;
+      }
+      .title {
+        margin-top: auto;
+        margin-bottom: auto;
+        max-height: 3.6em;
+        overflow: hidden;
+        font-family: 'Geist', 'Noto Sans CJK SC', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei',
+          sans-serif;
+        font-weight: 500;
+        font-size: {{TITLE_SIZE}}px;
+        line-height: 1.18;
+        letter-spacing: -0.01em;
+        color: #141413;
+        text-wrap: balance;
+        /* CJK: break at spaces and punctuation, not inside words */
+        word-break: keep-all;
+        overflow-wrap: anywhere;
+      }
+      .bottom {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 120px;
+        box-sizing: border-box;
+        padding: 0 96px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-top: 1px solid #1414131c;
+        font: 400 26px 'Geist Mono', monospace;
+        letter-spacing: 0.02em;
+        color: #4c4b45;
+      }
+      .bottom b {
+        font-weight: 400;
+        color: #a8a69d;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="top">
+        <img src="file://{{ROOT}}/static/favicon.svg" alt="" />
+        <span>{{SITE}}<span class="cursor">_</span></span>
+      </div>
+      <div class="title">{{TITLE}}</div>
+      <div class="bottom">
+        <span><b>└</b> {{DATE}}</span><span>{{HOST}}</span>
+      </div>
+    </div>
+  </body>
+</html>
