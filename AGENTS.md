@@ -26,7 +26,7 @@ Note: GTD lives separately at `~/org/gtd/` and is not part of this repo.
 - `static/css/blog.css` — Design tokens live on `:root` (light) and under `prefers-color-scheme: dark`; reuse the `--ink-*`, `--line*`, `--bg*`, and `--syn-*` variables rather than hard-coding colors.
 - `static/js/blog.js` — `Layout` restructures Org's `#content` at runtime into `.hero` (title, `#+DESCRIPTION` standfirst, metadata grid) and `.body-grid` (`.rail` table of contents + `.prose`). Selectors in the CSS depend on this structure.
 - Post metadata shown in the hero comes from `#+AUTHOR`, `#+KEYWORDS`, `#+DESCRIPTION`, and the date in the filename.
-- Posts get share links at build time (`blog/share-block`: Post on X with `via` = `TWITTER_USERNAME`); `blog.js` adds Copy link and the native share sheet. Each published post gets its own 1200×630 share card (`generate-og.sh` renders `templates/og-card.html` with headless Chrome into `public/og/` before the export); other pages, or builds without Chrome, use `static/og-default.png`.
+- Posts get share links under the title at build time (`blog/share-block`: Post on X with `via` = `TWITTER_USERNAME`, and a link to the post's Markdown copy, `NAME.md`, exported by the `blog-md` backend with fenced code and pipe tables); `blog.js` moves them into the hero, turns the Markdown link into Copy markdown, and adds Copy link and the native share sheet. Each published post gets its own 1200×630 share card (`generate-og.sh` renders `templates/og-card.html` with headless Chrome into `public/og/` before the export); other pages, or builds without Chrome, use `static/og-default.png`.
 
 ### Knowledge Base
 

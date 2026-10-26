@@ -847,57 +847,64 @@ sup a {
   color: var(--accent-text);
 }
 
-/* ===== Share ===== */
+/* ===== Share (under the title) ===== */
 .share {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: 6px 22px;
-  max-width: var(--measure);
-  margin-top: 3rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--line-soft);
+  align-items: center;
+  gap: 8px;
+  max-width: 820px;
+  margin-top: 26px;
   font-family: var(--mono);
-  font-size: 0.75rem;
+  font-size: var(--type-meta);
   letter-spacing: 0.02em;
 }
 
 .share .th {
-  margin: 0 4px 0 0;
+  margin: 0 6px 0 0;
 }
 
-.share a,
 .share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 11px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
   font-family: var(--mono);
   font-size: inherit;
   letter-spacing: inherit;
+  line-height: 1;
   color: var(--ink-2);
   text-decoration: none;
-  transition: color 0.15s;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color 0.15s,
+    border-color 0.15s,
+    background-color 0.15s;
 }
 
-.share a::before,
-.share-btn::before {
-  content: '└ ';
-  color: var(--ink-4);
+.share-btn svg {
+  flex: none;
+  width: 14px;
+  height: 14px;
 }
 
-.share a:hover,
 .share-btn:hover {
   color: var(--ink);
+  border-color: var(--ink-3);
+  background: var(--bg-raised);
 }
 
-.rail-share {
-  flex-direction: column;
-  gap: 4px;
-  max-width: none;
-  margin-top: 26px;
-  padding-top: 0;
-  border-top: 0;
+.share-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
-.rail-share .th {
-  margin-bottom: 8px;
+.share-btn.done {
+  color: var(--accent-text);
+  border-color: var(--accent-text);
 }
 
 /* ===== Index: post list ===== */
@@ -1126,8 +1133,7 @@ sup a {
   }
 
   .rail:empty,
-  html[data-pg='index'] .rail,
-  .rail-share {
+  html[data-pg='index'] .rail {
     display: none;
   }
 
@@ -1256,7 +1262,8 @@ sup a {
   #postamble,
   .rail,
   #topProg,
-  .code-copy-button {
+  .code-copy-button,
+  .share {
     display: none !important;
   }
 

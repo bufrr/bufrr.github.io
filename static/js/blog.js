@@ -457,58 +457,154 @@
     },
   };
 
-  // Module: Share links. "Post on X" is rendered at build time; this adds
-  // copy-link and the native share sheet, and repeats the links at the bottom
-  // of the desktop TOC rail.
+  // Module: Share links under the post title. "Post on X" and a link to the post's
+  // Markdown copy are rendered at build time (they work without JS); this moves them
+  // into the hero, turns the Markdown link into a copy button, and adds copy-link and
+  // the native share sheet.
   const Share = {
-    addActions(container, url, title) {
-      const copy = el('button', 'share-btn', 'Copy link');
-      copy.type = 'button';
-      copy.addEventListener('click', async () => {
-        try {
-          await navigator.clipboard.writeText(url);
-          copy.textContent = 'Copied';
-          CodeCopy.announce('Link copied to clipboard');
-        } catch (e) {
-          copy.textContent = 'Copy failed';
-          CodeCopy.announce('Copy failed');
-        }
-        setTimeout(() => {
-          copy.textContent = 'Copy link';
-        }, 2000);
-      });
-      container.appendChild(copy);
+    // Feather-style line icons for the buttons added here (the build renders the others)
+    ICONS: {
+      link: [
+        'M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71',
+        'M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71',
+      ],
+      share: ['M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8', 'M16 6l-4-4-4 4', 'M12 2v13'],
+    },
 
-      if (navigator.share) {
-        const native = el('button', 'share-btn', 'Share…');
-        native.type = 'button';
-        native.addEventListener('click', () => {
-          navigator.share({ title, url }).catch(() => {});
-        });
-        container.appendChild(native);
+    icon(name) {
+      const ns = 'http://www.w3.org/2000/svg';
+      const svg = document.createElementNS(ns, 'svg');
+      svg.setAttribute('viewBox', '0 0 24 24');
+      svg.setAttribute('aria-hidden', 'true');
+      svg.setAttribute('focusable', 'false');
+      svg.setAttribute('fill', 'none');
+      svg.setAttribute('stroke', 'currentColor');
+      svg.setAttribute('stroke-width', '1.8');
+      svg.setAttribute('stroke-linecap', 'round');
+      svg.setAttribute('stroke-linejoin', 'round');
+      this.ICONS[name].forEach((d) => {
+        const path = document.createElementNS(ns, 'path');
+        path.setAttribute('d', d);
+        svg.appendChild(path);
+      });
+      return svg;
+    },
+
+    button(svg, label) {
+      const button = el('button', 'share-btn');
+      button.type = 'button';
+      button.appendChild(svg);
+      button.appendChild(el('span', null, label));
+      return button;
+    },
+
+    // Show a result on the button for 2s, and announce it to screen readers
+    flash(button, label, ok, what) {
+      const span = utils.$('span', button);
+      span.textContent = ok ? 'Copied' : 'Copy failed';
+      button.classList.toggle('done', ok);
+      CodeCopy.announce(ok ? `${what} copied to clipboard` : 'Copy failed');
+      clearTimeout(button.flashTimer);
+      button.flashTimer = setTimeout(() => {
+        span.textContent = label;
+        button.classList.remove('done');
+      }, 2000);
+    },
+
+    async copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (err) {
+        const area = document.createElement('textarea');
+        area.value = text;
+        area.style.position = 'fixed';
+        area.style.opacity = '0';
+        document.body.appendChild(area);
+        area.select();
+        try {
+          if (!document.execCommand('copy')) throw new Error('copy rejected');
+        } finally {
+          document.body.removeChild(area);
+        }
       }
     },
 
+    // Copy markdown: fetch the build's NAME.md (warmed on hover/focus). Where the
+    // clipboard takes a pending item, write it inside the click so Safari keeps the
+    // user gesture; otherwise copy the text once it has loaded.
+    markdownButton(link) {
+      const href = link.href;
+      const label = 'Copy markdown';
+      const button = this.button(utils.$('svg', link) || this.icon('link'), label);
+      let pending = null;
+      const load = () => {
+        if (!pending) {
+          pending = fetch(href, { credentials: 'same-origin' }).then((r) => {
+            if (!r.ok) throw new Error(`HTTP ${r.status}`);
+            return r.text();
+          });
+          pending.catch(() => {
+            pending = null;
+          });
+        }
+        return pending;
+      };
+      button.addEventListener('pointerenter', load, { once: true });
+      button.addEventListener('focus', load, { once: true });
+      button.addEventListener('click', async () => {
+        try {
+          if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+            try {
+              const blob = load().then((t) => new Blob([t], { type: 'text/plain' }));
+              await navigator.clipboard.write([new ClipboardItem({ 'text/plain': blob })]);
+            } catch (err) {
+              await this.copyText(await load());
+            }
+          } else {
+            await this.copyText(await load());
+          }
+          this.flash(button, label, true, 'Markdown');
+        } catch (err) {
+          this.flash(button, label, false);
+        }
+      });
+      link.replaceWith(button);
+    },
+
     init() {
-      const block = utils.$('.prose .share');
+      const block = utils.$('#content .share');
       if (!block) return;
+      const hd = utils.$('.hero .hd');
+      if (hd) hd.appendChild(block);
 
       const canonical = utils.$('link[rel="canonical"]');
       const url = canonical ? canonical.href : window.location.href.split('#')[0];
       const heading = utils.$('h1.title');
       const title = heading ? heading.textContent.trim() : document.title;
-      this.addActions(block, url, title);
 
-      const rail = utils.$('.rail');
       const xLink = utils.$('.share-x', block);
-      if (rail && xLink && utils.$('#table-of-contents', rail)) {
-        const railShare = el('div', 'share rail-share');
-        railShare.setAttribute('role', 'group');
-        railShare.setAttribute('aria-label', 'Share this post');
-        railShare.appendChild(el('span', 'th', 'SHARE'));
-        railShare.appendChild(xLink.cloneNode(true));
-        this.addActions(railShare, url, title);
-        rail.appendChild(railShare);
+      const copyLabel = 'Copy link';
+      const copy = this.button(this.icon('link'), copyLabel);
+      copy.addEventListener('click', async () => {
+        try {
+          await this.copyText(url);
+          this.flash(copy, copyLabel, true, 'Link');
+        } catch (err) {
+          this.flash(copy, copyLabel, false);
+        }
+      });
+      if (xLink) xLink.after(copy);
+      else block.appendChild(copy);
+
+      const md = utils.$('.share-md', block);
+      if (md) this.markdownButton(md);
+
+      if (navigator.share) {
+        const native = this.button(this.icon('share'), 'Share…');
+        native.addEventListener('click', () => {
+          navigator.share({ title, url }).catch(() => {});
+        });
+        block.appendChild(native);
       }
     },
   };
@@ -1063,7 +1159,7 @@
     // After layout and code wrappers exist
     initModule('ScrollRegions', () => ScrollRegions.init());
 
-    // Copy-link / native share, after layout built the rail
+    // Share buttons, after layout built the hero
     initModule('Share', () => Share.init());
 
     // Initialize syntax highlighting fallback lazily

@@ -49,6 +49,7 @@
 ;; Load org and ox-publish
 (require 'org)
 (require 'ox-publish)
+(require 'ox-md)
 (require 'url-util)
 
 ;; Try to load htmlize for syntax highlighting
@@ -171,20 +172,37 @@ about and 404 are English-only pages."
             (format "<link rel=\"alternate\" hreflang=\"x-default\" href=\"%s\" />\n" (blog/page-url base)))
          "")))))
 
+(defun blog/dated-post-p (name)
+  "Non-nil if NAME (a file base name) is a dated post, YYYY-MM-DD-slug."
+  (string-match-p "\\`[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\}-" name))
+
+(defconst blog/icon-x
+  "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" focusable=\"false\"><path fill=\"currentColor\" d=\"M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z\"/></svg>"
+  "X logo for the Post on X link.")
+
+(defconst blog/icon-markdown
+  "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\" focusable=\"false\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"2\" y=\"5\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"M6 15V9l3 3 3-3v6\"/><path d=\"M17 9v6\"/><path d=\"m14.5 12.5 2.5 2.5 2.5-2.5\"/></svg>"
+  "Markdown mark for the post's Markdown link (blog.js turns it into Copy markdown).")
+
 (defun blog/share-block (info)
   "Share links for the dated post in INFO, or nil for other pages.
-Plain links so sharing works without JS; blog.js adds copy/native share."
+Plain links under the title so they work without JS: Post on X and the post's
+Markdown copy (NAME.md). blog.js moves them into the hero, turns the Markdown
+link into a copy button, and adds copy-link and the native share sheet."
   (let* ((name (file-name-base (plist-get info :input-file)))
          (title (string-trim (org-element-interpret-data (plist-get info :title)))))
-    (when (string-match-p "\\`[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\}-" name)
+    (when (blog/dated-post-p name)
       (let ((intent (concat "https://x.com/intent/tweet?text=" (url-hexify-string title)
                             "&url=" (url-hexify-string (blog/page-url name))
                             (if (string-empty-p blog-twitter-user) ""
                               (concat "&via=" (url-hexify-string blog-twitter-user))))))
         (concat "<div class=\"share\" role=\"group\" aria-label=\"Share this post\">"
                 "<span class=\"th\">SHARE</span>"
-                "<a class=\"share-x\" href=\"" (blog/html-escape intent)
-                "\" target=\"_blank\" rel=\"noopener noreferrer\">Post on X</a>"
+                "<a class=\"share-btn share-x\" href=\"" (blog/html-escape intent)
+                "\" target=\"_blank\" rel=\"noopener noreferrer\">"
+                blog/icon-x "<span>Post on X</span></a>"
+                "<a class=\"share-btn share-md\" href=\"/" (blog/html-escape name) ".md\" type=\"text/markdown\">"
+                blog/icon-markdown "<span>Markdown</span></a>"
                 "</div>\n")))))
 
 (defun blog/seo-filter (output backend info)
@@ -197,9 +215,9 @@ tab title of every page except the home pages with the site name."
             (name (file-name-base (plist-get info :input-file))))
         (when (string-match "</head>" output)
           (setq output (replace-match (concat tags "</head>") t t output)))
-        ;; Share links at the end of the post body
-        (when (and share (string-match "</div>\n<div id=\"postamble\"" output))
-          (setq output (replace-match (concat share "</div>\n<div id=\"postamble\"") t t output)))
+        ;; Share links right under the title, before the article
+        (when (and share (string-match "<h1 class=\"title\">.*?</h1>\n?" output))
+          (setq output (replace-match (concat (match-string 0 output) share) t t output)))
         ;; Scroll container for wide tables (works without JS)
         (setq output (replace-regexp-in-string "<table\\b" "<div class=\"table-wrap\"><table" output t t))
         (setq output (replace-regexp-in-string "</table>" "</table></div>" output t t))
@@ -326,6 +344,71 @@ are published, otherwise to that language's home page (marked as fallback)."
       (not (string= (getenv "INCREMENTAL_BUILD") "true"))))
 
 ;; Custom publishing function that skips drafts and unchanged files
+;; Markdown copy of each dated post, published next to its HTML as NAME.md (the
+;; share block's Markdown link / Copy markdown button). Org's md backend, with
+;; GitHub-flavoured fenced code blocks and pipe tables instead of indented code
+;; and HTML tables, the title on top and no headline anchors.
+(defun blog/md-fence (lang code)
+  "CODE as a fenced block tagged LANG."
+  (format "```%s\n%s%s```" (or lang "") code
+          (if (string-suffix-p "\n" code) "" "\n")))
+
+(defun blog/md-src-block (src-block _contents info)
+  (blog/md-fence (org-element-property :language src-block)
+                 (org-export-format-code-default src-block info)))
+
+(defun blog/md-example-block (block _contents info)
+  (blog/md-fence "" (org-export-format-code-default block info)))
+
+(defun blog/md-table-cell (_cell contents _info)
+  (concat " " (replace-regexp-in-string "|" "\\|" (string-trim (or contents "")) t t) " |"))
+
+(defun blog/md-table-row (row contents info)
+  "A pipe-table row; the header separator follows the header (or, in a table
+without one, the first row, since a pipe table needs a header)."
+  (when (eq (org-element-property :type row) 'standard)
+    (let* ((table (org-export-get-parent-table row))
+           (cols (cdr (org-export-table-dimensions table info)))
+           (first (org-element-map table 'table-row
+                    (lambda (r) (and (eq (org-element-property :type r) 'standard) r))
+                    info t)))
+      (concat "|" contents "\n"
+              (when (if (org-export-table-has-header-p table info)
+                        (org-export-table-row-ends-header-p row info)
+                      (eq row first))
+                (concat "|" (apply #'concat (make-list cols " --- |")) "\n"))))))
+
+(defun blog/md-table (table contents _info)
+  (if (eq (org-element-property :type table) 'table.el)
+      (org-element-property :value table)
+    (string-trim-right (or contents ""))))
+
+(defun blog/md-options (info _backend)
+  "No table of contents in the Markdown copy, whatever the post's #+OPTIONS say."
+  (plist-put info :with-toc nil))
+
+(defun blog/md-final (output _backend info)
+  (concat "# " (string-trim (org-element-interpret-data (plist-get info :title))) "\n\n"
+          (string-trim (replace-regexp-in-string "<a id=\"[^\"]*\"></a>\n?" "" output t t))
+          "\n"))
+
+(org-export-define-derived-backend 'blog-md 'md
+  :translate-alist '((src-block . blog/md-src-block)
+                     (example-block . blog/md-example-block)
+                     (fixed-width . blog/md-example-block)
+                     (table . blog/md-table)
+                     (table-row . blog/md-table-row)
+                     (table-cell . blog/md-table-cell))
+  :filters-alist '((:filter-options . blog/md-options)
+                   (:filter-final-output . blog/md-final)))
+
+(defun blog/publish-markdown (plist filename pub-dir)
+  "Publish FILENAME as NAME.md into PUB-DIR, without the HTML filters."
+  (let ((org-md-headline-style 'atx)
+        (org-md-toplevel-hlevel 2)
+        (plist (plist-put (copy-sequence plist) :filter-final-output nil)))
+    (org-publish-org-to 'blog-md filename ".md" plist pub-dir)))
+
 (defun blog/publish-to-html (plist filename pub-dir)
   "Publish an org file to HTML, but skip if it's a draft or unchanged."
   (unless (blog/is-draft-p filename)
@@ -339,7 +422,9 @@ are published, otherwise to that language's home page (marked as fallback)."
             ;; Chinese variants export with lang="zh-CN" unless #+LANGUAGE says otherwise
             (let ((org-export-default-language
                    (if (string-match-p "-cn\\.org\\'" filename) "zh-CN" "en")))
-              (org-html-publish-to-html plist filename pub-dir)))
+              (org-html-publish-to-html plist filename pub-dir)
+              (when (blog/dated-post-p (file-name-base filename))
+                (blog/publish-markdown plist filename pub-dir))))
         (message "Skipping unchanged: %s" filename)))))
 
 ;; Custom sitemap function to exclude author and draft posts
