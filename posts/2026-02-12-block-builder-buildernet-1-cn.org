@@ -2,7 +2,7 @@
 #+DATE: 2026-02-12
 #+AUTHOR: bytenoob
 #+DESCRIPTION: BuilderNet 如何去中心化以太坊区块构建：基于 TEE 的构建节点、共享订单流、退款机制，以及与 Titan 和 MEV-Boost 中继的对比。
-#+KEYWORDS: ethereum,buildernet,mev,flashbots,pbs
+#+KEYWORDS: 以太坊, buildernet, mev, flashbots, pbs
 #+FILETAGS: :ethereum:buildernet:mev:
 #+LASTMOD: 2026-02-12
 #+DRAFT: false

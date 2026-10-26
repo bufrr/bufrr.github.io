@@ -2,7 +2,8 @@
 #+DATE: 2026-10-26
 #+AUTHOR: bytenoob
 #+DESCRIPTION: BNB Chain 的 New L1 把 BSC 的 Parlia 共识和 Monad 式的异步执行组合在一起。交易可以和触发它的交易落在同一个块里，但执行结果要晚 D 个块才能看到。本文分析这对交易者、钱包和延迟测量意味着什么。
-#+KEYWORDS: bnb,new l1,consensus,parlia,monad,async execution,latency
+#+KEYWORDS: bnb chain, new l1, 共识, 异步执行, 最终性, monad, tempo
+#+FILETAGS: :bnb:共识:monad:tempo:
 #+LASTMOD: 2026-10-26
 #+OPTIONS: toc:t num:nil ^:nil
 

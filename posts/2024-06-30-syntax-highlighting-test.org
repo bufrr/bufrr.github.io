@@ -2,7 +2,7 @@
 #+DATE: <2024-06-30 Sun>
 #+AUTHOR: bytenoob
 #+DESCRIPTION: Testing syntax highlighting for various programming languages
-#+KEYWORDS: code, syntax, highlighting, test
+#+KEYWORDS: code, syntax highlighting, test
 #+FILETAGS: :programming:test:
 #+LASTMOD: <2025-06-30 Mon>
 #+DRAFT: false

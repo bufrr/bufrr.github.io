@@ -2,7 +2,8 @@
 #+DATE: 2026-10-26
 #+AUTHOR: bytenoob
 #+DESCRIPTION: BNB Chain's New L1 pairs BSC's Parlia consensus with Monad-style asynchronous execution. A transaction can land in the same block as its trigger, but its result shows up D blocks later. What that means for traders, wallets, and latency measurement.
-#+KEYWORDS: bnb,new l1,consensus,parlia,monad,async execution,latency
+#+KEYWORDS: bnb chain, new l1, consensus, async execution, finality, monad, tempo
+#+FILETAGS: :bnb:consensus:monad:tempo:
 #+LASTMOD: 2026-10-26
 #+OPTIONS: toc:t num:nil ^:nil
 

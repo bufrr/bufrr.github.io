@@ -2,7 +2,7 @@
 #+DATE: 2026-02-12
 #+AUTHOR: bytenoob
 #+DESCRIPTION: How BuilderNet decentralizes Ethereum block building: TEE-based builder nodes, shared orderflow, its refund mechanism, and how it compares with Titan and MEV-Boost relays.
-#+KEYWORDS: ethereum,buildernet,mev,flashbots,pbs
+#+KEYWORDS: ethereum, buildernet, mev, flashbots, pbs
 #+FILETAGS: :ethereum:buildernet:mev:
 #+LASTMOD: 2026-02-12
 #+DRAFT: false

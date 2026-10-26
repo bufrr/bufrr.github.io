@@ -2,7 +2,7 @@
 #+DATE: <2024-06-30 Sun>
 #+AUTHOR: bytenoob
 #+DESCRIPTION: 测试各种编程语言的语法高亮
-#+KEYWORDS: 代码, 语法, 高亮, 测试
+#+KEYWORDS: 代码, 语法高亮, 测试
 #+FILETAGS: :编程:测试:
 #+LASTMOD: <2025-06-30 Mon>
 #+OPTIONS: toc:t num:nil
