@@ -17,7 +17,7 @@ The attacker had to move fast: Tether could freeze its USDT at any moment. It bo
 - *Top on-chain bot:* [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]] backran the hacker's dumps and netted 1,205 ETH.
 - *Top address:* [[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]], 1,676 ETH net from its sales; the full borrow-and-sell loop realized about $3.43M.
 - *Peak spread:* at 04:45, DEX ETH was 37.99% above CEX; the spread window ran 04:35–05:38, about 63 minutes.
-- *Hacker's loss:* about $77.6M versus Chainlink, on 174,833 ETH. That's the ceiling on extractable value, not realized MEV.
+- *Hacker's loss:* it spent 475M USDT on 174,833 ETH, about $77.6M more than that ETH was worth at the Chainlink price. That's the most anyone could have made off the hacker; actual MEV profits were lower.
 
 All earnings here are net profit, after the tip paid to the block builder.
 
