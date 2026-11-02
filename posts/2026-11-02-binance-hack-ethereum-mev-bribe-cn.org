@@ -1,7 +1,7 @@
 #+TITLE: 币安 63 亿美元被盗后，链上 bot 如何套利：一个 bot 净赚 1,205 ETH
 #+DATE: 2026-11-02
 #+AUTHOR: bytenoob
-#+DESCRIPTION: 币安 63 亿美元被盗后，链上 bot 如何套利。黑客为赶在 Tether 冻结前出货，在以太坊上用 4.75 亿 USDT 买 ETH，DEX 上的 ETH 一度比 CEX 贵 38%，持续约 63 分钟。这笔价差被谁分走：套利者、Aave 循环者、backrun 机器人、solver 和区块构建者。
+#+DESCRIPTION: 币安 63 亿美元被盗后，链上 bot 如何套利。黑客为赶在 Tether 冻结前出货，在以太坊上用 4.75 亿 USDT 买 ETH，DEX 上的 ETH 一度比 CEX 贵 38%，溢价持续约 1 小时。这笔 CEX-DEX 价差被谁分走：套利者、Aave 循环者、backrun bot、solver 和 builder。
 #+KEYWORDS: 以太坊, mev, 币安, 黑客, 套利, 区块构建者, chainlink, aave
 #+FILETAGS: :以太坊:mev:
 #+LASTMOD: 2026-11-02
@@ -11,15 +11,15 @@
 
 2026 年 10 月 29 日，TRM Labs 估计币安在 10 条区块链上的钱包被转走约 63 亿美元（[[https://www.bleepingcomputer.com/news/security/binance-links-63-billion-crypto-theft-to-compromised-devops-laptop/][BleepingComputer]]，初步数据）。本文只看随后 24 小时以太坊上的事。文中时间均为 UTC+8，从 10 月 30 日凌晨算起。
 
-黑客必须抢时间：Tether 随时可能冻结它手里的 USDT。它在以太坊上用 4.75 亿 USDT 买 ETH：部分走 RFQ solver，部分直接在 DEX 买。一个买家就把 DEX 上的 ETH 价格推到比中心化交易所高 17–38%，持续约 63 分钟。同时，DEX 上的 USDT 跌到 0.918 USDC。
+黑客必须抢时间：Tether 随时可能冻结它手里的 USDT。它在以太坊上用 4.75 亿 USDT 买 ETH：部分走 RFQ solver，部分直接在 DEX 买。这一个买家就把 DEX 上的 ETH 推到比 CEX 贵 38%（04:45 峰值）；04:45–05:16 一直贵 17% 以上，整段溢价持续约 1 小时（04:35–05:38）。同时，DEX 上的 USDT 跌到 0.918 USDC。
 
-- 最大策略：在 DEX 高价卖出 ETH，净赚 9,845 ETH。
-- 头部链上 bot：[[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]]，backrun 黑客的抛售，净赚 1,205 ETH。
-- 头部主体：[[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]]，卖出环节净赚 1,676 ETH，整个借卖循环实际到手约 343 万美元。
-- 错位峰值：04:45 时 +37.99%；错位窗口 04:35–05:38，约 63 分钟。
-- 黑客多付：相对 Chainlink 约 7,760 万美元，换得 174,833 ETH。这是可提取价值的上限，不等于已实现的 MEV 总额。
+- 最大一类：1,130 个地址把 ETH 高价卖进 DEX，按卖出时的 CEX 价计，扣 tip 后多赚约 9,845 ETH；大部分是用聚合器卖自有 ETH 的大户，bot 合约只有 66 个。
+- 收益最高的链上 bot：[[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]]，backrun 黑客的抛售，净赚 1,205 ETH。
+- 收益最高的地址：[[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]]，卖出部分净赚 1,676 ETH，整个借卖循环实际到手约 343 万美元。
+- 价差峰值：04:45，DEX 比 CEX 贵 37.99%；价差窗口 04:35–05:38，约 63 分钟。
+- 黑客损失：相对 Chainlink 约 7,760 万美元，换得 174,833 ETH。这是可提取价值的上限，不等于已实现的 MEV 总额。
 
-文中收益都是净利润，已扣掉付给出块方（builder）的 tip。
+文中收益都是净利润，已扣掉付给 builder（builder）的 tip。
 
 * 时间轴（UTC+8，10 月 30 日）
 
@@ -29,20 +29,20 @@
 - 04:38：0x5227 向 0x8532 转出 195,460 ETH。
 - 04:57–05:00：黑客向 Aave 存入 6,000 万 USDT，借出 19,762 WETH。
 - 05:04–05:09：0x77edef、0x7aa4 在 DEX 买入，1.5 亿 USDT 换得 52,517 ETH。
-- 05:47：Aave 用一笔交易冻结主要资产、把 LTV 设为 0，此时错位已基本消失。
+- 05:47：Aave 用一笔交易冻结主要资产、把 LTV 设为 0，此时价差已基本消失。
 - 05:47：0x9749 向 0xc887 转出 122,310 ETH。
 - 09:17–11:32：0x5227 经 Uniswap V3 Router 抛售被盗山寨币（backrun 和夹子集中在这段）。
 - 20:26：Aave 解冻；USDC/USDT 的 LTV 至今仍为 0。
 
 * 谁赚到了钱
 
-#+CAPTION: 各策略的净利润（蓝），以及付给出块方的 tip（橙）
-#+ATTR_HTML: :alt 各策略净利润的条形图，橙色部分是付给出块方的 tip :width 767 :height 312 :loading lazy :decoding async
+#+CAPTION: 各策略的净利润（蓝），以及付给 builder 的 tip（橙）
+#+ATTR_HTML: :alt 各策略净利润的条形图，橙色部分是付给 builder 的 tip :width 767 :height 312 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-00-zh.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-00-zh.png]]
 
 | 策略 | 净利润（ETH） | tip（ETH） |
 |---+---+---|
-| DEX 错位卖出 ETH | 9,845.0 | 907.4 |
+| 在 DEX 高价卖 ETH | 9,845.0 | 907.4 |
 | Aave 借 ETH 高价卖出循环 | 2,366.6 | 16.1 |
 | 黑客抛售后的 backrun | 1,450.8 | 887.1 |
 | 给黑客 RFQ 单报价成交（solver） | 259.9 | 1,751.2 |
@@ -51,7 +51,7 @@
 | 原子循环套利（跨池） | 192.8 | 227.2 |
 | 清算 | 0.2 | 38.7 |
 
-在 DEX 高价卖出、在 Aave 循环，赚的是价差；backrun 赚的是黑客抛售后各池子的错位。清算、夹子和 RFQ 的价值，大多以 tip 付给了出块方。
+在 DEX 高价卖出、在 Aave 循环，赚的是 CEX-DEX 价差；backrun 赚的是黑客砸盘后各池子之间的价差。清算、夹子和 RFQ 的收益，大多以 tip 给了 builder。
 
 * 八种策略
 
@@ -63,9 +63,9 @@
 #+ATTR_HTML: :alt 流程图：黑客和 solver 拉高 DEX 上的 ETH 价格，套利者把 ETH 卖进池子并在 CEX 对冲 :width 755 :height 117 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-01-zh.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-01-zh.png]]
 
-主体排名前 5：
+收益前 5 的地址：
 
-| 主体 | 类型 | 笔数 | 卖出 ETH | 均价 | 同期 Chainlink | 净利润 | tip |
+| 地址 | 类型 | 笔数 | 卖出 ETH | 均价 | 同期 Chainlink | 净利润 | tip |
 |---+---+---+---+---+---+---+---|
 | [[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]] | Aave 借 11,701 WETH | 18 | 11,682 | 2,595 | 2,268 | 1,676.0 | 7.0 |
 | [[https://etherscan.io/address/0x51c72848c68a965f66fa7a88855f9f7784502a7f][0x51c728…502a7f]] | bot 合约 | 235 | 22,757 | 2,431 | 2,273 | 866.5 | 746.1 |
@@ -73,7 +73,9 @@
 | [[https://etherscan.io/address/0x65a8f07bd9a8598e1b5b6c0a88f4779dbc077675][0x65a8f0…077675]] | 自有库存 | 37 | 3,704 | 2,531 | 2,271 | 418.3 | 1.5 |
 | [[https://etherscan.io/address/0xcaab6ff98989fdd4f47e7db6152e6fb47994ec1e][0xcaab6f…94ec1e]] | Aave 借 1,565 WETH | 6 | 1,560 | 2,710 | 2,273 | 297.9 | 0.0 |
 
-最大的 bot [[https://etherscan.io/address/0x51c72848c68a965f66fa7a88855f9f7784502a7f][0x51c728…502a7f]] 用 69 个发送地址发出 235 笔交易，卖出 22,757 ETH，均价 2,431（同期 Chainlink 为 2,273），净赚 866.5 ETH，另付 746.1 ETH tip 给出块方，买区块前排。通过聚合器卖自有 ETH 的大户几乎不付 tip。溢价随卖出迅速衰减，最后一笔仅剩约 4.8%。
+最大的 bot [[https://etherscan.io/address/0x51c72848c68a965f66fa7a88855f9f7784502a7f][0x51c728…502a7f]] 用 69 个发送地址发出 235 笔交易，卖出 22,757 ETH，均价 2,431（同期 Chainlink 为 2,273），净赚 866.5 ETH，另付 746.1 ETH tip 给 builder，买区块前排。通过聚合器卖自有 ETH 的大户几乎不付 tip。溢价随卖出迅速衰减，最后一笔仅剩约 4.8%。
+
+这一类的 9,845 ETH 是按卖出时 CEX 价算的账面收益（假设卖家同时在 CEX 对冲），不等于实际到手。
 
 ** 2. Aave 借 ETH 高价卖出循环
 
@@ -83,7 +85,7 @@ Aave 用 Chainlink 给借款计价，Chainlink 跟随 CEX；DEX 价格却高 17�
 #+ATTR_HTML: :alt 流程图：按 CEX 价在 Aave 借 ETH，在 DEX 高价卖出，稳定币存回作抵押再借 :width 755 :height 144 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-02-zh.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-02-zh.png]]
 
-| 主体 | 卖出 ETH @ 均价 | 买回 ETH @ 均价 | 对 CEX markout | 约合 ETH |
+| 地址 | 卖出 ETH @ 均价 | 买回 ETH @ 均价 | 对 CEX markout | 约合 ETH |
 |---+---+---+---+---|
 | [[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]] | 12,289 @ 2,580 | 12,314 @ 2,298 | $3,433,251 | 1,515.8 |
 | [[https://etherscan.io/address/0xcaab6ff98989fdd4f47e7db6152e6fb47994ec1e][0xcaab6f…94ec1e]] | 1,560 @ 2,710 | 624 @ 2,275 | $671,357 | 296.4 |
@@ -93,7 +95,7 @@ Aave 用 Chainlink 给借款计价，Chainlink 跟随 CEX；DEX 价格却高 17�
 | [[https://etherscan.io/address/0xdca6d9de6cba400d497d8fe86fe2832066d9e39a][0xdca6d9…d9e39a]] | 1,450 @ 2,293 | — | $34,623 | 15.3 |
 | [[https://etherscan.io/address/0x303d0a175ceec14dd7b3d4f60cabe6cec06a3d9f][0x303d0a…6a3d9f]] | 75 @ 2,467 | — | $13,614 | 6.0 |
 
-头部主体 [[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]] 在 04:50–05:32 连做 18 轮：借出 ETH 经 0x 卖出（$2,390–2,738），USDC 存回。市场冻结后挂 $2,290/$2,300 限价单，由 CoW 和 0x 的 solver 成交，买回 12,313 ETH 还款。卖出均价 $2,580、买回均价 $2,298，ETH 头寸持平，约 2 小时实现约 343 万美元。
+收益最高的地址 [[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]] 在 04:50–05:32 连做 18 轮：借出 ETH 经 0x 卖出（$2,390–2,738），USDC 存回。市场冻结后挂 $2,290/$2,300 限价单，由 CoW 和 0x 的 solver 成交，买回 12,313 ETH 还款。卖出均价 $2,580、买回均价 $2,298，ETH 头寸持平，约 2 小时实现约 343 万美元。
 
 05:47，Aave 治理冻结该市场，LTV 设为 0，循环中止。资金不是瓶颈：Aave 利用率仅从 79% 升到 82%。
 
@@ -121,7 +123,7 @@ Aave 用 Chainlink 给借款计价，Chainlink 跟随 CEX；DEX 价格却高 17�
 
 RFQ（询价成交）是大额交易者先向做市商或 solver 询价，签下固定报价订单，由报价方在链上交割。黑客急于在冻结前出货，接受 $2,990/ETH 这类报价，当时 CEX 约 $2,250。solver 在同笔交易里从池子买 ETH 交付，赚报价与成本的差额，但要靠高额贿赂才能抢到订单。
 
-#+CAPTION: 链上交易由 solver 发出（tx.from 和 tx.to 都不是黑客），大部分价差以贿赂付给出块方
+#+CAPTION: 链上交易由 solver 发出（tx.from 和 tx.to 都不是黑客），大部分价差以贿赂付给 builder
 #+ATTR_HTML: :alt 流程图：黑客签名 USDT 换 ETH 的订单，solver 在同一笔交易里从 DEX 池子买 ETH 交付 :width 755 :height 117 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-04-zh.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-04-zh.png]]
 
@@ -133,16 +135,16 @@ RFQ（询价成交）是大额交易者先向做市商或 solver 询价，签下
 | [[https://etherscan.io/tx/0x4fa182626c85ca0cdc18ba736930bdbdfbcf5d201d373913317df6ec58d23d61][0x4fa182…d23d61]] | 26300829 | [[https://etherscan.io/address/0x0000000000be226afde21672a5e4adc45692e69d][0x000000…92e69d]] | -0.0 | 93.6 |
 | [[https://etherscan.io/tx/0xc59188f11b6b7bd18a45b2afc91e787bf66d767dd5b95d01730f3c5c92f1e490][0xc59188…f1e490]] | 26300895 | [[https://etherscan.io/address/0xec4fb7e7c35c241e1138a2d8cfbb09f3ad1ccb22][0xec4fb7…1ccb22]] | -0.0 | 49.1 |
 
-最大一笔：[[https://etherscan.io/tx/0xa861a556b73df4e084aca07663d63b26eec33136ed7328712a7418361d856f36][0xa861a5…856f36]] 中，solver [[https://etherscan.io/address/0xbeef02961503351625926ea9a11ae13b29f5c555][0xbeef02…f5c555]] 为黑客 7,500 万 USDT 的订单交付 26,227 ETH，付给出块方 1,070.65 ETH，自己只留 119 WETH：约 90% 的价值给了出块方。
+最大一笔：[[https://etherscan.io/tx/0xa861a556b73df4e084aca07663d63b26eec33136ed7328712a7418361d856f36][0xa861a5…856f36]] 中，solver [[https://etherscan.io/address/0xbeef02961503351625926ea9a11ae13b29f5c555][0xbeef02…f5c555]] 为黑客 7,500 万 USDT 的订单交付 26,227 ETH，付给 builder 1,070.65 ETH，自己只留 119 WETH：约 90% 的价值给了 builder。
 
-给持有被盗资金的地址报价成交，就是与黑客交易，有法律风险。这和针对价格错位的中性套利是两回事。
+给持有被盗资金的地址报价成交，就是与黑客交易，有法律风险。这和中性的价差套利是两回事。
 
 ** 5. 夹子（sandwich）
 
 bot 在受害交易前同方向下单，把价格推向不利于受害者的一侧；受害交易以更差价格成交；bot 再在同一池子反向平仓。这次的受害者主要是黑客抛售山寨币的交易。
 
 #+CAPTION: 夹子有三笔交易：抢跑、受害交易、平仓；backrun 只有两笔：受害交易、紧跟其后的套利
-#+ATTR_HTML: :alt 流程图：bot 抢跑、受害交易以更差价格成交、bot 平仓、出块方收 tip :width 755 :height 117 :loading lazy :decoding async
+#+ATTR_HTML: :alt 流程图：bot 抢跑、受害交易以更差价格成交、bot 平仓、builder 收 tip :width 755 :height 117 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-05-zh.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-05-zh.png]]
 
 | bot | 对数 | 其中夹黑客 | 净利润 | tip | 分类 |
@@ -154,7 +156,7 @@ bot 在受害交易前同方向下单，把价格推向不利于受害者的一�
 | [[https://etherscan.io/address/0xe80629c1f9db8d42db953d37990d5f02f449702d][0xe80629…49702d]] | 2 | 0 | 0.0 | 7.5 | 夹子 |
 | [[https://etherscan.io/address/0xe59ae6325cfbd44a82f2ff19716019ffed77ebbb][0xe59ae6…77ebbb]] | 1 | 0 | 0.4 | 4.2 | 夹子 |
 
-这 200 对交易合计净赚 51.9 ETH，付给出块方的 tip 却有 769.2 ETH。做市 bot [[https://etherscan.io/address/0x1f2f10d1c40777ae1da742455c65828ff36df387][0x1f2f10…6df387]] 净赚 16.0 ETH，tip 付了 629.4 ETH，更像为排在黑客交易旁边付费的做市，不是夹子。其余 bot 的夹子合计净赚约 35.9 ETH。以黑客为受害者的有 105 对。
+这 200 对交易合计净赚 51.9 ETH，付给 builder 的 tip 却有 769.2 ETH。做市 bot [[https://etherscan.io/address/0x1f2f10d1c40777ae1da742455c65828ff36df387][0x1f2f10…6df387]] 净赚 16.0 ETH，tip 付了 629.4 ETH，更像为排在黑客交易旁边付费的做市，不是夹子。其余 bot 的夹子合计净赚约 35.9 ETH。以黑客为受害者的有 105 对。
 
 ** 6. 在 DEX 低价买入 USDT（脱锚）
 
@@ -174,7 +176,7 @@ bot 在受害交易前同方向下单，把价格推向不利于受害者的一�
 
 ** 7. 原子循环套利（跨池）
 
-错位期间各池涨幅不一致：V4 与 V3、5bp 与 30bp 池、Curve tricrypto 以及长尾池之间都有价差。bot 在同一笔交易里从便宜池子买入、卖到贵的池子，常借闪电贷，无需本金。
+价差窗口内各池涨幅不一致：V4 与 V3、5bp 与 30bp 池、Curve tricrypto 以及长尾池之间都有价差。bot 在同一笔交易里从便宜池子买入、卖到贵的池子，常借闪电贷，无需本金。
 
 #+CAPTION: 在一笔交易内，于价格不同步的池子之间低买高卖
 #+ATTR_HTML: :alt 流程图：可选的闪电贷，在池子 A 低价买入，在池子 B 高价卖出，闭合后净增 :width 755 :height 117 :loading lazy :decoding async
@@ -196,22 +198,22 @@ bot 在受害交易前同方向下单，把价格推向不利于受害者的一�
 #+ATTR_HTML: :alt 流程图：闪电贷，替 HF 小于 1 的仓位还债，折价拿走抵押品，在 DEX 卖出后归还闪电贷 :width 755 :height 117 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-08-zh.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-08-zh.png]]
 
-这段时间几乎无人被清算：错位期间 ETH 的 CEX 价格持续下跌，借 ETH 的仓位反而更健康；公开清算共 107 笔，净利润合计仅 0.2 ETH，38.7 ETH 都作为 tip 付给了出块方。值得看的是黑客自己的仓位：11 月 2 日抵押 5,995 万美元 USDT，债务 19,766.28 WETH（初始借款 19,762.41），健康因子 1.0364。
+这段时间几乎无人被清算：价差窗口内 ETH 的 CEX 价格持续下跌，借 ETH 的仓位反而更健康；公开清算共 107 笔，净利润合计仅 0.2 ETH，38.7 ETH 都作为 tip 付给了 builder。值得看的是黑客自己的仓位：11 月 2 日抵押 5,995 万美元 USDT，债务 19,766.28 WETH（初始借款 19,762.41），健康因子 1.0364。
 
 * 区块构建者（builder）
 
-每个块由 builder 打包。搜索者付的优先费和直接贿赂先进入 builder 收款地址，builder 在块末付给验证者，差额即自留。数据覆盖 24 小时全部 7,177 个块。
+每个块由 builder 打包。searcher 付的优先费和直接贿赂先进入 builder 收款地址，builder 在块末付给验证者，差额即自留。数据覆盖 24 小时全部 7,177 个块。
 
 - 区块总价值：17,008 ETH（约 3,852 万美元）。
 - 付给验证者：11,396 ETH，占 67%。
 - builder 自留：5,612 ETH，占 33%。
 - 04:24–06:50，前 2.5 小时：8,698 ETH，占全天 51%；其中 builder 自留 4,159 ETH。
 
-#+CAPTION: 块总价值 = 优先费 + 搜索者直接转给 builder 的款项
+#+CAPTION: 块总价值 = 优先费 + searcher 直接转给 builder 的款项
 #+ATTR_HTML: :alt 条形图：各 builder 的块价值，拆为付给验证者和 builder 自留 :width 767 :height 335 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-09-zh.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-09-zh.png]]
 
-| builder | 收款地址 | 出块数 | 块份额 | 块总价值 | 付给验证者 | builder 自留 | 自留率 | 错位窗口 块数 / 价值 | 最大单块 |
+| builder | 收款地址 | 出块数 | 块份额 | 块总价值 | 付给验证者 | builder 自留 | 自留率 | 被盗后 2.5 小时 块数 / 价值 | 最大单块 |
 |---+---+---+---+---+---+---+---+---+---|
 | Titan | [[https://etherscan.io/address/0x4838b106fce9647bdf1e7877bf73ce8b0bad5f97][0x4838b1…ad5f97]] | 3565 | 49.7% | 10,499.9 | 7,021.9 | 3,478.0 | 33.1% | 415 / 5,950 | 564.7 / 块 26300830 |
 | bobTheBuilder | [[https://etherscan.io/address/0xd87f3d6c5624e8b02be13c2c92f8511b88b94d96][0xd87f3d…b94d96]] | 256 | 3.6% | 2,109.3 | 1,444.8 | 664.5 | 31.5% | 15 / 597 | 107.2 / 块 26301434 |
@@ -228,12 +230,12 @@ bot 在受害交易前同方向下单，把价格推向不利于受害者的一�
 #+ATTR_HTML: :alt 条形图：每小时的块总价值，第一个小时达到 5,573 ETH :width 767 :height 216 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-10-zh.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-10-zh.png]]
 
-分阶段（表中「错位窗口」为 04:24–06:50）：
+分阶段：
 
 | 阶段 | 块范围 | 块数 | 块总价值 | builder 自留 | 自留率 | 出块最多 |
 |---+---+---+---+---+---+---|
 | 被盗前 | 26300674–26300769 | 96 | 6.5 | 4.0 | 62.3% | Titan（49 块） |
-| 错位窗口 | 26300770–26301500 | 731 | 8,697.5 | 4,158.9 | 47.8% | Titan（415 块） |
+| 被盗后 2.5 小时 | 26300770–26301500 | 731 | 8,697.5 | 4,158.9 | 47.8% | Titan（415 块） |
 | 冻结后 | 26301501–26302199 | 699 | 2,380.8 | 644.0 | 27.1% | Titan（436 块） |
 | 山寨币抛售 | 26302200–26302900 | 701 | 3,538.0 | 539.3 | 15.2% | Titan（382 块） |
 | 其余 | 26302901–26307850 | 4950 | 2,385.2 | 265.8 | 11.1% | Titan（2283 块） |
@@ -258,7 +260,7 @@ bot 在受害交易前同方向下单，把价格推向不利于受害者的一�
 | 策略 | Titan | bobTheBuilder | ultrasound | beaverbuild | BuilderNet | 其他 | 合计 tip |
 |---+---+---+---+---+---+---+---|
 | RFQ solver | 679.4 / 39% | — | — | 1,070.7 / 61% | 1.2 / 0% | 0.0 | 1,751.2 |
-| DEX 错位卖出（首轮） | 850.5 / 94% | 0.1 / 0% | 1.5 / 0% | 0.1 / 0% | 30.2 / 3% | 25.1 | 907.4 |
+| 在 DEX 高价卖 ETH（首轮估算） | 850.5 / 94% | 0.1 / 0% | 1.5 / 0% | 0.1 / 0% | 30.2 / 3% | 25.1 | 907.4 |
 | backrun | 391.5 / 44% | 331.8 / 37% | 107.1 / 12% | 0.7 / 0% | 36.8 / 4% | 20.0 | 887.8 |
 | 夹子 | 760.9 / 99% | 2.0 / 0% | — | — | 5.8 / 1% | 0.5 | 769.2 |
 | 原子循环（样本） | 167.9 / 74% | 0.0 / 0% | — | — | 0.1 / 0% | 59.2 | 227.2 |
@@ -266,11 +268,11 @@ bot 在受害交易前同方向下单，把价格推向不利于受害者的一�
 | 清算 | 24.9 / 58% | — | 0.7 / 2% | — | 17.1 / 40% | 0.1 | 42.8 |
 | Aave 原子循环 | 15.8 / 99% | — | — | — | 0.0 / 0% | 0.2 | 16.1 |
 
-被盗后 builder 自留比例明显升高：搜索者为抢黑客订单和错位机会付出巨额贿赂（单笔就有 1,070.65 ETH），builder 给验证者的出价没同步跟上。块 26300874（beaverbuild）总价值 1,120.9 ETH，只付给验证者 479.2 ETH，自留 641.7 ETH。另有 154 个块 builder 自留为负（合计 −14.98 ETH）：付给验证者的多于收到的，用来抢出块权。还有 508 个块由验证者本地构建，全部价值直接归验证者。
+被盗后 builder 自留比例明显升高：searcher 为抢黑客订单和价差机会付出巨额贿赂（单笔就有 1,070.65 ETH），builder 给验证者的出价没同步跟上。块 26300874（beaverbuild）总价值 1,120.9 ETH，只付给验证者 479.2 ETH，自留 641.7 ETH。另有 154 个块 builder 自留为负（合计 −14.98 ETH）：付给验证者的多于收到的，用来抢出块权。还有 508 个块由验证者本地构建，全部价值直接归验证者。
 
 * 价格：DEX、Chainlink 与 Aave
 
-#+CAPTION: DEX 最高价与 Chainlink ETH/USD 对比，横轴为区块。错位窗口为块 26300824–26301140（04:35–05:38）；Aave 在块 26301183（05:47）冻结。
+#+CAPTION: DEX 最高价与 Chainlink ETH/USD 对比，横轴为区块。价差窗口为块 26300824–26301140（04:35–05:38）；Aave 在块 26301183（05:47）冻结。
 #+ATTR_HTML: :alt 折线图：DEX 最高价在块 26300874 达到峰值 3,121，而 Chainlink 一直在 2,200 到 2,300 之间 :width 767 :height 327 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-11-zh.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-11-zh.png]]
 
@@ -289,13 +291,13 @@ bot 在受害交易前同方向下单，把价格推向不利于受害者的一�
 
 ** 没有一个 Chainlink 节点报出 DEX 价
 
-Chainlink 每次更新都把 31 个节点各自的报价写进链上。错位窗口内，两份 ETH/USD 喂价共更新 25 次，合计 775 个节点报价。其中最高的是 $2,292.87，同一批区块 DEX 最高价 $2,861；节点间最大分歧只有 0.51%。
+Chainlink 每次更新都把 31 个节点各自的报价写进链上。价差窗口内，两份 ETH/USD 喂价共更新 25 次，合计 775 个节点报价。其中最高的是 $2,292.87，同一批区块 DEX 最高价 $2,861；节点间最大分歧只有 0.51%。
 
 #+CAPTION: 04:02–07:23 内两份 ETH/USD 喂价的全部 38 次更新；每个点取该次更新 31 个节点报价中的最高值，DEX 为同一区块收盘时的池子价格。
-#+ATTR_HTML: :alt 折线图：错位窗口内 DEX 最高价远高于 Chainlink 节点的最高报价 :width 767 :height 299 :loading lazy :decoding async
+#+ATTR_HTML: :alt 折线图：价差窗口内 DEX 最高价远高于 Chainlink 节点的最高报价 :width 767 :height 299 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-12-zh.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-12-zh.png]]
 
-Chainlink 不比 CEX 偏高或偏低，而是贴着 CEX 走：全部 38 次报价都落在 Coinbase 当分钟的高低价之间。喂价偏离 0.5% 时更新，最长 1 小时必更新一次，节点取价到上链约 20 秒（中位数）。所以 Aave 价格最多比市场落后约 0.5%，相对 17–38% 的错位可以忽略。USDT/USD 喂价在错位期间一次都没更新：DEX 上的折价从没影响到全市场价。
+Chainlink 不比 CEX 偏高或偏低，而是贴着 CEX 走：全部 38 次报价都落在 Coinbase 当分钟的高低价之间。喂价偏离 0.5% 时更新，最长 1 小时必更新一次，节点取价到上链约 20 秒（中位数）。所以 Aave 价格最多比市场落后约 0.5%，相对 17–38% 的价差可以忽略。USDT/USD 喂价在价差窗口内一次都没更新：DEX 上的折价从没影响到全市场价。
 
 ** 真正的风险是治理
 
@@ -309,15 +311,15 @@ Chainlink 不比 CEX 偏高或偏低，而是贴着 CEX 走：全部 38 次报�
 | WBTC | 81% | 0% | 85% |
 | AAVE | 69% | 0% | 76% |
 
-* 黑客多付了多少
+* 黑客损失了多少
 
-| 卖方 | USDT | 换得 ETH | 均价 | 相对 Chainlink 多付 |
+| 卖方 | USDT | 换得 ETH | 均价 | 相对 Chainlink 的损失 |
 |---+---+---+---+---|
 | 0x9749…（9 笔 RFQ 成交） | 325.0M | 122,316 | 2,657 | $45.9M |
 | 0x0ddf / 0x77edef / 0x7aa4（5 笔 DEX） | 150.0M | 52,517 | 2,856 | $31.7M |
 | 合计 | 475M | 174,833 |  | ≈ $77.6M |
 
-价差流向 RFQ solver、出块方（约 1,751 ETH 贿赂）、把 ETH 卖回 DEX 的套利者，以及 LP 手续费。价格先被拉高，再被套利者压回；一来一回，LP 库存基本不变。
+价差流向 RFQ solver、builder（约 1,751 ETH 贿赂）、把 ETH 卖回 DEX 的套利者，以及 LP 手续费。价格先被拉高，再被套利者压回；一来一回，LP 库存基本不变。
 
 * 黑客资金现状（截至 11 月 2 日）
 
