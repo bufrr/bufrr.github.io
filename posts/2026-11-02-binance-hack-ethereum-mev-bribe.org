@@ -9,16 +9,14 @@
 
 * What happened
 
-On October 29, 2026, about $6.36 billion moved out of Binance wallets across ten blockchains, by TRM Labs' estimate ([[https://www.bleepingcomputer.com/news/security/binance-links-63-billion-crypto-theft-to-compromised-devops-laptop/][BleepingComputer]]; the figures are still provisional). This post is about what came next on Ethereum.
+On October 29, 2026, about $6.36 billion moved out of Binance wallets across ten blockchains, by TRM Labs' estimate ([[https://www.bleepingcomputer.com/news/security/binance-links-63-billion-crypto-theft-to-compromised-devops-laptop/][BleepingComputer]], provisional). This post covers only the next 24 hours on Ethereum. All times are UTC+8, starting early on October 30.
 
-The attacker had to move fast: Tether could freeze its USDT at any moment. So it bought ETH on Ethereum with 475M USDT, through RFQ solvers and directly on DEXs. That one buyer pushed DEX ETH prices 17–38% above centralized exchanges for about 63 minutes, and knocked DEX USDT down to 0.918 USDC.
+The attacker had to move fast: Tether could freeze its USDT at any moment. It bought ETH on Ethereum with 475M USDT, partly through RFQ solvers and partly directly on DEXs. That one buyer pushed DEX ETH 17–38% above centralized exchanges for about 63 minutes. Meanwhile, DEX USDT fell to 0.918 USDC.
 
-The analysis covers the first 24 hours. All times are UTC+8, starting early on October 30.
-
-- *Largest strategy:* selling ETH into the DEX premium, 10,752 ETH (about $24.35M).
-- *Top on-chain bot:* [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]] netted 1,205 ETH from backruns of the hacker's dumps.
+- *Largest strategy:* selling ETH into the DEX premium, 10,752 ETH in profit + tip (about $24.35M).
+- *Top on-chain bot:* [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]] backran the hacker's dumps and netted 1,205 ETH.
 - *Top entity:* [[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]], 1,683 ETH on its sell leg; its full loop realized about $3.43M.
-- *Peak dislocation:* +37.99% at 04:45. The window ran from 04:35 to 05:38, about 63 minutes.
+- *Peak dislocation:* +37.99% at 04:45; window 04:35–05:38, about 63 minutes.
 - *What the hacker overpaid:* about $77.6M versus Chainlink, for 174,833 ETH. That's the ceiling on extractable value, not realized MEV.
 
 /Tip/ is what a searcher paid the block builder to land its transaction; /net profit/ is what it kept.
@@ -31,7 +29,7 @@ The analysis covers the first 24 hours. All times are UTC+8, starting early on O
 - 04:38: 0x5227 sends 195,460 ETH to 0x8532.
 - 04:57–05:00: the hacker deposits 60M USDT on Aave and borrows 19,762 WETH.
 - 05:04–05:09: 0x77edef and 0x7aa4 buy on DEXs: 150M USDT for 52,517 ETH.
-- 05:47: Aave freezes its main assets and sets LTV to 0 in one transaction. The dislocation is mostly gone by then.
+- 05:47: Aave freezes its main assets and sets LTV to 0 in one transaction; the dislocation is mostly gone by then.
 - 05:47: 0x9749 sends 122,310 ETH to 0xc887.
 - 09:17–11:32: 0x5227 dumps stolen altcoins through the Uniswap V3 Router (where backruns and sandwiches cluster).
 - 20:26: Aave unfreezes; USDC/USDT LTV stays at 0.
@@ -53,13 +51,13 @@ The analysis covers the first 24 hours. All times are UTC+8, starting early on O
 | Atomic cross-pool arbitrage | 420.0 | 192.8 | 227.2 | 54% |
 | Liquidations | 38.9 | 0.2 | 38.7 | 99% |
 
-Selling ETH into the premium and the Aave loop earned the price gap itself. Backruns earned the gaps between pools after the hacker's dumps. For liquidations, sandwiches, and RFQ fills, most of the value went to block builders as tips.
+Selling into the premium and the Aave loop earned the price gap; backruns earned the gaps between pools after the hacker's dumps. Liquidations, sandwiches, and RFQ fills paid most of their value to builders as tips.
 
 * The eight strategies
 
 ** 1. Selling ETH into the DEX premium
 
-The hacker and the RFQ solvers bought ETH on DEXs in size, pushing the main pools 17–38% above CEX prices. Anyone who sold ETH into those pools earned "DEX price − CEX price" per ETH, and locked it in by hedging on a CEX or buying back once the premium faded.
+The hacker and RFQ solvers bought ETH on DEXs in size, pushing the main pools 17–38% above CEX prices. Selling ETH into those pools earned "DEX price − CEX price" per ETH; hedging on a CEX, or buying back once the premium faded, locked it in.
 
 #+CAPTION: Profit = ETH sold × (DEX price − CEX price) − tip
 #+ATTR_HTML: :alt Flow: hacker and solvers push DEX ETH up, arbitrageurs sell ETH into it and hedge on CEXs :width 755 :height 117 :loading lazy :decoding async
@@ -81,11 +79,11 @@ Top five entities:
 | [[https://etherscan.io/address/0x65a8f07bd9a8598e1b5b6c0a88f4779dbc077675][0x65a8f0…077675]] | own inventory | 37 | 3,704 | 2,531 | 2,271 | 418.3 | 1.5 | 419.8 |
 | [[https://etherscan.io/address/0xcaab6ff98989fdd4f47e7db6152e6fb47994ec1e][0xcaab6f…94ec1e]] | Aave-borrowed 1,565 WETH | 6 | 1,560 | 2,710 | 2,273 | 297.9 | 0.0 | 298.0 |
 
-The biggest bot, [[https://etherscan.io/address/0x51c72848c68a965f66fa7a88855f9f7784502a7f][0x51c728…502a7f]], sent 235 transactions from 69 addresses and sold 22,757 ETH at an average of 2,431 while Chainlink sat at 2,273. It made 1,612.6 ETH in profit + tip, but paid 46% of it to builders to win the front of the block. Large holders selling their own ETH through aggregators paid almost no tip. The premium decayed fast as people sold: the last sale captured only about 4.8%.
+The biggest bot, [[https://etherscan.io/address/0x51c72848c68a965f66fa7a88855f9f7784502a7f][0x51c728…502a7f]], sent 235 transactions from 69 addresses and sold 22,757 ETH at an average of 2,431 while Chainlink sat at 2,273. It made 1,612.6 ETH in profit + tip, and paid 46% of it as tips to buy the front of the block. Large holders selling their own ETH through aggregators paid almost no tip. The premium decayed fast: the last sale captured only about 4.8%.
 
 ** 2. The Aave borrow-and-sell loop
 
-Aave prices loans with Chainlink, which tracks CEX prices, while DEXs were 17–38% higher. Borrow ETH at the CEX price, sell it at the DEX price, deposit the stablecoins as collateral, and borrow again.
+Aave prices loans with Chainlink, which tracks CEXs; DEXs were 17–38% higher. Borrow ETH at the CEX price, sell at the DEX price, deposit the stablecoins as collateral, borrow again.
 
 #+CAPTION: When the premium is ≥ 1/LTV − 1 = 33.3%, r ≥ 1 and the loop can start with zero capital via a flash loan; looping at max LTV ends at HF ≈ 1.04.
 #+ATTR_HTML: :alt Flow: borrow ETH on Aave at the CEX price, sell on DEXs at the premium, deposit stablecoins, borrow again :width 755 :height 144 :loading lazy :decoding async
@@ -101,13 +99,13 @@ Aave prices loans with Chainlink, which tracks CEX prices, while DEXs were 17–
 | [[https://etherscan.io/address/0xdca6d9de6cba400d497d8fe86fe2832066d9e39a][0xdca6d9…d9e39a]] | 1,450 @ 2,293 | — | $34,623 | 15.3 |
 | [[https://etherscan.io/address/0x303d0a175ceec14dd7b3d4f60cabe6cec06a3d9f][0x303d0a…6a3d9f]] | 75 @ 2,467 | — | $13,614 | 6.0 |
 
-The top looper, [[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]], ran 18 rounds between 04:50 and 05:32, selling through 0x at $2,390–2,738 and depositing USDC each time. After the freeze it bought back 12,313 ETH with $2,290/$2,300 limit orders filled by CoW and 0x solvers, then repaid. It sold at an average of $2,580, bought back at $2,298, ended flat on ETH, and realized about $3.43M in roughly two hours.
+The top looper, [[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]], ran 18 rounds between 04:50 and 05:32: borrow ETH, sell through 0x ($2,390–2,738), deposit USDC. After the freeze it bought back 12,313 ETH with $2,290/$2,300 limit orders filled by CoW and 0x solvers, then repaid. Average sell $2,580, buy-back $2,298, flat on ETH: about $3.43M realized in roughly two hours.
 
-The loop ended abruptly at 05:47, when Aave governance froze the market and set LTV to 0. Funding was never the bottleneck: Aave utilization only rose from 79% to 82%.
+At 05:47 Aave governance froze the market and set LTV to 0, ending the loop. Funding was never the bottleneck: Aave utilization only rose from 79% to 82%.
 
 ** 3. Backruns of the hacker's dumps
 
-The hacker dumped stolen altcoins (PHA, ENS, and others) through the Uniswap V3 Router, one pool at a time. That pool's price dropped while the same token in other pools (V2, other fee tiers) stayed at the old price. A bot landing right after the hacker bought low and sold high in one transaction, with no front-running and no directional risk.
+The hacker dumped stolen altcoins (PHA, ENS, and others) through the Uniswap V3 Router into one pool at a time. That pool's price dropped; the same token in other pools (V2, other fee tiers) stayed at the old price. A bot landing right after bought low and sold high in one transaction: no front-running, no directional risk.
 
 #+CAPTION: Profit = pool B proceeds − pool A cost − tip, closed in one transaction
 #+ATTR_HTML: :alt Flow: hacker dumps into pool A, a bot buys there right after and sells into pool B at the old price :width 755 :height 117 :loading lazy :decoding async
@@ -121,13 +119,13 @@ The hacker dumped stolen altcoins (PHA, ENS, and others) through the Uniswap V3 
 | [[https://etherscan.io/address/0x51c72848c68a965f66fa7a88855f9f7784502a7f][0x51c728…502a7f]] | 9 | 48.7 | 40.6 | 83% |
 | [[https://etherscan.io/address/0x36331e299247e5d0d3261e1d9852f6e0cffee95c][0x36331e…fee95c]] | 14 | 44.3 | 37.6 | 85% |
 
-The top backrun bot, [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]], made 1,452.4 ETH in profit + tip over 29 transactions and paid 247.4 ETH in tips, netting 1,205.0 ETH.
+The top backrun bot, [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]], made 1,452.4 ETH in profit + tip over 29 transactions, paid 247.4 ETH in tips, and netted 1,205.0 ETH.
 
-The best single trade, [[https://etherscan.io/tx/0x9988946159d207dbc01efe5c57eb392f423e372d3a072ae36a7377c744fe5269][0x998894…fe5269]] at 10:32, came right after the hacker dumped PHA into a V3 pool. Bot [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]] paid 50.08 WETH for 3.17M PHA and sent it straight into a V2 pool that hadn't followed, receiving 301.48 WETH: a net 251.4 WETH for a 1.35 ETH tip. Of 294 backruns, 290 were profitable.
+The best single trade was [[https://etherscan.io/tx/0x9988946159d207dbc01efe5c57eb392f423e372d3a072ae36a7377c744fe5269][0x998894…fe5269]] at 10:32: the hacker had just dumped PHA into a V3 pool. Bot [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]] paid 50.08 WETH for 3.17M PHA and sent it into a V2 pool that hadn't followed, receiving 301.48 WETH: a net 251.4 WETH for a 1.35 ETH tip. Of 294 backruns, 290 were profitable.
 
 ** 4. Filling the hacker's RFQ orders
 
-With RFQ, a large trader asks market makers or solvers for a quote, signs a fixed-price order, and the quoter settles it on-chain. Racing the freeze, the hacker accepted quotes like $2,990 per ETH while CEXs were around $2,250. Solvers bought the ETH from pools in the same transaction and kept the difference, after paying large bribes to win the order.
+With RFQ, a large trader asks market makers or solvers for a quote, signs a fixed-price order, and the quoter settles it on-chain. Racing the freeze, the hacker accepted quotes like $2,990 per ETH while CEXs were around $2,250. Solvers bought the ETH from pools in the same transaction and kept the spread, but had to pay large bribes to win the order.
 
 #+CAPTION: The solver sends the transaction (neither tx.from nor tx.to is the hacker); most of the spread goes to the builder as a bribe.
 #+ATTR_HTML: :alt Flow: the hacker signs a USDT to ETH order, a solver buys ETH from DEX pools in the same transaction and delivers it :width 755 :height 117 :loading lazy :decoding async
@@ -143,11 +141,11 @@ With RFQ, a large trader asks market makers or solvers for a quote, signs a fixe
 
 The largest fill: in [[https://etherscan.io/tx/0xa861a556b73df4e084aca07663d63b26eec33136ed7328712a7418361d856f36][0xa861a5…856f36]], solver [[https://etherscan.io/address/0xbeef02961503351625926ea9a11ae13b29f5c555][0xbeef02…f5c555]] delivered 26,227 ETH for the hacker's 75M USDT order, paid the builder 1,070.65 ETH, and kept 119 WETH: about 90% of the value went to the bribe.
 
-Quoting and filling orders for addresses holding stolen funds means trading with the attacker, which carries legal risk. That's different from neutrally arbitraging a price gap.
+Quoting for addresses holding stolen funds is trading with the attacker, which carries legal risk. That's not the same as neutrally arbitraging a price gap.
 
 ** 5. Sandwiches
 
-A bot trades in the victim's direction just before the victim's transaction, the victim fills at a worse price, and the bot closes in the same pool right after. Here the victims were mostly the hacker's altcoin dumps.
+A bot trades in the victim's direction just before the victim's transaction, the victim fills at a worse price, and the bot closes in the same pool right after. This time the victims were mostly the hacker's altcoin dumps.
 
 #+CAPTION: A sandwich has three steps (front leg, victim, back leg); a backrun has two (victim, back leg).
 #+ATTR_HTML: :alt Flow: bot front leg, victim transaction at a worse price, bot back leg, builder takes the tip :width 755 :height 117 :loading lazy :decoding async
@@ -162,11 +160,11 @@ A bot trades in the victim's direction just before the victim's transaction, the
 | [[https://etherscan.io/address/0xe80629c1f9db8d42db953d37990d5f02f449702d][0xe80629…49702d]] | 2 | 0 | 0.0 | 7.5 | 7.6 | sandwich |
 | [[https://etherscan.io/address/0xe59ae6325cfbd44a82f2ff19716019ffed77ebbb][0xe59ae6…77ebbb]] | 1 | 0 | 0.4 | 4.2 | 4.6 | sandwich |
 
-200 pairs made 821.1 ETH in profit + tip. But 645.4 ETH of that came from [[https://etherscan.io/address/0x1f2f10d1c40777ae1da742455c65828ff36df387][0x1f2f10…6df387]], which netted only 16.0 ETH and paid nearly everything as ordering fees: it looks more like a market maker paying to sit next to the hacker's trades than a sandwicher. Confirmed sandwiches from the other bots total 175.7 ETH. 105 pairs had the hacker as the victim.
+These 200 pairs made 821.1 ETH in profit + tip. Market-maker bot [[https://etherscan.io/address/0x1f2f10d1c40777ae1da742455c65828ff36df387][0x1f2f10…6df387]] took 645.4 ETH of it but netted only 16.0 ETH, paying nearly everything as ordering fees: a market maker paying to sit next to the hacker's trades, not a sandwicher. Confirmed sandwiches from the other bots total 175.7 ETH. 105 pairs had the hacker as the victim.
 
 ** 6. Buying depegged USDT
 
-The hacker also dumped USDT on DEXs. In the Uniswap V3 USDC/USDT pool, 1 USDT fell to 0.9497 USDC at 04:50 and 0.9181 at 05:10, while CEXs and Chainlink kept USDT near $0.999. Buying USDT with USDC or DAI earned 5–8 cents per USDT.
+The hacker also dumped USDT on DEXs. In the Uniswap V3 USDC/USDT pool, USDT fell to 0.9497 USDC at 04:50 and 0.9181 at 05:10, while CEXs and Chainlink kept USDT near $0.999. Buying USDT with USDC or DAI earned 5–8 cents per USDT.
 
 #+CAPTION: By 05:47, USDT on DEXs had recovered to about 0.999.
 #+ATTR_HTML: :alt Flow: buy USDT with USDC or DAI on DEXs at about 0.92, sell on CEXs or hold until it recovers :width 755 :height 117 :loading lazy :decoding async
@@ -182,7 +180,7 @@ The hacker also dumped USDT on DEXs. In the Uniswap V3 USDC/USDT pool, 1 USDT fe
 
 ** 7. Atomic cross-pool arbitrage
 
-Pools didn't reprice in sync: V4 versus V3, 5 bp versus 30 bp pools, Curve tricrypto, and long-tail pools all diverged. Bots bought in the cheap pool and sold in the expensive one in a single transaction, often with flash loans.
+Pools didn't reprice in sync: V4 versus V3, 5 bp versus 30 bp, Curve tricrypto, and long-tail pools all diverged. Bots bought in the cheap pool and sold in the expensive one in a single transaction, often with flash loans and no capital.
 
 #+CAPTION: Buy low and sell high across out-of-sync pools in one transaction
 #+ATTR_HTML: :alt Flow: optional flash loan, buy in pool A, sell in pool B, close with a net gain :width 755 :height 117 :loading lazy :decoding async
@@ -196,7 +194,7 @@ Pools didn't reprice in sync: V4 versus V3, 5 bp versus 30 bp pools, Curve tricr
 | [[https://etherscan.io/tx/0x287c07eff339f303a32047d6252dc576135e82e08e580256a9d77995b2ce69a7][0x287c07…ce69a7]] | 26301248 | [[https://etherscan.io/address/0xbeef02961503351625926ea9a11ae13b29f5c555][0xbeef02…f5c555]] | 3.1 | 59.2 | 62.3 | 95% |
 | [[https://etherscan.io/tx/0x800fc0fde891430589e3f7a43d9345a1ee5da4a01c9fe6684794e5ba3c04f8be][0x800fc0…04f8be]] | 26300829 | [[https://etherscan.io/address/0xea51075ccbd58174834da36372b0ed52199c483c][0xea5107…9c483c]] | 6.1 | 40.1 | 46.3 | 87% |
 
-The 23 transactions checked one by one made 420.0 ETH. Next to the other strategies, classic atomic arbitrage was small change.
+Checked one by one, these 23 transactions made 420.0 ETH. Next to the other strategies, classic atomic arbitrage was small change.
 
 ** 8. Liquidations
 
@@ -216,7 +214,7 @@ Almost nobody got liquidated. During the dislocation the CEX price of ETH was fa
 
 * Block builders
 
-Every block is assembled by a builder. Priority fees and direct bribes land in the builder's fee address, the builder pays the validator at the end of the block, and keeps the difference. These figures cover all 7,177 blocks in the 24 hours.
+Each block is built by a builder. Priority fees and direct bribes go to the builder's fee address; the builder pays the validator at the end of the block and keeps the difference. The data covers all 7,177 blocks in the 24 hours.
 
 - *Total block value:* 17,008 ETH (about $38.52M).
 - *Paid to validators:* 11,396 ETH (67%).
@@ -244,7 +242,7 @@ Every block is assembled by a builder. Priority fees and direct bribes land in t
 #+ATTR_HTML: :alt Bar chart of total block value per hour; the first hour reached 5,573 ETH :width 767 :height 216 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-10-en.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-10-en.png]]
 
-By phase (the "Dislocation window" phase is 04:24–06:50):
+By phase (the table's "Dislocation window" is 04:24–06:50):
 
 | Phase | Block range | Blocks | Block value | Kept by builder | Kept % | Top builder |
 |---+---+---+---+---+---+---|
@@ -269,7 +267,7 @@ The ten most valuable blocks:
 | 26301013 | Titan | 241.1 | 23.4 | 217.7 | [[https://etherscan.io/address/0xfeeeeee44046c3f61a8cc081e0918ef0de0a7ffc][0xfeeeee…0a7ffc]] | [[https://etherscan.io/tx/0x4c7509b9c9b66c9d0802b12dfe05098e3d346787d09e8254088d775fbd82c832][0x4c7509…82c832]] / tip 101.8 ETH |
 | 26300840 | Titan | 180.2 | 28.1 | 152.1 | [[https://etherscan.io/address/0xfeeeeee44046c3f61a8cc081e0918ef0de0a7ffc][0xfeeeee…0a7ffc]] | [[https://etherscan.io/tx/0x88e9f47a7c877a5f06e24beb25d711491d252b4ecb778117adb94dd6e553fa0e][0x88e9f4…53fa0e]] / tip 5.1 ETH |
 
-Which builders the tips went to, by strategy:
+Where each strategy's tips went:
 
 | Strategy | Titan | bobTheBuilder | ultrasound | beaverbuild | BuilderNet | Other | Total tip |
 |---+---+---+---+---+---+---+---|
@@ -282,7 +280,7 @@ Which builders the tips went to, by strategy:
 | Liquidations | 24.9 / 58% | — | 0.7 / 2% | — | 17.1 / 40% | 0.1 | 42.8 |
 | Aave atomic loop | 15.8 / 99% | — | — | — | 0.0 / 0% | 0.2 | 16.1 |
 
-Builders kept a much larger share after the hack. Searchers paid enormous bribes to win the hacker's orders and the dislocation (1,070.65 ETH in one transaction), and builders' bids to validators didn't rise as fast. Block 26300874 (beaverbuild) was worth 1,120.9 ETH but paid the validator only 479.2 ETH, keeping 641.7 ETH. At the other end, 154 blocks had negative builder margins (−14.98 ETH in total): builders paid validators more than they received, to win the slot. Validators built 508 blocks locally and kept all their value.
+Builders kept a much larger share after the hack. Searchers paid huge bribes for the hacker's orders and the dislocation (1,070.65 ETH in one transaction), and builders' bids to validators didn't keep up. Block 26300874 (beaverbuild) was worth 1,120.9 ETH but paid the validator only 479.2 ETH, keeping 641.7 ETH. Another 154 blocks had negative builder margins (−14.98 ETH in total): builders paid validators more than they received, to win the slot. Validators built 508 blocks locally and kept all their value.
 
 * Prices: DEXs, Chainlink, and Aave
 
@@ -301,7 +299,7 @@ Builders kept a much larger share after the hack. Searchers paid enormous bribes
 | 26301060 | 2,282.77 | 2,285.27 | 2,278.30 | 2,563.57 |
 | 26301140 | 2,281.38 | 2,281.93 | 2,289.76 | 2,306.66 |
 
-Across 49 sample points, Aave's oracle price never differed from CoinGecko's CEX aggregate by more than 0.51%, while DEXs ran up to 38.1% higher. The hacker's own Aave borrow confirms it: 60M USDT of collateral borrowed 19,762.41 WETH, using 99.2% of the limit at Aave's oracle price. At the DEX price of about 2,650 the same borrow would have been 116.5% of the limit and impossible.
+Across 49 sample points, Aave's oracle never differed from CoinGecko's CEX aggregate by more than 0.51%, while DEXs ran up to 38.1% higher. The hacker's own Aave borrow confirms it: 60M USDT of collateral borrowed 19,762.41 WETH, using 99.2% of the limit at Aave's oracle price. At the DEX price of about 2,650 the same borrow would have been 116.5% of the limit and impossible.
 
 ** No Chainlink node reported the DEX price
 
@@ -333,13 +331,13 @@ At 05:47 one transaction froze 11 Aave assets and set the LTV of 5 collateral as
 | 0x0ddf / 0x77edef / 0x7aa4 (5 DEX trades) | 150.0M | 52,517 | 2,856 | $31.7M |
 | Total | 475M | 174,833 |  | ≈ $77.6M |
 
-That gap flowed to RFQ solvers and builders (about 1,751 ETH in bribes), to arbitrageurs who sold ETH back into the DEXs, and to LP fees. LPs ended roughly flat, since prices were pushed up and then arbitraged back down.
+The gap went to RFQ solvers, builders (about 1,751 ETH in bribes), arbitrageurs who sold ETH back into the DEXs, and LP fees. Prices were pushed up, then arbitraged back down, so LP inventory ended roughly flat.
 
 * Where the funds are (as of November 2)
 
 - *Cold wallets:* about 430,737 ETH in 4 addresses that have never sent a transaction (about $983M).
-- *Frozen by Tether:* about 1.38B USDT in 3 blacklisted addresses.
-- *On Aave:* 60M USDT of collateral against 19,766.28 WETH of debt, health factor 1.0364.
+- *Frozen by Tether:* about 1.38B USDT across 3 blacklisted addresses.
+- *On Aave:* 60M USDT of collateral, 19,766.28 WETH of debt, health factor 1.0364.
 
 | Address | ETH | Source |
 |---+---+---|
