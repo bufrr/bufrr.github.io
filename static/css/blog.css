@@ -523,6 +523,11 @@ video {
   transition: text-decoration-color 0.15s;
 }
 
+/* Addresses and tx hashes stay on one line */
+.prose a[href*='etherscan.io/'] {
+  white-space: nowrap;
+}
+
 .prose :is(p, li, td, th, dd, blockquote) a:hover,
 .prose .org-ul a:hover {
   text-decoration-color: var(--accent);
