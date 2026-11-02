@@ -360,7 +360,3 @@ The gap went to RFQ solvers, builders (about 1,751 ETH in bribes), arbitrageurs 
 | Main wallet [[https://etherscan.io/address/0x5227f603c1ee34ce3c06efe6477003bdfccb2f8c][0x5227f6…cb2f8c]] | 1,175,464,713 |
 | [[https://etherscan.io/address/0xaa246bf639586a6ba46762d378ce50ca4fc654a0][0xaa246b…c654a0]] (RFQ wallet leftover) | 174,999,872 |
 | [[https://etherscan.io/address/0xb171ca86f82070282138352ff7111b494060c8c3][0xb171ca…60c8c3]] (0x7aa4 leftover) | 30,000,000 |
-
------
-
-The full report, with every leaderboard, is [[https://speedex.bytenoob.io/docs/binance-hack-eth-mev-report.html][here]].

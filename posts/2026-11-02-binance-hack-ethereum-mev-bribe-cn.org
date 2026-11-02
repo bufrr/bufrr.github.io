@@ -360,7 +360,3 @@ Chainlink 没有比 CEX 偏高或偏低，而是贴着 CEX 走：全部 38 次�
 | 黑客主钱包 [[https://etherscan.io/address/0x5227f603c1ee34ce3c06efe6477003bdfccb2f8c][0x5227f6…cb2f8c]] | 1,175,464,713 |
 | [[https://etherscan.io/address/0xaa246bf639586a6ba46762d378ce50ca4fc654a0][0xaa246b…c654a0]]（RFQ 钱包剩下的 USDT） | 174,999,872 |
 | [[https://etherscan.io/address/0xb171ca86f82070282138352ff7111b494060c8c3][0xb171ca…60c8c3]]（0x7aa4 剩下的 USDT） | 30,000,000 |
-
------
-
-完整报告（含全部榜单）见[[https://speedex.bytenoob.io/docs/binance-hack-eth-mev-report.html][这里]]。
