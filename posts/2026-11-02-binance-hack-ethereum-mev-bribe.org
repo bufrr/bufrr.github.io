@@ -1,7 +1,7 @@
-#+TITLE: The 1,070 ETH Bribe: 24 Hours of MEV After the $6B Binance Hack
+#+TITLE: After the $6B Binance Hack: How Arb Bots Cashed In, One Netted 1,205 ETH
 #+DATE: 2026-11-02
 #+AUTHOR: bytenoob
-#+DESCRIPTION: After the $6B Binance hack, the attacker swapped 475M USDT for ETH on Ethereum to beat a Tether freeze, and DEX ETH traded up to 38% above CEX prices for an hour. Who captured that gap: arbitrageurs, Aave loopers, backrunners, solvers, and block builders.
+#+DESCRIPTION: How arbitrage bots cashed in after the $6B Binance hack. The attacker swapped 475M USDT for ETH on Ethereum to beat a Tether freeze, and DEX ETH traded up to 38% above CEX prices for an hour. Who captured that gap: arbitrageurs, Aave loopers, backrunners, solvers, and block builders.
 #+KEYWORDS: ethereum, mev, binance, hack, arbitrage, block builders, chainlink, aave
 #+FILETAGS: :ethereum:mev:
 #+LASTMOD: 2026-11-02
@@ -16,6 +16,7 @@ The attacker had to move fast: Tether could freeze its USDT at any moment. So it
 The analysis covers the first 24 hours. All times are UTC+8, starting early on October 30.
 
 - *Largest strategy:* selling ETH into the DEX premium, 10,752 ETH (about $24.35M).
+- *Top arb bot:* [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]] netted 1,205 ETH from backruns of the hacker's dumps.
 - *Top entity:* [[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]], 1,683 ETH on its sell leg; its full loop realized about $3.43M.
 - *Peak dislocation:* +37.99% at 04:45. The window ran from 04:35 to 05:38, about 63 minutes.
 - *What the hacker overpaid:* about $77.6M versus Chainlink, for 174,833 ETH. That's the ceiling on extractable value, not realized MEV.
@@ -120,6 +121,8 @@ The hacker dumped stolen altcoins (PHA, ENS, and others) through the Uniswap V3 
 | [[https://etherscan.io/address/0x51c72848c68a965f66fa7a88855f9f7784502a7f][0x51c728…502a7f]] | 9 | 48.7 | 40.6 | 83% |
 | [[https://etherscan.io/address/0x36331e299247e5d0d3261e1d9852f6e0cffee95c][0x36331e…fee95c]] | 14 | 44.3 | 37.6 | 85% |
 
+The top backrun bot, [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]], made 1,452.4 ETH in profit + tip over 29 transactions and paid 247.4 ETH in tips, netting 1,205.0 ETH.
+
 The best single trade, [[https://etherscan.io/tx/0x9988946159d207dbc01efe5c57eb392f423e372d3a072ae36a7377c744fe5269][0x998894…fe5269]] at 10:32, came right after the hacker dumped PHA into a V3 pool. Bot [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]] paid 50.08 WETH for 3.17M PHA and sent it straight into a V2 pool that hadn't followed, receiving 301.48 WETH: a net 251.4 WETH for a 1.35 ETH tip. Of 294 backruns, 290 were profitable.
 
 ** 4. Filling the hacker's RFQ orders
@@ -138,7 +141,7 @@ With RFQ, a large trader asks market makers or solvers for a quote, signs a fixe
 | [[https://etherscan.io/tx/0x4fa182626c85ca0cdc18ba736930bdbdfbcf5d201d373913317df6ec58d23d61][0x4fa182…d23d61]] | 26300829 | [[https://etherscan.io/address/0x0000000000be226afde21672a5e4adc45692e69d][0x000000…92e69d]] | -0.0 | 93.6 | 93.6 | 100%* |
 | [[https://etherscan.io/tx/0xc59188f11b6b7bd18a45b2afc91e787bf66d767dd5b95d01730f3c5c92f1e490][0xc59188…f1e490]] | 26300895 | [[https://etherscan.io/address/0xec4fb7e7c35c241e1138a2d8cfbb09f3ad1ccb22][0xec4fb7…1ccb22]] | -0.0 | 49.1 | 49.1 | 100%* |
 
-The largest fill gave the post its title. In [[https://etherscan.io/tx/0xa861a556b73df4e084aca07663d63b26eec33136ed7328712a7418361d856f36][0xa861a5…856f36]], solver [[https://etherscan.io/address/0xbeef02961503351625926ea9a11ae13b29f5c555][0xbeef02…f5c555]] delivered 26,227 ETH for the hacker's 75M USDT order, paid the builder 1,070.65 ETH, and kept 119 WETH: about 90% of the value went to the bribe.
+The largest fill: in [[https://etherscan.io/tx/0xa861a556b73df4e084aca07663d63b26eec33136ed7328712a7418361d856f36][0xa861a5…856f36]], solver [[https://etherscan.io/address/0xbeef02961503351625926ea9a11ae13b29f5c555][0xbeef02…f5c555]] delivered 26,227 ETH for the hacker's 75M USDT order, paid the builder 1,070.65 ETH, and kept 119 WETH: about 90% of the value went to the bribe.
 
 Quoting and filling orders for addresses holding stolen funds means trading with the attacker, which carries legal risk. That's different from neutrally arbitraging a price gap.
 

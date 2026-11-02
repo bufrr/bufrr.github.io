@@ -1,7 +1,7 @@
-#+TITLE: 1070 ETH 贿赂：币安 60 亿美元被盗后的 24 小时 MEV 价值流向
+#+TITLE: 币安 6B 被盗后，arb bot 如何套利：一个 bot 净赚 1,205 ETH
 #+DATE: 2026-11-02
 #+AUTHOR: bytenoob
-#+DESCRIPTION: 币安 60 亿美元被盗后，黑客为赶在 Tether 冻结前出货，在以太坊上用 4.75 亿 USDT 买 ETH，DEX 上的 ETH 一度比 CEX 贵 38%，持续约一小时。这笔价差被谁分走：套利者、Aave 循环者、backrun 机器人、solver 和区块构建者。
+#+DESCRIPTION: 币安 60 亿美元被盗后，arb bot 如何套利。黑客为赶在 Tether 冻结前出货，在以太坊上用 4.75 亿 USDT 买 ETH，DEX 上的 ETH 一度比 CEX 贵 38%，持续约一小时。这笔价差被谁分走：套利者、Aave 循环者、backrun 机器人、solver 和区块构建者。
 #+KEYWORDS: 以太坊, mev, 币安, 黑客, 套利, 区块构建者, chainlink, aave
 #+FILETAGS: :以太坊:mev:
 #+LASTMOD: 2026-11-02
@@ -16,6 +16,7 @@
 本文分析事件后的 24 小时。文中时间均为 UTC+8，从 10 月 30 日凌晨开始。
 
 - 最大策略：在 DEX 高价卖出 ETH，10,752 ETH（约 2,435 万美元）。
+- 头部 arb bot：[[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]]，靠 backrun 黑客的抛售净赚 1,205 ETH。
 - 头部主体：[[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]]，卖出腿 1,683 ETH；完整循环已实现约 343 万美元。
 - 错位峰值：04:45 时 +37.99%；错位窗口为 04:35–05:38，约 63 分钟。
 - 黑客多付：相对 Chainlink 多付约 7,760 万美元，换得 174,833 ETH。这是可提取价值的上限，不等于已实现的 MEV 总额。
@@ -120,6 +121,8 @@ Aave 通过 Chainlink 预言机为借款计价，而 Chainlink 实际跟随 CEX 
 | [[https://etherscan.io/address/0x51c72848c68a965f66fa7a88855f9f7784502a7f][0x51c728…502a7f]] | 9 | 48.7 | 40.6 | 83% |
 | [[https://etherscan.io/address/0x36331e299247e5d0d3261e1d9852f6e0cffee95c][0x36331e…fee95c]] | 14 | 44.3 | 37.6 | 85% |
 
+收益最高的 backrun bot [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]] 共 29 笔交易，利润 + tip 合计 1,452.4 ETH，付出 tip 247.4 ETH，净赚 1,205.0 ETH。
+
 单笔收益最高的是 10:32 的 [[https://etherscan.io/tx/0x9988946159d207dbc01efe5c57eb392f423e372d3a072ae36a7377c744fe5269][0x998894…fe5269]]：黑客刚把 PHA 砸进一个 V3 池，bot [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]] 支付 50.08 WETH 买入 317 万 PHA，直接转入尚未跟跌的 V2 池，换回 301.48 WETH，净得 251.4 WETH，仅支付 1.35 ETH 的 tip。294 笔 backrun 中，290 笔盈利。
 
 ** 4. 给黑客的 RFQ 订单报价成交
@@ -138,7 +141,7 @@ RFQ（询价成交）指大额交易者先向做市商或 solver 询价，签下
 | [[https://etherscan.io/tx/0x4fa182626c85ca0cdc18ba736930bdbdfbcf5d201d373913317df6ec58d23d61][0x4fa182…d23d61]] | 26300829 | [[https://etherscan.io/address/0x0000000000be226afde21672a5e4adc45692e69d][0x000000…92e69d]] | -0.0 | 93.6 | 93.6 | 100%* |
 | [[https://etherscan.io/tx/0xc59188f11b6b7bd18a45b2afc91e787bf66d767dd5b95d01730f3c5c92f1e490][0xc59188…f1e490]] | 26300895 | [[https://etherscan.io/address/0xec4fb7e7c35c241e1138a2d8cfbb09f3ad1ccb22][0xec4fb7…1ccb22]] | -0.0 | 49.1 | 49.1 | 100%* |
 
-本文标题正来自最大的一笔：在 [[https://etherscan.io/tx/0xa861a556b73df4e084aca07663d63b26eec33136ed7328712a7418361d856f36][0xa861a5…856f36]] 中，solver [[https://etherscan.io/address/0xbeef02961503351625926ea9a11ae13b29f5c555][0xbeef02…f5c555]] 为黑客 7,500 万 USDT 的订单交付 26,227 ETH，付给出块方 1,070.65 ETH，自己仅留下 119 WETH，tip 占比约 90%。
+最大的一笔：在 [[https://etherscan.io/tx/0xa861a556b73df4e084aca07663d63b26eec33136ed7328712a7418361d856f36][0xa861a5…856f36]] 中，solver [[https://etherscan.io/address/0xbeef02961503351625926ea9a11ae13b29f5c555][0xbeef02…f5c555]] 为黑客 7,500 万 USDT 的订单交付 26,227 ETH，付给出块方 1,070.65 ETH，自己仅留下 119 WETH，tip 占比约 90%。
 
 直接为持有被盗资金的地址报价成交，等于与黑客交易，存在法律风险。这与针对价格错位的中性套利是两回事。
 

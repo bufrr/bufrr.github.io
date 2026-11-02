@@ -4,7 +4,7 @@
 #+DESCRIPTION: 关于编程与技术的技术博客
 #+OPTIONS: author:nil toc:nil num:nil
 
-- [[file:2026-11-02-binance-hack-ethereum-mev-bribe-cn.org][1070 ETH 贿赂：币安 60 亿美元被盗后的 24 小时 MEV 价值流向]]
+- [[file:2026-11-02-binance-hack-ethereum-mev-bribe-cn.org][币安 6B 被盗后，arb bot 如何套利：一个 bot 净赚 1,205 ETH]]
 - [[file:2026-10-26-bnb-new-l1-fast-ordering-late-results-cn.org][BNB New L1：排序很快，结果很慢]]
 - [[file:2026-02-12-block-builder-buildernet-1-cn.org][Block Builder 深度解析：Ethereum BuilderNet（一）]]
 - [[file:2024-10-02-babylon-cn.org][什么是 Babylon？]]
