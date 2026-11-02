@@ -13,13 +13,13 @@
 
 黑客必须抢时间：Tether 随时可能冻结它手里的 USDT。它在以太坊上用 4.75 亿 USDT 买 ETH：部分走 RFQ solver，部分直接在 DEX 买。一个买家就把 DEX 上的 ETH 价格推到比中心化交易所高 17–38%，持续约 63 分钟。同时，DEX 上的 USDT 跌到 0.918 USDC。
 
-- 最大策略：在 DEX 高价卖出 ETH，利润 + tip 10,752 ETH（约 2,435 万美元）。
+- 最大策略：在 DEX 高价卖出 ETH，净赚 9,845 ETH。
 - 头部链上 bot：[[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]]，backrun 黑客的抛售，净赚 1,205 ETH。
-- 头部主体：[[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]]，卖出环节赚了 1,683 ETH（利润 + tip），整个借卖循环实际到手约 343 万美元。
+- 头部主体：[[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]]，卖出环节净赚 1,676 ETH，整个借卖循环实际到手约 343 万美元。
 - 错位峰值：04:45 时 +37.99%；错位窗口 04:35–05:38，约 63 分钟。
 - 黑客多付：相对 Chainlink 约 7,760 万美元，换得 174,833 ETH。这是可提取价值的上限，不等于已实现的 MEV 总额。
 
-tip 是 searcher 为让交易上链付给出块方的费用；净利润是 searcher 自己留下的部分。
+文中收益都是净利润，已扣掉付给出块方（builder）的 tip。
 
 * 时间轴（UTC+8，10 月 30 日）
 
@@ -36,20 +36,20 @@ tip 是 searcher 为让交易上链付给出块方的费用；净利润是 searc
 
 * 谁赚到了钱
 
-#+CAPTION: 各策略的利润 + tip，拆分为净利润与 tip
-#+ATTR_HTML: :alt 各策略利润加 tip 的条形图，拆为 searcher 净利润与 tip :width 767 :height 312 :loading lazy :decoding async
+#+CAPTION: 各策略的净利润（蓝），以及付给出块方的 tip（橙）
+#+ATTR_HTML: :alt 各策略净利润的条形图，橙色部分是付给出块方的 tip :width 767 :height 312 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-00-zh.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-00-zh.png]]
 
-| 策略 | 利润+tip（ETH） | 净利润（ETH） | tip（ETH） | tip 占比 |
-|---+---+---+---+---|
-| DEX 错位卖出 ETH | 10,752.4 | 9,845.0 | 907.4 | 8% |
-| Aave 借 ETH 高价卖出循环 | 2,382.7 | 2,366.6 | 16.1 | 1% |
-| 黑客抛售后的 backrun | 2,337.8 | 1,450.8 | 887.1 | 38% |
-| 给黑客 RFQ 单报价成交（solver） | 2,011.1 | 259.9 | 1,751.2 | 87% |
-| 夹子（sandwich） | 821.1 | 51.9 | 769.2 | 94% |
-| DEX 低价买入 USDT（脱锚） | 788.6 | 686.1 | 102.5 | 13% |
-| 原子循环套利（跨池） | 420.0 | 192.8 | 227.2 | 54% |
-| 清算 | 38.9 | 0.2 | 38.7 | 99% |
+| 策略 | 净利润（ETH） | tip（ETH） |
+|---+---+---|
+| DEX 错位卖出 ETH | 9,845.0 | 907.4 |
+| Aave 借 ETH 高价卖出循环 | 2,366.6 | 16.1 |
+| 黑客抛售后的 backrun | 1,450.8 | 887.1 |
+| 给黑客 RFQ 单报价成交（solver） | 259.9 | 1,751.2 |
+| 夹子（sandwich） | 51.9 | 769.2 |
+| DEX 低价买入 USDT（脱锚） | 686.1 | 102.5 |
+| 原子循环套利（跨池） | 192.8 | 227.2 |
+| 清算 | 0.2 | 38.7 |
 
 在 DEX 高价卖出、在 Aave 循环，赚的是价差；backrun 赚的是黑客抛售后各池子的错位。清算、夹子和 RFQ 的价值，大多以 tip 付给了出块方。
 
@@ -59,27 +59,21 @@ tip 是 searcher 为让交易上链付给出块方的费用；净利润是 searc
 
 黑客和 RFQ solver 在 DEX 大额买入 ETH，把主池价格拉到比 CEX 高 17–38%。把 ETH 卖进这些池子，每 1 ETH 赚「DEX 价 − CEX 价」；再在 CEX 做多对冲，或等溢价消失后买回，锁定利润。
 
-#+CAPTION: 利润 = 卖出量 ×（DEX 成交价 − CEX 价）− tip
+#+CAPTION: 净利润 = 卖出量 ×（DEX 成交价 − CEX 价）− tip
 #+ATTR_HTML: :alt 流程图：黑客和 solver 拉高 DEX 上的 ETH 价格，套利者把 ETH 卖进池子并在 CEX 对冲 :width 755 :height 117 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-01-zh.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-01-zh.png]]
 
-| 子类 | 主体数 | 卖出 ETH | 利润+tip | tip 占比 |
-|---+---+---+---+---|
-| 自有 ETH 经聚合器卖出 | 1,028 | 84,328 | 5,988.0 | 1% |
-| 从 Aave 借来卖出（即 Aave 循环中卖出的部分） | 36 | 24,374 | 2,678.0 | 0% |
-| 专业 bot 合约直接打池子 | 66 | 27,883 | 2,086.5 | 41% |
-
 主体排名前 5：
 
-| 主体 | 类型 | 笔数 | 卖出 ETH | 均价 | 同期 Chainlink | 净利润 | tip | 利润+tip |
-|---+---+---+---+---+---+---+---+---|
-| [[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]] | Aave 借 11,701 WETH | 18 | 11,682 | 2,595 | 2,268 | 1,676.0 | 7.0 | 1,683.0 |
-| [[https://etherscan.io/address/0x51c72848c68a965f66fa7a88855f9f7784502a7f][0x51c728…502a7f]] | bot 合约 | 235 | 22,757 | 2,431 | 2,273 | 866.5 | 746.1 | 1,612.6 |
-| [[https://etherscan.io/address/0xcb02ecb8927434540352e1da27f91c3a194f1d1d][0xcb02ec…4f1d1d]] | 自有库存 | 1 | 4,170 | 2,694 | 2,260 | 798.3 | 0.3 | 798.5 |
-| [[https://etherscan.io/address/0x65a8f07bd9a8598e1b5b6c0a88f4779dbc077675][0x65a8f0…077675]] | 自有库存 | 37 | 3,704 | 2,531 | 2,271 | 418.3 | 1.5 | 419.8 |
-| [[https://etherscan.io/address/0xcaab6ff98989fdd4f47e7db6152e6fb47994ec1e][0xcaab6f…94ec1e]] | Aave 借 1,565 WETH | 6 | 1,560 | 2,710 | 2,273 | 297.9 | 0.0 | 298.0 |
+| 主体 | 类型 | 笔数 | 卖出 ETH | 均价 | 同期 Chainlink | 净利润 | tip |
+|---+---+---+---+---+---+---+---|
+| [[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]] | Aave 借 11,701 WETH | 18 | 11,682 | 2,595 | 2,268 | 1,676.0 | 7.0 |
+| [[https://etherscan.io/address/0x51c72848c68a965f66fa7a88855f9f7784502a7f][0x51c728…502a7f]] | bot 合约 | 235 | 22,757 | 2,431 | 2,273 | 866.5 | 746.1 |
+| [[https://etherscan.io/address/0xcb02ecb8927434540352e1da27f91c3a194f1d1d][0xcb02ec…4f1d1d]] | 自有库存 | 1 | 4,170 | 2,694 | 2,260 | 798.3 | 0.3 |
+| [[https://etherscan.io/address/0x65a8f07bd9a8598e1b5b6c0a88f4779dbc077675][0x65a8f0…077675]] | 自有库存 | 37 | 3,704 | 2,531 | 2,271 | 418.3 | 1.5 |
+| [[https://etherscan.io/address/0xcaab6ff98989fdd4f47e7db6152e6fb47994ec1e][0xcaab6f…94ec1e]] | Aave 借 1,565 WETH | 6 | 1,560 | 2,710 | 2,273 | 297.9 | 0.0 |
 
-最大的 bot [[https://etherscan.io/address/0x51c72848c68a965f66fa7a88855f9f7784502a7f][0x51c728…502a7f]] 用 69 个发送地址发出 235 笔交易，卖出 22,757 ETH，均价 2,431（同期 Chainlink 为 2,273），利润 + tip 合计 1,612.6 ETH；46% 作为 tip 付给出块方，买区块前排。通过聚合器卖自有 ETH 的大户几乎不付 tip。溢价随卖出迅速衰减，最后一笔仅剩约 4.8%。
+最大的 bot [[https://etherscan.io/address/0x51c72848c68a965f66fa7a88855f9f7784502a7f][0x51c728…502a7f]] 用 69 个发送地址发出 235 笔交易，卖出 22,757 ETH，均价 2,431（同期 Chainlink 为 2,273），净赚 866.5 ETH，另付 746.1 ETH tip 给出块方，买区块前排。通过聚合器卖自有 ETH 的大户几乎不付 tip。溢价随卖出迅速衰减，最后一笔仅剩约 4.8%。
 
 ** 2. Aave 借 ETH 高价卖出循环
 
@@ -107,19 +101,19 @@ Aave 用 Chainlink 给借款计价，Chainlink 跟随 CEX；DEX 价格却高 17�
 
 黑客通过 Uniswap V3 Router 把盗来的山寨币（PHA、ENS 等）一次性砸进单个池子，池价被砸低，同币在其他池子（V2、其他费率）仍是旧价。bot 紧随其后，在同一笔交易里低买高卖；不用抢先，也不担方向风险。
 
-#+CAPTION: 利润 = 池子 B 卖出所得 − 池子 A 买入成本 − tip，一笔交易内闭合
+#+CAPTION: 净利润 = 池子 B 卖出所得 − 池子 A 买入成本 − tip，一笔交易内闭合
 #+ATTR_HTML: :alt 流程图：黑客把币砸进池子 A，bot 紧随其后低价买入，再卖进还是旧价的池子 B :width 755 :height 117 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-03-zh.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-03-zh.png]]
 
-| bot | 笔数 | 利润+tip | tip | tip 占比 |
-|---+---+---+---+---|
-| [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]] | 29 | 1,452.4 | 247.4 | 17% |
-| [[https://etherscan.io/address/0x0000000000d3c71f9d0a31e2f2139da1ca37b599][0x000000…37b599]] | 56 | 493.6 | 369.3 | 75% |
-| [[https://etherscan.io/address/0x80bf7db69556d9521c03461978b8fc731dbbd4e4][0x80bf7d…bbd4e4]] | 11 | 79.9 | 52.3 | 65% |
-| [[https://etherscan.io/address/0x51c72848c68a965f66fa7a88855f9f7784502a7f][0x51c728…502a7f]] | 9 | 48.7 | 40.6 | 83% |
-| [[https://etherscan.io/address/0x36331e299247e5d0d3261e1d9852f6e0cffee95c][0x36331e…fee95c]] | 14 | 44.3 | 37.6 | 85% |
+| bot | 笔数 | 净利润 | tip |
+|---+---+---+---|
+| [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]] | 29 | 1,205.0 | 247.4 |
+| [[https://etherscan.io/address/0x0000000000d3c71f9d0a31e2f2139da1ca37b599][0x000000…37b599]] | 56 | 124.3 | 369.3 |
+| [[https://etherscan.io/address/0x80bf7db69556d9521c03461978b8fc731dbbd4e4][0x80bf7d…bbd4e4]] | 11 | 27.6 | 52.3 |
+| [[https://etherscan.io/address/0x51c72848c68a965f66fa7a88855f9f7784502a7f][0x51c728…502a7f]] | 9 | 8.1 | 40.6 |
+| [[https://etherscan.io/address/0x36331e299247e5d0d3261e1d9852f6e0cffee95c][0x36331e…fee95c]] | 14 | 6.7 | 37.6 |
 
-收益最高的 backrun bot [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]] 共 29 笔，利润 + tip 合计 1,452.4 ETH，付 tip 247.4 ETH，净赚 1,205.0 ETH。
+收益最高的 backrun bot [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]] 共 29 笔，净赚 1,205.0 ETH，另付 tip 247.4 ETH。
 
 单笔最高是 10:32 的 [[https://etherscan.io/tx/0x9988946159d207dbc01efe5c57eb392f423e372d3a072ae36a7377c744fe5269][0x998894…fe5269]]：黑客刚把 PHA 砸进 V3 池，bot [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]] 付 50.08 WETH 买入 317 万 PHA，转入尚未跟跌的 V2 池，换回 301.48 WETH，净得 251.4 WETH，仅付 1.35 ETH tip。294 笔 backrun 中 290 笔盈利。
 
@@ -131,15 +125,15 @@ RFQ（询价成交）是大额交易者先向做市商或 solver 询价，签下
 #+ATTR_HTML: :alt 流程图：黑客签名 USDT 换 ETH 的订单，solver 在同一笔交易里从 DEX 池子买 ETH 交付 :width 755 :height 117 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-04-zh.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-04-zh.png]]
 
-| 交易 | 块 | solver 合约 | 净利润 | tip | 利润+tip | tip 占比 |
-|---+---+---+---+---+---+---|
-| [[https://etherscan.io/tx/0xa861a556b73df4e084aca07663d63b26eec33136ed7328712a7418361d856f36][0xa861a5…856f36]] | 26300874 | [[https://etherscan.io/address/0xbeef02961503351625926ea9a11ae13b29f5c555][0xbeef02…f5c555]] | 119.0 | 1,070.7 | 1,189.6 | 90% |
-| [[https://etherscan.io/tx/0x3fd5ec345eaf60faca94c652f5ac5c0dca77b4ef3c355fb12cb8f5108464a0b6][0x3fd5ec…64a0b6]] | 26300895 | [[https://etherscan.io/address/0x9b1303ebf09bc51b7fac376c9e421e8daae63b82][0x9b1303…e63b82]] | 111.7 | 335.0 | 446.7 | 75% |
-| [[https://etherscan.io/tx/0xe5ccc3a8b32f7c52683390fa75f57cec53394421bd05132400806533e661843a][0xe5ccc3…61843a]] | 26300894 | [[https://etherscan.io/address/0xbeef02961503351625926ea9a11ae13b29f5c555][0xbeef02…f5c555]] | 7.2 | 137.1 | 144.3 | 95% |
-| [[https://etherscan.io/tx/0x4fa182626c85ca0cdc18ba736930bdbdfbcf5d201d373913317df6ec58d23d61][0x4fa182…d23d61]] | 26300829 | [[https://etherscan.io/address/0x0000000000be226afde21672a5e4adc45692e69d][0x000000…92e69d]] | -0.0 | 93.6 | 93.6 | 100%* |
-| [[https://etherscan.io/tx/0xc59188f11b6b7bd18a45b2afc91e787bf66d767dd5b95d01730f3c5c92f1e490][0xc59188…f1e490]] | 26300895 | [[https://etherscan.io/address/0xec4fb7e7c35c241e1138a2d8cfbb09f3ad1ccb22][0xec4fb7…1ccb22]] | -0.0 | 49.1 | 49.1 | 100%* |
+| 交易 | 块 | solver 合约 | 净利润 | tip |
+|---+---+---+---+---|
+| [[https://etherscan.io/tx/0xa861a556b73df4e084aca07663d63b26eec33136ed7328712a7418361d856f36][0xa861a5…856f36]] | 26300874 | [[https://etherscan.io/address/0xbeef02961503351625926ea9a11ae13b29f5c555][0xbeef02…f5c555]] | 119.0 | 1,070.7 |
+| [[https://etherscan.io/tx/0x3fd5ec345eaf60faca94c652f5ac5c0dca77b4ef3c355fb12cb8f5108464a0b6][0x3fd5ec…64a0b6]] | 26300895 | [[https://etherscan.io/address/0x9b1303ebf09bc51b7fac376c9e421e8daae63b82][0x9b1303…e63b82]] | 111.7 | 335.0 |
+| [[https://etherscan.io/tx/0xe5ccc3a8b32f7c52683390fa75f57cec53394421bd05132400806533e661843a][0xe5ccc3…61843a]] | 26300894 | [[https://etherscan.io/address/0xbeef02961503351625926ea9a11ae13b29f5c555][0xbeef02…f5c555]] | 7.2 | 137.1 |
+| [[https://etherscan.io/tx/0x4fa182626c85ca0cdc18ba736930bdbdfbcf5d201d373913317df6ec58d23d61][0x4fa182…d23d61]] | 26300829 | [[https://etherscan.io/address/0x0000000000be226afde21672a5e4adc45692e69d][0x000000…92e69d]] | -0.0 | 93.6 |
+| [[https://etherscan.io/tx/0xc59188f11b6b7bd18a45b2afc91e787bf66d767dd5b95d01730f3c5c92f1e490][0xc59188…f1e490]] | 26300895 | [[https://etherscan.io/address/0xec4fb7e7c35c241e1138a2d8cfbb09f3ad1ccb22][0xec4fb7…1ccb22]] | -0.0 | 49.1 |
 
-最大一笔：[[https://etherscan.io/tx/0xa861a556b73df4e084aca07663d63b26eec33136ed7328712a7418361d856f36][0xa861a5…856f36]] 中，solver [[https://etherscan.io/address/0xbeef02961503351625926ea9a11ae13b29f5c555][0xbeef02…f5c555]] 为黑客 7,500 万 USDT 的订单交付 26,227 ETH，付给出块方 1,070.65 ETH，自己只留 119 WETH，tip 占比约 90%。
+最大一笔：[[https://etherscan.io/tx/0xa861a556b73df4e084aca07663d63b26eec33136ed7328712a7418361d856f36][0xa861a5…856f36]] 中，solver [[https://etherscan.io/address/0xbeef02961503351625926ea9a11ae13b29f5c555][0xbeef02…f5c555]] 为黑客 7,500 万 USDT 的订单交付 26,227 ETH，付给出块方 1,070.65 ETH，自己只留 119 WETH：约 90% 的价值给了出块方。
 
 给持有被盗资金的地址报价成交，就是与黑客交易，有法律风险。这和针对价格错位的中性套利是两回事。
 
@@ -151,16 +145,16 @@ bot 在受害交易前同方向下单，把价格推向不利于受害者的一�
 #+ATTR_HTML: :alt 流程图：bot 抢跑、受害交易以更差价格成交、bot 平仓、出块方收 tip :width 755 :height 117 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-05-zh.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-05-zh.png]]
 
-| bot | 对数 | 其中夹黑客 | 净利润 | tip | 利润+tip | 分类 |
-|---+---+---+---+---+---+---|
-| [[https://etherscan.io/address/0x1f2f10d1c40777ae1da742455c65828ff36df387][0x1f2f10…6df387]] | 105 | 67 | 16.0 | 629.4 | 645.4 | 疑似做市 |
-| [[https://etherscan.io/address/0x8f8d0ae3e2d11b3b3f962aab7d19ebe01345cbd9][0x8f8d0a…45cbd9]] | 10 | 7 | 2.0 | 64.5 | 66.5 | 夹子 |
-| [[https://etherscan.io/address/0xbadc0de76438f9524d42c219b390636196bfbdfc][0xbadc0d…bfbdfc]] | 14 | 12 | 11.0 | 53.4 | 64.5 | 夹子 |
-| [[https://etherscan.io/address/0x6338afee3ff32599bff2ce3d8b7604bd6d6a41a7][0x6338af…6a41a7]] | 15 | 12 | 18.7 | 0.0 | 18.7 | 夹子 |
-| [[https://etherscan.io/address/0xe80629c1f9db8d42db953d37990d5f02f449702d][0xe80629…49702d]] | 2 | 0 | 0.0 | 7.5 | 7.6 | 夹子 |
-| [[https://etherscan.io/address/0xe59ae6325cfbd44a82f2ff19716019ffed77ebbb][0xe59ae6…77ebbb]] | 1 | 0 | 0.4 | 4.2 | 4.6 | 夹子 |
+| bot | 对数 | 其中夹黑客 | 净利润 | tip | 分类 |
+|---+---+---+---+---+---|
+| [[https://etherscan.io/address/0x1f2f10d1c40777ae1da742455c65828ff36df387][0x1f2f10…6df387]] | 105 | 67 | 16.0 | 629.4 | 疑似做市 |
+| [[https://etherscan.io/address/0x8f8d0ae3e2d11b3b3f962aab7d19ebe01345cbd9][0x8f8d0a…45cbd9]] | 10 | 7 | 2.0 | 64.5 | 夹子 |
+| [[https://etherscan.io/address/0xbadc0de76438f9524d42c219b390636196bfbdfc][0xbadc0d…bfbdfc]] | 14 | 12 | 11.0 | 53.4 | 夹子 |
+| [[https://etherscan.io/address/0x6338afee3ff32599bff2ce3d8b7604bd6d6a41a7][0x6338af…6a41a7]] | 15 | 12 | 18.7 | 0.0 | 夹子 |
+| [[https://etherscan.io/address/0xe80629c1f9db8d42db953d37990d5f02f449702d][0xe80629…49702d]] | 2 | 0 | 0.0 | 7.5 | 夹子 |
+| [[https://etherscan.io/address/0xe59ae6325cfbd44a82f2ff19716019ffed77ebbb][0xe59ae6…77ebbb]] | 1 | 0 | 0.4 | 4.2 | 夹子 |
 
-这 200 对交易利润 + tip 合计 821.1 ETH。做市 bot [[https://etherscan.io/address/0x1f2f10d1c40777ae1da742455c65828ff36df387][0x1f2f10…6df387]] 占 645.4 ETH，净利润仅 16.0 ETH，几乎全作排序费付给出块方，更像为排在黑客交易旁边付费的做市，不是夹子。其余 bot 确认的夹子合计 175.7 ETH。以黑客为受害者的有 105 对。
+这 200 对交易合计净赚 51.9 ETH，付给出块方的 tip 却有 769.2 ETH。做市 bot [[https://etherscan.io/address/0x1f2f10d1c40777ae1da742455c65828ff36df387][0x1f2f10…6df387]] 净赚 16.0 ETH，tip 付了 629.4 ETH，更像为排在黑客交易旁边付费的做市，不是夹子。其余 bot 的夹子合计净赚约 35.9 ETH。以黑客为受害者的有 105 对。
 
 ** 6. 在 DEX 低价买入 USDT（脱锚）
 
@@ -170,13 +164,13 @@ bot 在受害交易前同方向下单，把价格推向不利于受害者的一�
 #+ATTR_HTML: :alt 流程图：在 DEX 上用 USDC 或 DAI 以约 0.92 买入 USDT，在 CEX 卖出或持有到价格恢复 :width 755 :height 117 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-06-zh.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-06-zh.png]]
 
-| 交易 | 块 | 买方 | 买入 USDT | 净利润 | tip | 利润+tip |
-|---+---+---+---+---+---+---|
-| [[https://etherscan.io/tx/0xcc2fb3059f6f1026b88ea43a8d5982a7c8eba9819f85efa0318e6685af04b9d7][0xcc2fb3…04b9d7]] | 26300993 | [[https://etherscan.io/address/0x2b41a0850394d716ddd6b0e200c5d43be5bce8fa][0x2b41a0…bce8fa]] | 2,477,372 | 77.7 | 0.1 | 77.9 |
-| [[https://etherscan.io/tx/0xd24be48bc2196f2cdd2650557df167fc94d8f0b6df56468dc78236b51b9a536e][0xd24be4…9a536e]] | 26301072 | [[https://etherscan.io/address/0xcb02ecb8927434540352e1da27f91c3a194f1d1d][0xcb02ec…4f1d1d]] | 11,295,426 | 50.4 | 0.5 | 50.9 |
-| [[https://etherscan.io/tx/0x4d401e31c48283ed25ca143c00850482d42c86a74f708c7ea92ad4ceb38202e9][0x4d401e…8202e9]] | 26301008 | [[https://etherscan.io/address/0x9b974128a77a3a1b94f969612999816d8d228e4e][0x9b9741…228e4e]] | 1,475,513 | 45.1 | 0.0 | 45.1 |
-| [[https://etherscan.io/tx/0x12bc960af373d3b7c6f3f57a97f58656d65ec9fdf629a11615ffb67dc609f651][0x12bc96…09f651]] | 26300995 | [[https://etherscan.io/address/0x8986f93988d415abfb7b9bb700ccd3580c2f5298][0x8986f9…2f5298]] | 1,088,117 | 38.8 | 0.0 | 38.8 |
-| [[https://etherscan.io/tx/0x820501e85c0c52ec09e1682574945aa8635d45437d6676ca9f5282b6b13d874c][0x820501…3d874c]] | 26301066 | [[https://etherscan.io/address/0xaf9b98d2acde5f13eaeaeb0101273cdfa86dcc95][0xaf9b98…6dcc95]] | 6,552,428 | 22.5 | 0.1 | 22.6 |
+| 交易 | 块 | 买方 | 买入 USDT | 净利润 | tip |
+|---+---+---+---+---+---|
+| [[https://etherscan.io/tx/0xcc2fb3059f6f1026b88ea43a8d5982a7c8eba9819f85efa0318e6685af04b9d7][0xcc2fb3…04b9d7]] | 26300993 | [[https://etherscan.io/address/0x2b41a0850394d716ddd6b0e200c5d43be5bce8fa][0x2b41a0…bce8fa]] | 2,477,372 | 77.7 | 0.1 |
+| [[https://etherscan.io/tx/0xd24be48bc2196f2cdd2650557df167fc94d8f0b6df56468dc78236b51b9a536e][0xd24be4…9a536e]] | 26301072 | [[https://etherscan.io/address/0xcb02ecb8927434540352e1da27f91c3a194f1d1d][0xcb02ec…4f1d1d]] | 11,295,426 | 50.4 | 0.5 |
+| [[https://etherscan.io/tx/0x4d401e31c48283ed25ca143c00850482d42c86a74f708c7ea92ad4ceb38202e9][0x4d401e…8202e9]] | 26301008 | [[https://etherscan.io/address/0x9b974128a77a3a1b94f969612999816d8d228e4e][0x9b9741…228e4e]] | 1,475,513 | 45.1 | 0.0 |
+| [[https://etherscan.io/tx/0x12bc960af373d3b7c6f3f57a97f58656d65ec9fdf629a11615ffb67dc609f651][0x12bc96…09f651]] | 26300995 | [[https://etherscan.io/address/0x8986f93988d415abfb7b9bb700ccd3580c2f5298][0x8986f9…2f5298]] | 1,088,117 | 38.8 | 0.0 |
+| [[https://etherscan.io/tx/0x820501e85c0c52ec09e1682574945aa8635d45437d6676ca9f5282b6b13d874c][0x820501…3d874c]] | 26301066 | [[https://etherscan.io/address/0xaf9b98d2acde5f13eaeaeb0101273cdfa86dcc95][0xaf9b98…6dcc95]] | 6,552,428 | 22.5 | 0.1 |
 
 ** 7. 原子循环套利（跨池）
 
@@ -186,15 +180,15 @@ bot 在受害交易前同方向下单，把价格推向不利于受害者的一�
 #+ATTR_HTML: :alt 流程图：可选的闪电贷，在池子 A 低价买入，在池子 B 高价卖出，闭合后净增 :width 755 :height 117 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-07-zh.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-07-zh.png]]
 
-| 交易 | 块 | bot 合约 | 净利润 | tip | 利润+tip | tip 占比 |
-|---+---+---+---+---+---+---|
-| [[https://etherscan.io/tx/0x585c38d79bf96a7061a6c7a98fa68f38a17ae779f1facfaa3c6c386b2acb1295][0x585c38…cb1295]] | 26301365 | [[https://etherscan.io/address/0x6566194141eefa99af43bb5aa71460ca2dc90245][0x656619…c90245]] | 90.4 | 0.0 | 90.4 | 0% |
-| [[https://etherscan.io/tx/0x651fcba40ae60f9970bb56fb55daaa832f76c784c72797bad873525c63aac2b3][0x651fcb…aac2b3]] | 26300830 | [[https://etherscan.io/address/0x0c8c5891a41078cef36970932d5c05dc1de7288b][0x0c8c58…e7288b]] | 10.2 | 62.3 | 72.5 | 86% |
-| [[https://etherscan.io/tx/0x4dcc09c3720e291c19cdef5a5d35ba940bba7e05621cf4cfc597a6d55f7b1da3][0x4dcc09…7b1da3]] | 26301013 | [[https://etherscan.io/address/0x584a31052c643d32f3134a956956dad722ff4161][0x584a31…ff4161]] | 4.8 | 65.4 | 70.2 | 93% |
-| [[https://etherscan.io/tx/0x287c07eff339f303a32047d6252dc576135e82e08e580256a9d77995b2ce69a7][0x287c07…ce69a7]] | 26301248 | [[https://etherscan.io/address/0xbeef02961503351625926ea9a11ae13b29f5c555][0xbeef02…f5c555]] | 3.1 | 59.2 | 62.3 | 95% |
-| [[https://etherscan.io/tx/0x800fc0fde891430589e3f7a43d9345a1ee5da4a01c9fe6684794e5ba3c04f8be][0x800fc0…04f8be]] | 26300829 | [[https://etherscan.io/address/0xea51075ccbd58174834da36372b0ed52199c483c][0xea5107…9c483c]] | 6.1 | 40.1 | 46.3 | 87% |
+| 交易 | 块 | bot 合约 | 净利润 | tip |
+|---+---+---+---+---|
+| [[https://etherscan.io/tx/0x585c38d79bf96a7061a6c7a98fa68f38a17ae779f1facfaa3c6c386b2acb1295][0x585c38…cb1295]] | 26301365 | [[https://etherscan.io/address/0x6566194141eefa99af43bb5aa71460ca2dc90245][0x656619…c90245]] | 90.4 | 0.0 |
+| [[https://etherscan.io/tx/0x651fcba40ae60f9970bb56fb55daaa832f76c784c72797bad873525c63aac2b3][0x651fcb…aac2b3]] | 26300830 | [[https://etherscan.io/address/0x0c8c5891a41078cef36970932d5c05dc1de7288b][0x0c8c58…e7288b]] | 10.2 | 62.3 |
+| [[https://etherscan.io/tx/0x4dcc09c3720e291c19cdef5a5d35ba940bba7e05621cf4cfc597a6d55f7b1da3][0x4dcc09…7b1da3]] | 26301013 | [[https://etherscan.io/address/0x584a31052c643d32f3134a956956dad722ff4161][0x584a31…ff4161]] | 4.8 | 65.4 |
+| [[https://etherscan.io/tx/0x287c07eff339f303a32047d6252dc576135e82e08e580256a9d77995b2ce69a7][0x287c07…ce69a7]] | 26301248 | [[https://etherscan.io/address/0xbeef02961503351625926ea9a11ae13b29f5c555][0xbeef02…f5c555]] | 3.1 | 59.2 |
+| [[https://etherscan.io/tx/0x800fc0fde891430589e3f7a43d9345a1ee5da4a01c9fe6684794e5ba3c04f8be][0x800fc0…04f8be]] | 26300829 | [[https://etherscan.io/address/0xea51075ccbd58174834da36372b0ed52199c483c][0xea5107…9c483c]] | 6.1 | 40.1 |
 
-逐笔复核，这 23 笔交易合计盈利 420.0 ETH。与其他策略比，常规原子套利只是零头。
+逐笔复核，这 23 笔交易合计净赚 192.8 ETH，另付 227.2 ETH tip。与其他策略比，常规原子套利只是零头。
 
 ** 8. 清算
 
@@ -202,15 +196,7 @@ bot 在受害交易前同方向下单，把价格推向不利于受害者的一�
 #+ATTR_HTML: :alt 流程图：闪电贷，替 HF 小于 1 的仓位还债，折价拿走抵押品，在 DEX 卖出后归还闪电贷 :width 755 :height 117 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-08-zh.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-08-zh.png]]
 
-| 协议 | 笔数 | 利润+tip | tip 占比 |
-|---+---+---+---|
-| aave_core | 38 | 29.81 | 100% |
-| morpho_blue | 64 | 5.05 | 96% |
-| compound_cUSDCv3 | 3 | 4.04 | 101%* |
-| aave_prime | 1 | 0.00 | —（亏损） |
-| spark | 1 | 0.00 | —（亏损） |
-
-这段时间几乎无人被清算：错位期间 ETH 的 CEX 价格持续下跌，借 ETH 的仓位反而更健康；公开清算的利润约 99% 付给出块方。值得看的是黑客自己的仓位：11 月 2 日抵押 5,995 万美元 USDT，债务 19,766.28 WETH（初始借款 19,762.41），健康因子 1.0364。
+这段时间几乎无人被清算：错位期间 ETH 的 CEX 价格持续下跌，借 ETH 的仓位反而更健康；公开清算共 107 笔，净利润合计仅 0.2 ETH，38.7 ETH 都作为 tip 付给了出块方。值得看的是黑客自己的仓位：11 月 2 日抵押 5,995 万美元 USDT，债务 19,766.28 WETH（初始借款 19,762.41），健康因子 1.0364。
 
 * 区块构建者（builder）
 

@@ -13,13 +13,13 @@ On October 29, 2026, about $6.3 billion moved out of Binance wallets across ten 
 
 The attacker had to move fast: Tether could freeze its USDT at any moment. It bought ETH on Ethereum with 475M USDT, partly through RFQ solvers and partly directly on DEXs. That one buyer pushed DEX ETH 17–38% above centralized exchanges for about 63 minutes. Meanwhile, DEX USDT fell to 0.918 USDC.
 
-- *Largest strategy:* selling ETH into the DEX premium, 10,752 ETH in profit + tip (about $24.35M).
+- *Largest strategy:* selling ETH into the DEX premium, 9,845 ETH net.
 - *Top on-chain bot:* [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]] backran the hacker's dumps and netted 1,205 ETH.
-- *Top entity:* [[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]], 1,683 ETH in profit + tip from its sales; the full borrow-and-sell loop realized about $3.43M.
+- *Top entity:* [[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]], 1,676 ETH net from its sales; the full borrow-and-sell loop realized about $3.43M.
 - *Peak dislocation:* +37.99% at 04:45; window 04:35–05:38, about 63 minutes.
 - *What the hacker overpaid:* about $77.6M versus Chainlink, for 174,833 ETH. That's the ceiling on extractable value, not realized MEV.
 
-/Tip/ is what a searcher paid the block builder to land its transaction; /net profit/ is what it kept.
+All earnings here are net profit, after the tip paid to the block builder.
 
 * Timeline (UTC+8, October 30)
 
@@ -36,20 +36,20 @@ The attacker had to move fast: Tether could freeze its USDT at any moment. It bo
 
 * Who made money
 
-#+CAPTION: Profit + tip by strategy, split into net profit and tip
-#+ATTR_HTML: :alt Bar chart of profit plus tip by strategy, split into searcher net profit and tip :width 767 :height 312 :loading lazy :decoding async
+#+CAPTION: Net profit by strategy (blue), plus tips paid to builders (orange)
+#+ATTR_HTML: :alt Bar chart of net profit by strategy; the orange part is tips paid to builders :width 767 :height 312 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-00-en.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-00-en.png]]
 
-| Strategy | Profit + tip (ETH) | Net profit (ETH) | Tip (ETH) | Tip share |
-|---+---+---+---+---|
-| Sell ETH into the DEX premium | 10,752.4 | 9,845.0 | 907.4 | 8% |
-| Aave borrow-and-sell loop | 2,382.7 | 2,366.6 | 16.1 | 1% |
-| Backruns of the hacker's dumps | 2,337.8 | 1,450.8 | 887.1 | 38% |
-| Filling the hacker's RFQ orders (solvers) | 2,011.1 | 259.9 | 1,751.2 | 87% |
-| Sandwiches | 821.1 | 51.9 | 769.2 | 94% |
-| Buying depegged USDT on DEXs | 788.6 | 686.1 | 102.5 | 13% |
-| Atomic cross-pool arbitrage | 420.0 | 192.8 | 227.2 | 54% |
-| Liquidations | 38.9 | 0.2 | 38.7 | 99% |
+| Strategy | Net profit (ETH) | Tip (ETH) |
+|---+---+---|
+| Sell ETH into the DEX premium | 9,845.0 | 907.4 |
+| Aave borrow-and-sell loop | 2,366.6 | 16.1 |
+| Backruns of the hacker's dumps | 1,450.8 | 887.1 |
+| Filling the hacker's RFQ orders (solvers) | 259.9 | 1,751.2 |
+| Sandwiches | 51.9 | 769.2 |
+| Buying depegged USDT on DEXs | 686.1 | 102.5 |
+| Atomic cross-pool arbitrage | 192.8 | 227.2 |
+| Liquidations | 0.2 | 38.7 |
 
 Selling into the premium and the Aave loop earned the price gap; backruns earned the gaps between pools after the hacker's dumps. Liquidations, sandwiches, and RFQ fills paid most of their value to builders as tips.
 
@@ -59,27 +59,21 @@ Selling into the premium and the Aave loop earned the price gap; backruns earned
 
 The hacker and RFQ solvers bought ETH on DEXs in size, pushing the main pools 17–38% above CEX prices. Selling ETH into those pools earned "DEX price − CEX price" per ETH; hedging on a CEX, or buying back once the premium faded, locked it in.
 
-#+CAPTION: Profit = ETH sold × (DEX price − CEX price) − tip
+#+CAPTION: Net profit = ETH sold × (DEX price − CEX price) − tip
 #+ATTR_HTML: :alt Flow: hacker and solvers push DEX ETH up, arbitrageurs sell ETH into it and hedge on CEXs :width 755 :height 117 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-01-en.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-01-en.png]]
 
-| Subtype | Entities | ETH sold | Profit + tip | Tip share |
-|---+---+---+---+---|
-| Own ETH sold via aggregators | 1,028 | 84,328 | 5,988.0 | 1% |
-| Borrowed from Aave and sold (the sell leg of the Aave loop) | 36 | 24,374 | 2,678.0 | 0% |
-| Bot contracts hitting pools directly | 66 | 27,883 | 2,086.5 | 41% |
-
 Top five entities:
 
-| Entity | Type | Txs | ETH sold | Avg price | Chainlink at the time | Net profit | tip | Profit + tip |
-|---+---+---+---+---+---+---+---+---|
-| [[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]] | Aave-borrowed 11,701 WETH | 18 | 11,682 | 2,595 | 2,268 | 1,676.0 | 7.0 | 1,683.0 |
-| [[https://etherscan.io/address/0x51c72848c68a965f66fa7a88855f9f7784502a7f][0x51c728…502a7f]] | bot contract | 235 | 22,757 | 2,431 | 2,273 | 866.5 | 746.1 | 1,612.6 |
-| [[https://etherscan.io/address/0xcb02ecb8927434540352e1da27f91c3a194f1d1d][0xcb02ec…4f1d1d]] | own inventory | 1 | 4,170 | 2,694 | 2,260 | 798.3 | 0.3 | 798.5 |
-| [[https://etherscan.io/address/0x65a8f07bd9a8598e1b5b6c0a88f4779dbc077675][0x65a8f0…077675]] | own inventory | 37 | 3,704 | 2,531 | 2,271 | 418.3 | 1.5 | 419.8 |
-| [[https://etherscan.io/address/0xcaab6ff98989fdd4f47e7db6152e6fb47994ec1e][0xcaab6f…94ec1e]] | Aave-borrowed 1,565 WETH | 6 | 1,560 | 2,710 | 2,273 | 297.9 | 0.0 | 298.0 |
+| Entity | Type | Txs | ETH sold | Avg price | Chainlink at the time | Net profit | tip |
+|---+---+---+---+---+---+---+---|
+| [[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]] | Aave-borrowed 11,701 WETH | 18 | 11,682 | 2,595 | 2,268 | 1,676.0 | 7.0 |
+| [[https://etherscan.io/address/0x51c72848c68a965f66fa7a88855f9f7784502a7f][0x51c728…502a7f]] | bot contract | 235 | 22,757 | 2,431 | 2,273 | 866.5 | 746.1 |
+| [[https://etherscan.io/address/0xcb02ecb8927434540352e1da27f91c3a194f1d1d][0xcb02ec…4f1d1d]] | own inventory | 1 | 4,170 | 2,694 | 2,260 | 798.3 | 0.3 |
+| [[https://etherscan.io/address/0x65a8f07bd9a8598e1b5b6c0a88f4779dbc077675][0x65a8f0…077675]] | own inventory | 37 | 3,704 | 2,531 | 2,271 | 418.3 | 1.5 |
+| [[https://etherscan.io/address/0xcaab6ff98989fdd4f47e7db6152e6fb47994ec1e][0xcaab6f…94ec1e]] | Aave-borrowed 1,565 WETH | 6 | 1,560 | 2,710 | 2,273 | 297.9 | 0.0 |
 
-The biggest bot, [[https://etherscan.io/address/0x51c72848c68a965f66fa7a88855f9f7784502a7f][0x51c728…502a7f]], sent 235 transactions from 69 addresses and sold 22,757 ETH at an average of 2,431 while Chainlink sat at 2,273. It made 1,612.6 ETH in profit + tip, and paid 46% of it as tips to buy the front of the block. Large holders selling their own ETH through aggregators paid almost no tip. The premium decayed fast: the last sale captured only about 4.8%.
+The biggest bot, [[https://etherscan.io/address/0x51c72848c68a965f66fa7a88855f9f7784502a7f][0x51c728…502a7f]], sent 235 transactions from 69 addresses and sold 22,757 ETH at an average of 2,431 while Chainlink sat at 2,273. It netted 866.5 ETH and paid another 746.1 ETH in tips to buy the front of the block. Large holders selling their own ETH through aggregators paid almost no tip. The premium decayed fast: the last sale captured only about 4.8%.
 
 ** 2. The Aave borrow-and-sell loop
 
@@ -107,19 +101,19 @@ At 05:47 Aave governance froze the market and set LTV to 0, ending the loop. Fun
 
 The hacker dumped stolen altcoins (PHA, ENS, and others) through the Uniswap V3 Router into one pool at a time. That pool's price dropped; the same token in other pools (V2, other fee tiers) stayed at the old price. A bot landing right after bought low and sold high in one transaction: no front-running, no directional risk.
 
-#+CAPTION: Profit = pool B proceeds − pool A cost − tip, closed in one transaction
+#+CAPTION: Net profit = pool B proceeds − pool A cost − tip, closed in one transaction
 #+ATTR_HTML: :alt Flow: hacker dumps into pool A, a bot buys there right after and sells into pool B at the old price :width 755 :height 117 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-03-en.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-03-en.png]]
 
-| bot | Txs | Profit + tip | tip | Tip share |
-|---+---+---+---+---|
-| [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]] | 29 | 1,452.4 | 247.4 | 17% |
-| [[https://etherscan.io/address/0x0000000000d3c71f9d0a31e2f2139da1ca37b599][0x000000…37b599]] | 56 | 493.6 | 369.3 | 75% |
-| [[https://etherscan.io/address/0x80bf7db69556d9521c03461978b8fc731dbbd4e4][0x80bf7d…bbd4e4]] | 11 | 79.9 | 52.3 | 65% |
-| [[https://etherscan.io/address/0x51c72848c68a965f66fa7a88855f9f7784502a7f][0x51c728…502a7f]] | 9 | 48.7 | 40.6 | 83% |
-| [[https://etherscan.io/address/0x36331e299247e5d0d3261e1d9852f6e0cffee95c][0x36331e…fee95c]] | 14 | 44.3 | 37.6 | 85% |
+| bot | Txs | Net profit | tip |
+|---+---+---+---|
+| [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]] | 29 | 1,205.0 | 247.4 |
+| [[https://etherscan.io/address/0x0000000000d3c71f9d0a31e2f2139da1ca37b599][0x000000…37b599]] | 56 | 124.3 | 369.3 |
+| [[https://etherscan.io/address/0x80bf7db69556d9521c03461978b8fc731dbbd4e4][0x80bf7d…bbd4e4]] | 11 | 27.6 | 52.3 |
+| [[https://etherscan.io/address/0x51c72848c68a965f66fa7a88855f9f7784502a7f][0x51c728…502a7f]] | 9 | 8.1 | 40.6 |
+| [[https://etherscan.io/address/0x36331e299247e5d0d3261e1d9852f6e0cffee95c][0x36331e…fee95c]] | 14 | 6.7 | 37.6 |
 
-The top backrun bot, [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]], made 1,452.4 ETH in profit + tip over 29 transactions, paid 247.4 ETH in tips, and netted 1,205.0 ETH.
+The top backrun bot, [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]], netted 1,205.0 ETH over 29 transactions and paid another 247.4 ETH in tips.
 
 The best single trade was [[https://etherscan.io/tx/0x9988946159d207dbc01efe5c57eb392f423e372d3a072ae36a7377c744fe5269][0x998894…fe5269]] at 10:32: the hacker had just dumped PHA into a V3 pool. Bot [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]] paid 50.08 WETH for 3.17M PHA and sent it into a V2 pool that hadn't followed, receiving 301.48 WETH: a net 251.4 WETH for a 1.35 ETH tip. Of 294 backruns, 290 were profitable.
 
@@ -131,13 +125,13 @@ With RFQ, a large trader asks market makers or solvers for a quote, signs a fixe
 #+ATTR_HTML: :alt Flow: the hacker signs a USDT to ETH order, a solver buys ETH from DEX pools in the same transaction and delivers it :width 755 :height 117 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-04-en.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-04-en.png]]
 
-| Tx | Block | Solver contract | Net profit | tip | Profit + tip | Tip share |
-|---+---+---+---+---+---+---|
-| [[https://etherscan.io/tx/0xa861a556b73df4e084aca07663d63b26eec33136ed7328712a7418361d856f36][0xa861a5…856f36]] | 26300874 | [[https://etherscan.io/address/0xbeef02961503351625926ea9a11ae13b29f5c555][0xbeef02…f5c555]] | 119.0 | 1,070.7 | 1,189.6 | 90% |
-| [[https://etherscan.io/tx/0x3fd5ec345eaf60faca94c652f5ac5c0dca77b4ef3c355fb12cb8f5108464a0b6][0x3fd5ec…64a0b6]] | 26300895 | [[https://etherscan.io/address/0x9b1303ebf09bc51b7fac376c9e421e8daae63b82][0x9b1303…e63b82]] | 111.7 | 335.0 | 446.7 | 75% |
-| [[https://etherscan.io/tx/0xe5ccc3a8b32f7c52683390fa75f57cec53394421bd05132400806533e661843a][0xe5ccc3…61843a]] | 26300894 | [[https://etherscan.io/address/0xbeef02961503351625926ea9a11ae13b29f5c555][0xbeef02…f5c555]] | 7.2 | 137.1 | 144.3 | 95% |
-| [[https://etherscan.io/tx/0x4fa182626c85ca0cdc18ba736930bdbdfbcf5d201d373913317df6ec58d23d61][0x4fa182…d23d61]] | 26300829 | [[https://etherscan.io/address/0x0000000000be226afde21672a5e4adc45692e69d][0x000000…92e69d]] | -0.0 | 93.6 | 93.6 | 100%* |
-| [[https://etherscan.io/tx/0xc59188f11b6b7bd18a45b2afc91e787bf66d767dd5b95d01730f3c5c92f1e490][0xc59188…f1e490]] | 26300895 | [[https://etherscan.io/address/0xec4fb7e7c35c241e1138a2d8cfbb09f3ad1ccb22][0xec4fb7…1ccb22]] | -0.0 | 49.1 | 49.1 | 100%* |
+| Tx | Block | Solver contract | Net profit | tip |
+|---+---+---+---+---|
+| [[https://etherscan.io/tx/0xa861a556b73df4e084aca07663d63b26eec33136ed7328712a7418361d856f36][0xa861a5…856f36]] | 26300874 | [[https://etherscan.io/address/0xbeef02961503351625926ea9a11ae13b29f5c555][0xbeef02…f5c555]] | 119.0 | 1,070.7 |
+| [[https://etherscan.io/tx/0x3fd5ec345eaf60faca94c652f5ac5c0dca77b4ef3c355fb12cb8f5108464a0b6][0x3fd5ec…64a0b6]] | 26300895 | [[https://etherscan.io/address/0x9b1303ebf09bc51b7fac376c9e421e8daae63b82][0x9b1303…e63b82]] | 111.7 | 335.0 |
+| [[https://etherscan.io/tx/0xe5ccc3a8b32f7c52683390fa75f57cec53394421bd05132400806533e661843a][0xe5ccc3…61843a]] | 26300894 | [[https://etherscan.io/address/0xbeef02961503351625926ea9a11ae13b29f5c555][0xbeef02…f5c555]] | 7.2 | 137.1 |
+| [[https://etherscan.io/tx/0x4fa182626c85ca0cdc18ba736930bdbdfbcf5d201d373913317df6ec58d23d61][0x4fa182…d23d61]] | 26300829 | [[https://etherscan.io/address/0x0000000000be226afde21672a5e4adc45692e69d][0x000000…92e69d]] | -0.0 | 93.6 |
+| [[https://etherscan.io/tx/0xc59188f11b6b7bd18a45b2afc91e787bf66d767dd5b95d01730f3c5c92f1e490][0xc59188…f1e490]] | 26300895 | [[https://etherscan.io/address/0xec4fb7e7c35c241e1138a2d8cfbb09f3ad1ccb22][0xec4fb7…1ccb22]] | -0.0 | 49.1 |
 
 The largest fill: in [[https://etherscan.io/tx/0xa861a556b73df4e084aca07663d63b26eec33136ed7328712a7418361d856f36][0xa861a5…856f36]], solver [[https://etherscan.io/address/0xbeef02961503351625926ea9a11ae13b29f5c555][0xbeef02…f5c555]] delivered 26,227 ETH for the hacker's 75M USDT order, paid the builder 1,070.65 ETH, and kept 119 WETH: about 90% of the value went to the bribe.
 
@@ -151,16 +145,16 @@ A bot trades in the victim's direction just before the victim's transaction, the
 #+ATTR_HTML: :alt Flow: bot front leg, victim transaction at a worse price, bot back leg, builder takes the tip :width 755 :height 117 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-05-en.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-05-en.png]]
 
-| bot | Pairs | Of which on the hacker | Net profit | tip | Profit + tip | Class |
-|---+---+---+---+---+---+---|
-| [[https://etherscan.io/address/0x1f2f10d1c40777ae1da742455c65828ff36df387][0x1f2f10…6df387]] | 105 | 67 | 16.0 | 629.4 | 645.4 | likely market maker |
-| [[https://etherscan.io/address/0x8f8d0ae3e2d11b3b3f962aab7d19ebe01345cbd9][0x8f8d0a…45cbd9]] | 10 | 7 | 2.0 | 64.5 | 66.5 | sandwich |
-| [[https://etherscan.io/address/0xbadc0de76438f9524d42c219b390636196bfbdfc][0xbadc0d…bfbdfc]] | 14 | 12 | 11.0 | 53.4 | 64.5 | sandwich |
-| [[https://etherscan.io/address/0x6338afee3ff32599bff2ce3d8b7604bd6d6a41a7][0x6338af…6a41a7]] | 15 | 12 | 18.7 | 0.0 | 18.7 | sandwich |
-| [[https://etherscan.io/address/0xe80629c1f9db8d42db953d37990d5f02f449702d][0xe80629…49702d]] | 2 | 0 | 0.0 | 7.5 | 7.6 | sandwich |
-| [[https://etherscan.io/address/0xe59ae6325cfbd44a82f2ff19716019ffed77ebbb][0xe59ae6…77ebbb]] | 1 | 0 | 0.4 | 4.2 | 4.6 | sandwich |
+| bot | Pairs | Of which on the hacker | Net profit | tip | Class |
+|---+---+---+---+---+---|
+| [[https://etherscan.io/address/0x1f2f10d1c40777ae1da742455c65828ff36df387][0x1f2f10…6df387]] | 105 | 67 | 16.0 | 629.4 | likely market maker |
+| [[https://etherscan.io/address/0x8f8d0ae3e2d11b3b3f962aab7d19ebe01345cbd9][0x8f8d0a…45cbd9]] | 10 | 7 | 2.0 | 64.5 | sandwich |
+| [[https://etherscan.io/address/0xbadc0de76438f9524d42c219b390636196bfbdfc][0xbadc0d…bfbdfc]] | 14 | 12 | 11.0 | 53.4 | sandwich |
+| [[https://etherscan.io/address/0x6338afee3ff32599bff2ce3d8b7604bd6d6a41a7][0x6338af…6a41a7]] | 15 | 12 | 18.7 | 0.0 | sandwich |
+| [[https://etherscan.io/address/0xe80629c1f9db8d42db953d37990d5f02f449702d][0xe80629…49702d]] | 2 | 0 | 0.0 | 7.5 | sandwich |
+| [[https://etherscan.io/address/0xe59ae6325cfbd44a82f2ff19716019ffed77ebbb][0xe59ae6…77ebbb]] | 1 | 0 | 0.4 | 4.2 | sandwich |
 
-These 200 pairs made 821.1 ETH in profit + tip. Market-maker bot [[https://etherscan.io/address/0x1f2f10d1c40777ae1da742455c65828ff36df387][0x1f2f10…6df387]] took 645.4 ETH of it but netted only 16.0 ETH, paying nearly everything as ordering fees: a market maker paying to sit next to the hacker's trades, not a sandwicher. Confirmed sandwiches from the other bots total 175.7 ETH. 105 pairs had the hacker as the victim.
+These 200 pairs netted 51.9 ETH in total, while paying builders 769.2 ETH in tips. Market-maker bot [[https://etherscan.io/address/0x1f2f10d1c40777ae1da742455c65828ff36df387][0x1f2f10…6df387]] netted 16.0 ETH and paid 629.4 ETH in tips: a market maker paying to sit next to the hacker's trades, not a sandwicher. The other bots' sandwiches netted about 35.9 ETH. 105 pairs had the hacker as the victim.
 
 ** 6. Buying depegged USDT
 
@@ -170,13 +164,13 @@ The hacker also dumped USDT on DEXs. In the Uniswap V3 USDC/USDT pool, USDT fell
 #+ATTR_HTML: :alt Flow: buy USDT with USDC or DAI on DEXs at about 0.92, sell on CEXs or hold until it recovers :width 755 :height 117 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-06-en.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-06-en.png]]
 
-| Tx | Block | Buyer | USDT bought | Net profit | tip | Profit + tip |
-|---+---+---+---+---+---+---|
-| [[https://etherscan.io/tx/0xcc2fb3059f6f1026b88ea43a8d5982a7c8eba9819f85efa0318e6685af04b9d7][0xcc2fb3…04b9d7]] | 26300993 | [[https://etherscan.io/address/0x2b41a0850394d716ddd6b0e200c5d43be5bce8fa][0x2b41a0…bce8fa]] | 2,477,372 | 77.7 | 0.1 | 77.9 |
-| [[https://etherscan.io/tx/0xd24be48bc2196f2cdd2650557df167fc94d8f0b6df56468dc78236b51b9a536e][0xd24be4…9a536e]] | 26301072 | [[https://etherscan.io/address/0xcb02ecb8927434540352e1da27f91c3a194f1d1d][0xcb02ec…4f1d1d]] | 11,295,426 | 50.4 | 0.5 | 50.9 |
-| [[https://etherscan.io/tx/0x4d401e31c48283ed25ca143c00850482d42c86a74f708c7ea92ad4ceb38202e9][0x4d401e…8202e9]] | 26301008 | [[https://etherscan.io/address/0x9b974128a77a3a1b94f969612999816d8d228e4e][0x9b9741…228e4e]] | 1,475,513 | 45.1 | 0.0 | 45.1 |
-| [[https://etherscan.io/tx/0x12bc960af373d3b7c6f3f57a97f58656d65ec9fdf629a11615ffb67dc609f651][0x12bc96…09f651]] | 26300995 | [[https://etherscan.io/address/0x8986f93988d415abfb7b9bb700ccd3580c2f5298][0x8986f9…2f5298]] | 1,088,117 | 38.8 | 0.0 | 38.8 |
-| [[https://etherscan.io/tx/0x820501e85c0c52ec09e1682574945aa8635d45437d6676ca9f5282b6b13d874c][0x820501…3d874c]] | 26301066 | [[https://etherscan.io/address/0xaf9b98d2acde5f13eaeaeb0101273cdfa86dcc95][0xaf9b98…6dcc95]] | 6,552,428 | 22.5 | 0.1 | 22.6 |
+| Tx | Block | Buyer | USDT bought | Net profit | tip |
+|---+---+---+---+---+---|
+| [[https://etherscan.io/tx/0xcc2fb3059f6f1026b88ea43a8d5982a7c8eba9819f85efa0318e6685af04b9d7][0xcc2fb3…04b9d7]] | 26300993 | [[https://etherscan.io/address/0x2b41a0850394d716ddd6b0e200c5d43be5bce8fa][0x2b41a0…bce8fa]] | 2,477,372 | 77.7 | 0.1 |
+| [[https://etherscan.io/tx/0xd24be48bc2196f2cdd2650557df167fc94d8f0b6df56468dc78236b51b9a536e][0xd24be4…9a536e]] | 26301072 | [[https://etherscan.io/address/0xcb02ecb8927434540352e1da27f91c3a194f1d1d][0xcb02ec…4f1d1d]] | 11,295,426 | 50.4 | 0.5 |
+| [[https://etherscan.io/tx/0x4d401e31c48283ed25ca143c00850482d42c86a74f708c7ea92ad4ceb38202e9][0x4d401e…8202e9]] | 26301008 | [[https://etherscan.io/address/0x9b974128a77a3a1b94f969612999816d8d228e4e][0x9b9741…228e4e]] | 1,475,513 | 45.1 | 0.0 |
+| [[https://etherscan.io/tx/0x12bc960af373d3b7c6f3f57a97f58656d65ec9fdf629a11615ffb67dc609f651][0x12bc96…09f651]] | 26300995 | [[https://etherscan.io/address/0x8986f93988d415abfb7b9bb700ccd3580c2f5298][0x8986f9…2f5298]] | 1,088,117 | 38.8 | 0.0 |
+| [[https://etherscan.io/tx/0x820501e85c0c52ec09e1682574945aa8635d45437d6676ca9f5282b6b13d874c][0x820501…3d874c]] | 26301066 | [[https://etherscan.io/address/0xaf9b98d2acde5f13eaeaeb0101273cdfa86dcc95][0xaf9b98…6dcc95]] | 6,552,428 | 22.5 | 0.1 |
 
 ** 7. Atomic cross-pool arbitrage
 
@@ -186,15 +180,15 @@ Pools didn't reprice in sync: V4 versus V3, 5 bp versus 30 bp, Curve tricrypto, 
 #+ATTR_HTML: :alt Flow: optional flash loan, buy in pool A, sell in pool B, close with a net gain :width 755 :height 117 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-07-en.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-07-en.png]]
 
-| Tx | Block | bot contract | Net profit | tip | Profit + tip | Tip share |
-|---+---+---+---+---+---+---|
-| [[https://etherscan.io/tx/0x585c38d79bf96a7061a6c7a98fa68f38a17ae779f1facfaa3c6c386b2acb1295][0x585c38…cb1295]] | 26301365 | [[https://etherscan.io/address/0x6566194141eefa99af43bb5aa71460ca2dc90245][0x656619…c90245]] | 90.4 | 0.0 | 90.4 | 0% |
-| [[https://etherscan.io/tx/0x651fcba40ae60f9970bb56fb55daaa832f76c784c72797bad873525c63aac2b3][0x651fcb…aac2b3]] | 26300830 | [[https://etherscan.io/address/0x0c8c5891a41078cef36970932d5c05dc1de7288b][0x0c8c58…e7288b]] | 10.2 | 62.3 | 72.5 | 86% |
-| [[https://etherscan.io/tx/0x4dcc09c3720e291c19cdef5a5d35ba940bba7e05621cf4cfc597a6d55f7b1da3][0x4dcc09…7b1da3]] | 26301013 | [[https://etherscan.io/address/0x584a31052c643d32f3134a956956dad722ff4161][0x584a31…ff4161]] | 4.8 | 65.4 | 70.2 | 93% |
-| [[https://etherscan.io/tx/0x287c07eff339f303a32047d6252dc576135e82e08e580256a9d77995b2ce69a7][0x287c07…ce69a7]] | 26301248 | [[https://etherscan.io/address/0xbeef02961503351625926ea9a11ae13b29f5c555][0xbeef02…f5c555]] | 3.1 | 59.2 | 62.3 | 95% |
-| [[https://etherscan.io/tx/0x800fc0fde891430589e3f7a43d9345a1ee5da4a01c9fe6684794e5ba3c04f8be][0x800fc0…04f8be]] | 26300829 | [[https://etherscan.io/address/0xea51075ccbd58174834da36372b0ed52199c483c][0xea5107…9c483c]] | 6.1 | 40.1 | 46.3 | 87% |
+| Tx | Block | bot contract | Net profit | tip |
+|---+---+---+---+---|
+| [[https://etherscan.io/tx/0x585c38d79bf96a7061a6c7a98fa68f38a17ae779f1facfaa3c6c386b2acb1295][0x585c38…cb1295]] | 26301365 | [[https://etherscan.io/address/0x6566194141eefa99af43bb5aa71460ca2dc90245][0x656619…c90245]] | 90.4 | 0.0 |
+| [[https://etherscan.io/tx/0x651fcba40ae60f9970bb56fb55daaa832f76c784c72797bad873525c63aac2b3][0x651fcb…aac2b3]] | 26300830 | [[https://etherscan.io/address/0x0c8c5891a41078cef36970932d5c05dc1de7288b][0x0c8c58…e7288b]] | 10.2 | 62.3 |
+| [[https://etherscan.io/tx/0x4dcc09c3720e291c19cdef5a5d35ba940bba7e05621cf4cfc597a6d55f7b1da3][0x4dcc09…7b1da3]] | 26301013 | [[https://etherscan.io/address/0x584a31052c643d32f3134a956956dad722ff4161][0x584a31…ff4161]] | 4.8 | 65.4 |
+| [[https://etherscan.io/tx/0x287c07eff339f303a32047d6252dc576135e82e08e580256a9d77995b2ce69a7][0x287c07…ce69a7]] | 26301248 | [[https://etherscan.io/address/0xbeef02961503351625926ea9a11ae13b29f5c555][0xbeef02…f5c555]] | 3.1 | 59.2 |
+| [[https://etherscan.io/tx/0x800fc0fde891430589e3f7a43d9345a1ee5da4a01c9fe6684794e5ba3c04f8be][0x800fc0…04f8be]] | 26300829 | [[https://etherscan.io/address/0xea51075ccbd58174834da36372b0ed52199c483c][0xea5107…9c483c]] | 6.1 | 40.1 |
 
-Checked one by one, these 23 transactions made 420.0 ETH. Next to the other strategies, classic atomic arbitrage was small change.
+Checked one by one, these 23 transactions netted 192.8 ETH and paid another 227.2 ETH in tips. Next to the other strategies, classic atomic arbitrage was small change.
 
 ** 8. Liquidations
 
@@ -202,15 +196,7 @@ Checked one by one, these 23 transactions made 420.0 ETH. Next to the other stra
 #+ATTR_HTML: :alt Flow: flash loan, repay a position with HF below 1, seize collateral at a discount, sell on DEXs, repay the loan :width 755 :height 117 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-08-en.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-08-en.png]]
 
-| Protocol | Txs | Profit + tip | Tip share |
-|---+---+---+---|
-| aave_core | 38 | 29.81 | 100% |
-| morpho_blue | 64 | 5.05 | 96% |
-| compound_cUSDCv3 | 3 | 4.04 | 101%* |
-| aave_prime | 1 | 0.00 | — (loss) |
-| spark | 1 | 0.00 | — (loss) |
-
-Almost nobody got liquidated. During the dislocation the CEX price of ETH was falling, so positions that borrowed ETH became healthier. Public liquidations paid about 99% of their profit to builders. One position to watch is the hacker's own: on November 2 it held $59.95M USDT of collateral against 19,766.28 WETH of debt (19,762.41 initially borrowed), with a health factor of 1.0364.
+Almost nobody got liquidated. During the dislocation the CEX price of ETH was falling, so positions that borrowed ETH became healthier. The 107 public liquidations netted only 0.2 ETH in total; 38.7 ETH went to builders as tips. One position to watch is the hacker's own: on November 2 it held $59.95M USDT of collateral against 19,766.28 WETH of debt (19,762.41 initially borrowed), with a health factor of 1.0364.
 
 * Block builders
 
