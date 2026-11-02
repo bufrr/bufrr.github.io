@@ -1,7 +1,7 @@
-#+TITLE: After the $6.36B Binance Hack: How On-Chain Bots Cashed In, One Netted 1,205 ETH
+#+TITLE: After the $6.3B Binance Hack: How On-Chain Bots Cashed In, One Netted 1,205 ETH
 #+DATE: 2026-11-02
 #+AUTHOR: bytenoob
-#+DESCRIPTION: How on-chain bots cashed in after the $6.36B Binance hack. The attacker swapped 475M USDT for ETH on Ethereum to beat a Tether freeze, and DEX ETH traded up to 38% above CEX prices for about 63 minutes. Who captured that gap: arbitrageurs, Aave loopers, backrunners, solvers, and block builders.
+#+DESCRIPTION: How on-chain bots cashed in after the $6.3B Binance hack. The attacker swapped 475M USDT for ETH on Ethereum to beat a Tether freeze, and DEX ETH traded up to 38% above CEX prices for about 63 minutes. Who captured that gap: arbitrageurs, Aave loopers, backrunners, solvers, and block builders.
 #+KEYWORDS: ethereum, mev, binance, hack, arbitrage, block builders, chainlink, aave
 #+FILETAGS: :ethereum:mev:
 #+LASTMOD: 2026-11-02
@@ -9,7 +9,7 @@
 
 * What happened
 
-On October 29, 2026, about $6.36 billion moved out of Binance wallets across ten blockchains, by TRM Labs' estimate ([[https://www.bleepingcomputer.com/news/security/binance-links-63-billion-crypto-theft-to-compromised-devops-laptop/][BleepingComputer]], provisional). This post covers only the next 24 hours on Ethereum. All times are UTC+8, starting early on October 30.
+On October 29, 2026, about $6.3 billion moved out of Binance wallets across ten blockchains, by TRM Labs' estimate ([[https://www.bleepingcomputer.com/news/security/binance-links-63-billion-crypto-theft-to-compromised-devops-laptop/][BleepingComputer]], provisional). This post covers only the next 24 hours on Ethereum. All times are UTC+8, starting early on October 30.
 
 The attacker had to move fast: Tether could freeze its USDT at any moment. It bought ETH on Ethereum with 475M USDT, partly through RFQ solvers and partly directly on DEXs. That one buyer pushed DEX ETH 17–38% above centralized exchanges for about 63 minutes. Meanwhile, DEX USDT fell to 0.918 USDC.
 

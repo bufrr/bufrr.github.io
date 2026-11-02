@@ -1,7 +1,7 @@
-#+TITLE: 币安 63.6 亿美元被盗后，链上 bot 如何套利：一个 bot 净赚 1,205 ETH
+#+TITLE: 币安 63 亿美元被盗后，链上 bot 如何套利：一个 bot 净赚 1,205 ETH
 #+DATE: 2026-11-02
 #+AUTHOR: bytenoob
-#+DESCRIPTION: 币安 63.6 亿美元被盗后，链上 bot 如何套利。黑客为赶在 Tether 冻结前出货，在以太坊上用 4.75 亿 USDT 买 ETH，DEX 上的 ETH 一度比 CEX 贵 38%，持续约 63 分钟。这笔价差被谁分走：套利者、Aave 循环者、backrun 机器人、solver 和区块构建者。
+#+DESCRIPTION: 币安 63 亿美元被盗后，链上 bot 如何套利。黑客为赶在 Tether 冻结前出货，在以太坊上用 4.75 亿 USDT 买 ETH，DEX 上的 ETH 一度比 CEX 贵 38%，持续约 63 分钟。这笔价差被谁分走：套利者、Aave 循环者、backrun 机器人、solver 和区块构建者。
 #+KEYWORDS: 以太坊, mev, 币安, 黑客, 套利, 区块构建者, chainlink, aave
 #+FILETAGS: :以太坊:mev:
 #+LASTMOD: 2026-11-02
@@ -9,7 +9,7 @@
 
 * 发生了什么
 
-2026 年 10 月 29 日，TRM Labs 估计币安在 10 条区块链上的钱包被转走约 63.6 亿美元（[[https://www.bleepingcomputer.com/news/security/binance-links-63-billion-crypto-theft-to-compromised-devops-laptop/][BleepingComputer]]，初步数据）。本文只看随后 24 小时以太坊上的事。文中时间均为 UTC+8，从 10 月 30 日凌晨算起。
+2026 年 10 月 29 日，TRM Labs 估计币安在 10 条区块链上的钱包被转走约 63 亿美元（[[https://www.bleepingcomputer.com/news/security/binance-links-63-billion-crypto-theft-to-compromised-devops-laptop/][BleepingComputer]]，初步数据）。本文只看随后 24 小时以太坊上的事。文中时间均为 UTC+8，从 10 月 30 日凌晨算起。
 
 黑客必须抢时间：Tether 随时可能冻结它手里的 USDT。它在以太坊上用 4.75 亿 USDT 买 ETH：部分走 RFQ solver，部分直接在 DEX 买。一个买家就把 DEX 上的 ETH 价格推到比中心化交易所高 17–38%，持续约 63 分钟。同时，DEX 上的 USDT 跌到 0.918 USDC。
 
