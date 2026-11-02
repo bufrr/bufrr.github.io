@@ -1,7 +1,7 @@
-#+TITLE: After the $6B Binance Hack: How Arb Bots Cashed In, One Netted 1,205 ETH
+#+TITLE: After the $6.36B Binance Hack: How On-Chain Bots Cashed In, One Netted 1,205 ETH
 #+DATE: 2026-11-02
 #+AUTHOR: bytenoob
-#+DESCRIPTION: How arbitrage bots cashed in after the $6B Binance hack. The attacker swapped 475M USDT for ETH on Ethereum to beat a Tether freeze, and DEX ETH traded up to 38% above CEX prices for an hour. Who captured that gap: arbitrageurs, Aave loopers, backrunners, solvers, and block builders.
+#+DESCRIPTION: How on-chain bots cashed in after the $6.36B Binance hack. The attacker swapped 475M USDT for ETH on Ethereum to beat a Tether freeze, and DEX ETH traded up to 38% above CEX prices for about 63 minutes. Who captured that gap: arbitrageurs, Aave loopers, backrunners, solvers, and block builders.
 #+KEYWORDS: ethereum, mev, binance, hack, arbitrage, block builders, chainlink, aave
 #+FILETAGS: :ethereum:mev:
 #+LASTMOD: 2026-11-02
@@ -16,7 +16,7 @@ The attacker had to move fast: Tether could freeze its USDT at any moment. So it
 The analysis covers the first 24 hours. All times are UTC+8, starting early on October 30.
 
 - *Largest strategy:* selling ETH into the DEX premium, 10,752 ETH (about $24.35M).
-- *Top arb bot:* [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]] netted 1,205 ETH from backruns of the hacker's dumps.
+- *Top on-chain bot:* [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]] netted 1,205 ETH from backruns of the hacker's dumps.
 - *Top entity:* [[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]], 1,683 ETH on its sell leg; its full loop realized about $3.43M.
 - *Peak dislocation:* +37.99% at 04:45. The window ran from 04:35 to 05:38, about 63 minutes.
 - *What the hacker overpaid:* about $77.6M versus Chainlink, for 174,833 ETH. That's the ceiling on extractable value, not realized MEV.

@@ -1,7 +1,7 @@
-#+TITLE: 币安 6B 被盗后，arb bot 如何套利：一个 bot 净赚 1,205 ETH
+#+TITLE: 币安 63.6 亿美元被盗后，链上 bot 如何套利：一个 bot 净赚 1,205 ETH
 #+DATE: 2026-11-02
 #+AUTHOR: bytenoob
-#+DESCRIPTION: 币安 60 亿美元被盗后，arb bot 如何套利。黑客为赶在 Tether 冻结前出货，在以太坊上用 4.75 亿 USDT 买 ETH，DEX 上的 ETH 一度比 CEX 贵 38%，持续约一小时。这笔价差被谁分走：套利者、Aave 循环者、backrun 机器人、solver 和区块构建者。
+#+DESCRIPTION: 币安 63.6 亿美元被盗后，链上 bot 如何套利。黑客为赶在 Tether 冻结前出货，在以太坊上用 4.75 亿 USDT 买 ETH，DEX 上的 ETH 一度比 CEX 贵 38%，持续约 63 分钟。这笔价差被谁分走：套利者、Aave 循环者、backrun 机器人、solver 和区块构建者。
 #+KEYWORDS: 以太坊, mev, 币安, 黑客, 套利, 区块构建者, chainlink, aave
 #+FILETAGS: :以太坊:mev:
 #+LASTMOD: 2026-11-02
@@ -16,7 +16,7 @@
 本文分析事件后的 24 小时。文中时间均为 UTC+8，从 10 月 30 日凌晨开始。
 
 - 最大策略：在 DEX 高价卖出 ETH，10,752 ETH（约 2,435 万美元）。
-- 头部 arb bot：[[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]]，靠 backrun 黑客的抛售净赚 1,205 ETH。
+- 头部链上 bot：[[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]]，靠 backrun 黑客的抛售净赚 1,205 ETH。
 - 头部主体：[[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]]，卖出腿 1,683 ETH；完整循环已实现约 343 万美元。
 - 错位峰值：04:45 时 +37.99%；错位窗口为 04:35–05:38，约 63 分钟。
 - 黑客多付：相对 Chainlink 多付约 7,760 万美元，换得 174,833 ETH。这是可提取价值的上限，不等于已实现的 MEV 总额。
