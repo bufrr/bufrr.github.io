@@ -1,7 +1,7 @@
 #+TITLE: 币安 63 亿美元被盗后，链上 bot 如何套利：一个 bot 净赚 1,205 ETH
 #+DATE: 2026-11-02
 #+AUTHOR: bytenoob
-#+DESCRIPTION: 币安 63 亿美元被盗后，链上 bot 如何套利。黑客为赶在 Tether 冻结前出货，在以太坊上用 4.75 亿 USDT 买 ETH，DEX 上的 ETH 一度比 CEX 贵 38%，溢价持续约 1 小时。这笔 CEX-DEX 价差被谁分走：套利者、Aave 循环者、backrun bot、solver 和 builder。
+#+DESCRIPTION: 币安 63 亿美元被盗后，链上 bot 如何套利。黑客为赶在 Tether 冻结前出货，在以太坊上用 4.35 亿 USDT 买 ETH，DEX 上的 ETH 一度比 CEX 贵 38%，溢价持续约 1 小时。这笔 CEX-DEX 价差被谁分走：套利者、Aave 循环者、backrun bot、solver 和 builder。
 #+KEYWORDS: 以太坊, mev, 币安, 黑客, 套利, 区块构建者, chainlink, aave
 #+FILETAGS: :以太坊:mev:
 #+LASTMOD: 2026-11-02
@@ -11,33 +11,41 @@
 
 2026 年 10 月 29 日，TRM Labs 估算币安在 10 条链上的钱包被转走约 63 亿美元（[[https://www.bleepingcomputer.com/news/security/binance-links-63-billion-crypto-theft-to-compromised-devops-laptop/][BleepingComputer]]，初步数据）。本文只看随后 24 小时以太坊上发生的事。文中时间均为 UTC+8，从 10 月 30 日凌晨算起。
 
-黑客得抢时间：Tether 随时可能冻结它手里的 USDT。于是它在以太坊上拿 4.75 亿 USDT 买 ETH：一部分走 RFQ solver，一部分直接在 DEX 上买。就这一个买家，把 DEX 上的 ETH 价格顶到比 CEX 贵 38%（04:45 峰值）；04:45–05:16 一直贵 17% 以上，整段溢价持续约 1 小时（04:35–05:38）。同一时间，DEX 上的 USDT 跌到 0.918 USDC。
+黑客得抢时间：Tether 随时可能冻结它手里的 USDT。于是它在以太坊上拿 4.35 亿 USDT 买 ETH：3.25 亿走 RFQ solver，1.1 亿直接在 DEX 上买。就这一个买家，把 DEX 上的 ETH 价格顶到比 CEX 贵 38%（04:45 峰值）；04:45–05:16 一直贵 17% 以上，整段溢价持续约 1 小时（04:35–05:38）。同一时间，DEX 上的 USDT 跌到 0.918 USDC。
 
 - 最大一类：1,130 个地址把 ETH 高价卖进 DEX，按卖出时的 CEX 价算，扣掉 tip 后多赚约 9,845 ETH；其中大部分是用聚合器卖自有 ETH 的大户，bot 合约只有 66 个。
 - 收益最高的链上 bot：[[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]]，backrun 黑客的抛售，净赚 1,205 ETH。
 - 收益最高的地址：[[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]]，卖出部分净赚 1,676 ETH，整个借卖循环实际到手约 343 万美元。
 - 价差峰值：04:45，DEX 比 CEX 贵 37.99%；价差窗口 04:35–05:38，约 63 分钟。
-- 黑客损失：用 4.75 亿 USDT 买了 174,833 ETH，按 Chainlink 市价算多花了约 7,760 万美元。这是所有人能从黑客身上赚到的上限，实际赚到的更少。
+- 黑客损失：用 4.35 亿 USDT 买了 160,445 ETH，按 Chainlink 市价算多花了约 7,000 万美元。这是所有人能从黑客身上赚到的上限，实际赚到的更少。
 
 文中收益均为净利润，已扣掉付给 builder 的 tip。
 
 * 黑客的地址
 
-- 黑客主钱包（[[https://etherscan.io/address/0x5227f603c1ee34ce3c06efe6477003bdfccb2f8c][0x5227f6…cb2f8c]]）：从 Binance 14 收币，后来砸山寨币；Tether 冻结的 11.75 亿 USDT 就在这里。
-- 黑客 RFQ 钱包（[[https://etherscan.io/address/0x9749292d74fd460982d0912ea9515ea24736c762][0x974929…36c762]]）：走 RFQ 卖 3.25 亿 USDT 换 ETH。
-- 黑客 DEX 钱包（[[https://etherscan.io/address/0x77edef23fbd05921c26fe29fcc3a65e14d2ac3eb][0x77edef…2ac3eb]]、[[https://etherscan.io/address/0x7aa4d3029e4c6a8e916300014ad95b6d6c03bfd1][0x7aa4d3…03bfd1]]、0x0ddf）：在 DEX 上用 1.5 亿 USDT 买 ETH。
+- 黑客主钱包（[[https://etherscan.io/address/0x5227f603c1ee34ce3c06efe6477003bdfccb2f8c][0x5227f6…cb2f8c]]）：从 Binance 14 收币，再分给下面几个钱包；后来在这里砸山寨币。Tether 冻结的 11.75 亿 USDT 就在这里。
+- 黑客 RFQ 钱包（[[https://etherscan.io/address/0x9749292d74fd460982d0912ea9515ea24736c762][0x974929…36c762]]）：收到 5 亿 USDT，走 RFQ 卖掉 3.25 亿换 ETH，剩下的 1.75 亿转进了被冻结的地址。
+- 黑客 Aave 钱包（[[https://etherscan.io/address/0x8d53903625b8e839b9df4bd28b0efb1cd6b8639a][0x8d5390…b8639a]]）：在 Aave 存 6,000 万 USDT，借出 19,762 WETH。
+- 黑客 DEX 钱包（[[https://etherscan.io/address/0x0ddf0480016e6bcb2c1f5d190d221fba1320697e][0x0ddf04…20697e]]、[[https://etherscan.io/address/0x77edef23fbd05921c26fe29fcc3a65e14d2ac3eb][0x77edef…2ac3eb]]、[[https://etherscan.io/address/0x7aa4d3029e4c6a8e916300014ad95b6d6c03bfd1][0x7aa4d3…03bfd1]]）：在 DEX 上用 1.1 亿 USDT 买到 38,129 ETH。
 - 冷钱包 A–D（见文末表格）：收币后从没转出，合计约 430,737 ETH。
 
 * 时间轴（UTC+8，10 月 30 日）
 
 - 04:24：Binance 14 向黑客主钱包转出 16.15 亿 USDT、16.7 万 ETH。
-- 04:33 / 04:48：黑客 RFQ 钱包给 Permit2、1inch v6 开了 USDT 无限授权。
-- 04:34–04:49：黑客 RFQ 钱包卖出 3.25 亿 USDT，换回 122,316 ETH；DEX 溢价从 0 拉到 +38%。
-- 04:38：黑客主钱包向冷钱包 A 转出 195,460 ETH。
-- 04:57–05:00：黑客往 Aave 存了 6,000 万 USDT，借出 19,762 WETH。
-- 05:04–05:09：黑客 DEX 钱包买入，1.5 亿 USDT 换到 52,517 ETH。
+- 04:30：主钱包转 5 亿 USDT 给 RFQ 钱包。
+- 04:33：主钱包转 2 亿 USDT 给 DEX 钱包 0x0ddf。
+- 04:33 / 04:48：RFQ 钱包给 Permit2、1inch v6 开了 USDT 无限授权。
+- 04:34–04:49：RFQ 钱包卖出 3.25 亿 USDT，换回 122,316 ETH；DEX 溢价从 0 拉到 +38%。
+- 04:38：主钱包向冷钱包 A 转出 195,460 ETH。
+- 04:47：0x0ddf 在 DEX 用 1,000 万 USDT 买到 3,552 ETH。
+- 04:52：0x0ddf 转 1.9 亿 USDT 给 Aave 钱包。
+- 04:57–05:00：Aave 钱包往 Aave 存了 6,000 万 USDT，借出 19,762 WETH。
+- 04:59：RFQ 钱包把剩下的 1.75 亿 USDT 经 [[https://etherscan.io/address/0x811f15855476156ebf86ba3b84fafb8ceaa4e84c][0x811f15…a4e84c]] 转到 [[https://etherscan.io/address/0xaa246bf639586a6ba46762d378ce50ca4fc654a0][0xaa246b…c654a0]]，这个地址已被 Tether 冻结。
+- 05:01：Aave 钱包转 1.3 亿 USDT 给 0x77edef；05:06，0x77edef 再转 8,000 万给 0x7aa4。
+- 05:04–05:09：0x77edef、0x7aa4 在 DEX 用 1 亿 USDT 买到 34,577 ETH。
+- 05:11：0x7aa4 把剩下的 3,000 万 USDT 经 [[https://etherscan.io/address/0xccbef95633adb5cd2b5038db5a38d77e726ca263][0xccbef9…6ca263]] 转到 [[https://etherscan.io/address/0xb171ca86f82070282138352ff7111b494060c8c3][0xb171ca…60c8c3]]，这个地址已被 Tether 冻结。
 - 05:47：Aave 一笔交易冻结主要资产、把 LTV 设为 0，这时价差已经基本没了。
-- 05:47：黑客 RFQ 钱包向冷钱包 B 转出 122,310 ETH。
+- 05:47：RFQ 钱包向冷钱包 B 转出 122,310 ETH。
 - 09:17–11:32：黑客主钱包走 Uniswap V3 Router 抛售被盗山寨币（backrun 和夹子集中在这一段）。
 - 20:26：Aave 解冻；USDC/USDT 的 LTV 到现在还是 0。
 
@@ -320,11 +328,13 @@ Chainlink 没有比 CEX 偏高或偏低，而是贴着 CEX 走：全部 38 次�
 
 * 黑客损失了多少
 
-| 卖方 | USDT | 换得 ETH | 均价 | 相对 Chainlink 的损失 |
+| 黑客钱包 | USDT | 换得 ETH | 均价 | 相对 Chainlink 多花 |
 |---+---+---+---+---|
 | 黑客 RFQ 钱包（9 笔 RFQ 成交） | 325.0M | 122,316 | 2,657 | $45.9M |
-| 黑客 DEX 钱包（5 笔 DEX 成交） | 150.0M | 52,517 | 2,856 | $31.7M |
-| 合计 | 475M | 174,833 |  | ≈ $77.6M |
+| 黑客 DEX 钱包（5 笔 DEX 成交） | 110.0M | 38,129 | 2,885 | $24.1M |
+| 合计 | 435.0M | 160,445 | 2,711 | ≈ $70.0M |
+
+原报告 DEX 这一行写的是 1.5 亿 USDT 换 52,517 ETH，合计约 7,760 万美元。按链上转账核对，DEX 钱包只有 5 笔买入，共 1.1 亿 USDT；其余的 USDT 存进了 Aave 或转进了被冻结的地址。这里用链上数字。
 
 价差被 RFQ solver、builder（约 1,751 ETH 贿赂）、把 ETH 卖回 DEX 的套利者分走，LP 也从中赚手续费。价格先被拉高，又被套利者压回去；一来一回，LP 库存基本没动。
 
@@ -344,8 +354,8 @@ Chainlink 没有比 CEX 偏高或偏低，而是贴着 CEX 走：全部 38 次�
 | 被冻结地址 | USDT |
 |---+---|
 | 黑客主钱包 [[https://etherscan.io/address/0x5227f603c1ee34ce3c06efe6477003bdfccb2f8c][0x5227f6…cb2f8c]] | 1,175,464,713 |
-| [[https://etherscan.io/address/0xaa246bf639586a6ba46762d378ce50ca4fc654a0][0xaa246b…c654a0]] | 174,999,872 |
-| [[https://etherscan.io/address/0xb171ca86f82070282138352ff7111b494060c8c3][0xb171ca…60c8c3]] | 30,000,000 |
+| [[https://etherscan.io/address/0xaa246bf639586a6ba46762d378ce50ca4fc654a0][0xaa246b…c654a0]]（RFQ 钱包剩下的 USDT） | 174,999,872 |
+| [[https://etherscan.io/address/0xb171ca86f82070282138352ff7111b494060c8c3][0xb171ca…60c8c3]]（0x7aa4 剩下的 USDT） | 30,000,000 |
 
 -----
 

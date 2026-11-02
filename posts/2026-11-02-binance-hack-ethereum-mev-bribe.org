@@ -1,7 +1,7 @@
 #+TITLE: After the $6.3B Binance Hack: How On-Chain Bots Cashed In, One Netted 1,205 ETH
 #+DATE: 2026-11-02
 #+AUTHOR: bytenoob
-#+DESCRIPTION: How on-chain bots cashed in after the $6.3B Binance hack. The attacker swapped 475M USDT for ETH on Ethereum to beat a Tether freeze, and DEX ETH traded up to 38% above CEX prices, with the premium lasting about an hour. Who captured that CEX-DEX spread: arbitrageurs, Aave loopers, backrunners, solvers, and block builders.
+#+DESCRIPTION: How on-chain bots cashed in after the $6.3B Binance hack. The attacker swapped 435M USDT for ETH on Ethereum to beat a Tether freeze, and DEX ETH traded up to 38% above CEX prices, with the premium lasting about an hour. Who captured that CEX-DEX spread: arbitrageurs, Aave loopers, backrunners, solvers, and block builders.
 #+KEYWORDS: ethereum, mev, binance, hack, arbitrage, block builders, chainlink, aave
 #+FILETAGS: :ethereum:mev:
 #+LASTMOD: 2026-11-02
@@ -11,31 +11,39 @@
 
 On October 29, 2026, about $6.3 billion moved out of Binance wallets across ten blockchains, by TRM Labs' estimate ([[https://www.bleepingcomputer.com/news/security/binance-links-63-billion-crypto-theft-to-compromised-devops-laptop/][BleepingComputer]], provisional). This post covers only the next 24 hours on Ethereum. All times are UTC+8, starting early on October 30.
 
-The attacker had to move fast: Tether could freeze its USDT at any moment. It bought ETH on Ethereum with 475M USDT, partly through RFQ solvers and partly directly on DEXs. That one buyer pushed DEX ETH up to 38% above CEX prices (peak at 04:45). It stayed more than 17% above from 04:45 to 05:16, and the premium lasted about an hour in all (04:35–05:38). Meanwhile, DEX USDT fell to 0.918 USDC.
+The attacker had to move fast: Tether could freeze its USDT at any moment. It bought ETH on Ethereum with 435M USDT: 325M through RFQ solvers and 110M directly on DEXs. That one buyer pushed DEX ETH up to 38% above CEX prices (peak at 04:45). It stayed more than 17% above from 04:45 to 05:16, and the premium lasted about an hour in all (04:35–05:38). Meanwhile, DEX USDT fell to 0.918 USDC.
 
 - *Largest group:* 1,130 addresses sold ETH into the DEX premium. Marked against the CEX price at the time of sale, they made about 9,845 ETH after tips. Most were holders selling their own ETH through aggregators; only 66 were bot contracts.
 - *Top on-chain bot:* [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]] backran the hacker's dumps and netted 1,205 ETH.
 - *Top address:* [[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]], 1,676 ETH net from its sales; the full borrow-and-sell loop realized about $3.43M.
 - *Peak spread:* at 04:45, DEX ETH was 37.99% above CEX; the spread window ran 04:35–05:38, about 63 minutes.
-- *Hacker's loss:* it spent 475M USDT on 174,833 ETH, about $77.6M more than that ETH was worth at the Chainlink price. That's the most anyone could have made off the hacker; actual MEV profits were lower.
+- *Hacker's loss:* it spent 435M USDT on 160,445 ETH, about $70.0M more than that ETH was worth at the Chainlink price. That's the most anyone could have made off the hacker; actual MEV profits were lower.
 
 All earnings here are net profit, after the tip paid to the block builder.
 
 * The hacker's addresses
 
-- *Main wallet* ([[https://etherscan.io/address/0x5227f603c1ee34ce3c06efe6477003bdfccb2f8c][0x5227f6…cb2f8c]]): received the coins from Binance 14 and later dumped the altcoins; the 1.175B USDT Tether froze sits here.
-- *RFQ wallet* ([[https://etherscan.io/address/0x9749292d74fd460982d0912ea9515ea24736c762][0x974929…36c762]]): sold 325M USDT for ETH through RFQ.
-- *DEX wallets* ([[https://etherscan.io/address/0x77edef23fbd05921c26fe29fcc3a65e14d2ac3eb][0x77edef…2ac3eb]], [[https://etherscan.io/address/0x7aa4d3029e4c6a8e916300014ad95b6d6c03bfd1][0x7aa4d3…03bfd1]], 0x0ddf): bought ETH on DEXs with 150M USDT.
+- *Main wallet* ([[https://etherscan.io/address/0x5227f603c1ee34ce3c06efe6477003bdfccb2f8c][0x5227f6…cb2f8c]]): received the coins from Binance 14 and passed them on to the wallets below; later dumped the altcoins. The 1.175B USDT Tether froze sits here.
+- *RFQ wallet* ([[https://etherscan.io/address/0x9749292d74fd460982d0912ea9515ea24736c762][0x974929…36c762]]): received 500M USDT, sold 325M for ETH through RFQ, and sent the remaining 175M to an address that is now frozen.
+- *Aave wallet* ([[https://etherscan.io/address/0x8d53903625b8e839b9df4bd28b0efb1cd6b8639a][0x8d5390…b8639a]]): deposited 60M USDT on Aave and borrowed 19,762 WETH.
+- *DEX wallets* ([[https://etherscan.io/address/0x0ddf0480016e6bcb2c1f5d190d221fba1320697e][0x0ddf04…20697e]], [[https://etherscan.io/address/0x77edef23fbd05921c26fe29fcc3a65e14d2ac3eb][0x77edef…2ac3eb]], [[https://etherscan.io/address/0x7aa4d3029e4c6a8e916300014ad95b6d6c03bfd1][0x7aa4d3…03bfd1]]): bought 38,129 ETH on DEXs with 110M USDT.
 - *Cold wallets A–D* (table at the end): received ETH and never sent anything out; about 430,737 ETH in total.
 
 * Timeline (UTC+8, October 30)
 
-- 04:24: Binance 14 sends the hacker's main wallet 1.615B USDT and 167k ETH.
+- 04:24: Binance 14 sends the main wallet 1.615B USDT and 167k ETH.
+- 04:30: the main wallet sends 500M USDT to the RFQ wallet.
+- 04:33: the main wallet sends 200M USDT to DEX wallet 0x0ddf.
 - 04:33 / 04:48: the RFQ wallet gives Permit2 and 1inch v6 unlimited USDT approvals.
 - 04:34–04:49: the RFQ wallet sells 325M USDT for 122,316 ETH through RFQ; the DEX premium goes from 0 to +38%.
 - 04:38: the main wallet sends 195,460 ETH to cold wallet A.
-- 04:57–05:00: the hacker deposits 60M USDT on Aave and borrows 19,762 WETH.
-- 05:04–05:09: the DEX wallets buy on DEXs: 150M USDT for 52,517 ETH.
+- 04:47: 0x0ddf buys 3,552 ETH on DEXs with 10M USDT.
+- 04:52: 0x0ddf sends 190M USDT to the Aave wallet.
+- 04:57–05:00: the Aave wallet deposits 60M USDT on Aave and borrows 19,762 WETH.
+- 04:59: the RFQ wallet sends its remaining 175M USDT via [[https://etherscan.io/address/0x811f15855476156ebf86ba3b84fafb8ceaa4e84c][0x811f15…a4e84c]] to [[https://etherscan.io/address/0xaa246bf639586a6ba46762d378ce50ca4fc654a0][0xaa246b…c654a0]], now frozen by Tether.
+- 05:01: the Aave wallet sends 130M USDT to 0x77edef; at 05:06, 0x77edef passes 80M to 0x7aa4.
+- 05:04–05:09: 0x77edef and 0x7aa4 buy 34,577 ETH on DEXs with 100M USDT.
+- 05:11: 0x7aa4 sends its remaining 30M USDT via [[https://etherscan.io/address/0xccbef95633adb5cd2b5038db5a38d77e726ca263][0xccbef9…6ca263]] to [[https://etherscan.io/address/0xb171ca86f82070282138352ff7111b494060c8c3][0xb171ca…60c8c3]], now frozen by Tether.
 - 05:47: Aave freezes its main assets and sets LTV to 0 in one transaction; the spread is mostly gone by then.
 - 05:47: the RFQ wallet sends 122,310 ETH to cold wallet B.
 - 09:17–11:32: the main wallet dumps stolen altcoins through the Uniswap V3 Router (where backruns and sandwiches cluster).
@@ -320,11 +328,13 @@ At 05:47 one transaction froze 11 Aave assets and set the LTV of 5 collateral as
 
 * What the hacker lost
 
-| Seller | USDT | ETH received | Avg price | Loss vs Chainlink |
+| Hacker wallet | USDT | ETH received | Avg price | Paid above Chainlink |
 |---+---+---+---+---|
 | RFQ wallet (9 RFQ fills) | 325.0M | 122,316 | 2,657 | $45.9M |
-| DEX wallets (5 DEX trades) | 150.0M | 52,517 | 2,856 | $31.7M |
-| Total | 475M | 174,833 |  | ≈ $77.6M |
+| DEX wallets (5 DEX trades) | 110.0M | 38,129 | 2,885 | $24.1M |
+| Total | 435.0M | 160,445 | 2,711 | ≈ $70.0M |
+
+The report lists the DEX row as 150M USDT for 52,517 ETH, about $77.6M in total. The hacker's on-chain transfers show only 5 DEX buys totaling 110M USDT; the rest of that USDT went into Aave or to frozen addresses. This post uses the on-chain numbers.
 
 The gap went to RFQ solvers, builders (about 1,751 ETH in bribes), arbitrageurs who sold ETH back into the DEXs, and LP fees. Prices were pushed up, then arbitraged back down, so LP inventory ended roughly flat.
 
@@ -344,8 +354,8 @@ The gap went to RFQ solvers, builders (about 1,751 ETH in bribes), arbitrageurs 
 | Frozen address | USDT |
 |---+---|
 | Main wallet [[https://etherscan.io/address/0x5227f603c1ee34ce3c06efe6477003bdfccb2f8c][0x5227f6…cb2f8c]] | 1,175,464,713 |
-| [[https://etherscan.io/address/0xaa246bf639586a6ba46762d378ce50ca4fc654a0][0xaa246b…c654a0]] | 174,999,872 |
-| [[https://etherscan.io/address/0xb171ca86f82070282138352ff7111b494060c8c3][0xb171ca…60c8c3]] | 30,000,000 |
+| [[https://etherscan.io/address/0xaa246bf639586a6ba46762d378ce50ca4fc654a0][0xaa246b…c654a0]] (RFQ wallet leftover) | 174,999,872 |
+| [[https://etherscan.io/address/0xb171ca86f82070282138352ff7111b494060c8c3][0xb171ca…60c8c3]] (0x7aa4 leftover) | 30,000,000 |
 
 -----
 
