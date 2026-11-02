@@ -15,7 +15,7 @@ The attacker had to move fast: Tether could freeze its USDT at any moment. It bo
 
 - *Largest strategy:* selling ETH into the DEX premium, 10,752 ETH in profit + tip (about $24.35M).
 - *Top on-chain bot:* [[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]] backran the hacker's dumps and netted 1,205 ETH.
-- *Top entity:* [[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]], 1,683 ETH on its sell leg; its full loop realized about $3.43M.
+- *Top entity:* [[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]], 1,683 ETH in profit + tip from its sales; the full borrow-and-sell loop realized about $3.43M.
 - *Peak dislocation:* +37.99% at 04:45; window 04:35–05:38, about 63 minutes.
 - *What the hacker overpaid:* about $77.6M versus Chainlink, for 174,833 ETH. That's the ceiling on extractable value, not realized MEV.
 

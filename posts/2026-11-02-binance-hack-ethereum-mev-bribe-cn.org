@@ -15,7 +15,7 @@
 
 - 最大策略：在 DEX 高价卖出 ETH，利润 + tip 10,752 ETH（约 2,435 万美元）。
 - 头部链上 bot：[[https://etherscan.io/address/0x45e9b04942176a513b22acc1ced75c34d2fd9215][0x45e9b0…fd9215]]，backrun 黑客的抛售，净赚 1,205 ETH。
-- 头部主体：[[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]]，卖出腿 1,683 ETH；完整循环已实现约 343 万美元。
+- 头部主体：[[https://etherscan.io/address/0x0cdd9cbb825212c6cc5b0b36239e94218ee661d8][0x0cdd9c…e661d8]]，卖出环节赚了 1,683 ETH（利润 + tip），整个借卖循环实际到手约 343 万美元。
 - 错位峰值：04:45 时 +37.99%；错位窗口 04:35–05:38，约 63 分钟。
 - 黑客多付：相对 Chainlink 约 7,760 万美元，换得 174,833 ETH。这是可提取价值的上限，不等于已实现的 MEV 总额。
 
@@ -66,7 +66,7 @@ tip 是 searcher 为让交易上链付给出块方的费用；净利润是 searc
 | 子类 | 主体数 | 卖出 ETH | 利润+tip | tip 占比 |
 |---+---+---+---+---|
 | 自有 ETH 经聚合器卖出 | 1,028 | 84,328 | 5,988.0 | 1% |
-| 从 Aave 借来卖出（即策略 Aave 循环的卖出腿） | 36 | 24,374 | 2,678.0 | 0% |
+| 从 Aave 借来卖出（即 Aave 循环中卖出的部分） | 36 | 24,374 | 2,678.0 | 0% |
 | 专业 bot 合约直接打池子 | 66 | 27,883 | 2,086.5 | 41% |
 
 主体排名前 5：
@@ -147,8 +147,8 @@ RFQ（询价成交）是大额交易者先向做市商或 solver 询价，签下
 
 bot 在受害交易前同方向下单，把价格推向不利于受害者的一侧；受害交易以更差价格成交；bot 再在同一池子反向平仓。这次的受害者主要是黑客抛售山寨币的交易。
 
-#+CAPTION: 夹子有「前腿—受害交易—后腿」三步；backrun 只有「受害交易—后腿」两步
-#+ATTR_HTML: :alt 流程图：bot 前腿、受害交易以更差价格成交、bot 后腿、出块方收 tip :width 755 :height 117 :loading lazy :decoding async
+#+CAPTION: 夹子有三笔交易：抢跑、受害交易、平仓；backrun 只有两笔：受害交易、紧跟其后的套利
+#+ATTR_HTML: :alt 流程图：bot 抢跑、受害交易以更差价格成交、bot 平仓、出块方收 tip :width 755 :height 117 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-05-zh.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-05-zh.png]]
 
 | bot | 对数 | 其中夹黑客 | 净利润 | tip | 利润+tip | 分类 |
