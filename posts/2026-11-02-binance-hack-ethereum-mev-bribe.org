@@ -118,6 +118,8 @@ At 05:47 Aave governance froze the market and set LTV to 0, ending the loop. Fun
 
 The hacker dumped stolen altcoins (PHA, ENS, and others) through the Uniswap V3 Router into one pool at a time. That pool's price dropped; the same token in other pools (V2, other fee tiers) stayed at the old price. A bot landing right after bought low and sold high in one transaction: no front-running, no directional risk.
 
+From 09:17 to 11:32 the hacker dumped more than 30 tokens from the main wallet. The most frequent were OGN (99 sells), RED, CVX, IMX, AXS, CRV and CFG, plus PHA, ENS, YFI, APE and others. Backrun bots traded these altcoins: each transaction buys and sells the same token and closes back into WETH, so profits are in ETH. The five most profitable backruns traded PHA, CFG/RED, ENS (twice) and YFI.
+
 #+CAPTION: Net profit = pool B proceeds − pool A cost − tip, closed in one transaction
 #+ATTR_HTML: :alt Flow: hacker dumps into pool A, a bot buys there right after and sells into pool B at the old price :width 755 :height 117 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-03-en.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-03-en.png]]
@@ -157,6 +159,8 @@ Quoting for addresses holding stolen funds is trading with the attacker, which c
 ** 5. Sandwiches
 
 A bot trades in the victim's direction just before the victim's transaction, the victim fills at a worse price, and the bot closes in the same pool right after. This time the victims were mostly the hacker's altcoin dumps.
+
+The typical case was the hacker's altcoin dumps: the bot sells the same token just before the hacker, pushing the pool price down; the hacker's sell fills lower; the bot buys back cheaper right after and ends in WETH. The two most profitable pairs both hit the hacker: RED at 10:44 (1.9 ETH net, 60.4 ETH in tips) and APE at 11:07 (0.9 ETH net, 43.0 ETH in tips). Not every victim was the hacker: the pairs at 06:35 and 06:41 hit [[https://etherscan.io/address/0x42cdf00c85005630cc8605731b9364f712077810][0x42cdf0…077810]]'s UNI trades.
 
 #+CAPTION: A sandwich has three steps (front leg, victim, back leg); a backrun has two (victim, back leg).
 #+ATTR_HTML: :alt Flow: bot front leg, victim transaction at a worse price, bot back leg, builder takes the tip :width 755 :height 117 :loading lazy :decoding async

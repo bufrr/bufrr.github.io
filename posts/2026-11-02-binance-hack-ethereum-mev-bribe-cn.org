@@ -118,6 +118,8 @@ Aave 用 Chainlink 给借款计价，Chainlink 跟的是 CEX；DEX 价格却高 
 
 黑客通过 Uniswap V3 Router 把盗来的山寨币（PHA、ENS 等）一股脑砸进单个池子，池价被砸低，同币在其他池子（V2、其他费率）还是旧价。bot 紧随其后，在同一笔交易里低买高卖；不用抢跑，也不担方向风险。
 
+黑客 09:17–11:32 从主钱包砸了 30 多种币，笔数最多的是 OGN（99 笔）、RED、CVX、IMX、AXS、CRV、CFG，还有 PHA、ENS、YFI、APE 等。backrun 做的就是这些山寨币：同一笔交易里买进再卖出同一个币，最后换回 WETH，所以利润以 ETH 计。收益最高的 5 笔分别做的是 PHA、CFG/RED、ENS（两笔）和 YFI。
+
 #+CAPTION: 净利润 = 池子 B 卖出所得 − 池子 A 买入成本 − tip，一笔交易内闭合
 #+ATTR_HTML: :alt 流程图：黑客把币砸进池子 A，bot 紧随其后低价买入，再卖进还是旧价的池子 B :width 755 :height 117 :loading lazy :decoding async
 [[file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-03-zh.png][file:../static/images/posts/binance-hack-ethereum-mev-bribe/chart-03-zh.png]]
@@ -157,6 +159,8 @@ RFQ（询价成交）是大额交易者先向做市商或 solver 询价，签下
 ** 5. 夹子（sandwich）
 
 bot 在受害交易前同方向下单，把价格推向不利于受害者的一侧；受害交易以更差价格成交；bot 再在同一池子反向平仓。这次的受害者主要是黑客抛售山寨币的交易。
+
+典型场景是黑客砸山寨币时：bot 抢在黑客前面先卖同一个币，把池价压低；黑客的卖单以更低的价格成交；bot 随后低价买回，换回 WETH。收益最高的两对夹的都是黑客：10:44 夹黑客卖 RED（净赚 1.9 ETH，tip 60.4 ETH），11:07 夹黑客卖 APE（净赚 0.9 ETH，tip 43.0 ETH）。受害者也不全是黑客，比如 06:35 和 06:41 的两对，夹的是 [[https://etherscan.io/address/0x42cdf00c85005630cc8605731b9364f712077810][0x42cdf0…077810]] 的 UNI 交易。
 
 #+CAPTION: 夹子有三笔交易：抢跑、受害交易、平仓；backrun 只有两笔：受害交易、紧跟其后的套利
 #+ATTR_HTML: :alt 流程图：bot 抢跑、受害交易以更差价格成交、bot 平仓、builder 收 tip :width 755 :height 117 :loading lazy :decoding async
