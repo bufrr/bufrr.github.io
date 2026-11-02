@@ -1216,6 +1216,11 @@ sup a {
     gap: 4px;
   }
 
+  /* Narrow tables scroll sideways instead of wrapping headers per character */
+  th {
+    white-space: nowrap;
+  }
+
   .site-footer {
     flex-direction: column;
   }
