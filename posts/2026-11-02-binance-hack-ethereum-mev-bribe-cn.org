@@ -21,17 +21,24 @@
 
 文中收益均为净利润，已扣掉付给 builder 的 tip。
 
+* 黑客的地址
+
+- 黑客主钱包（[[https://etherscan.io/address/0x5227f603c1ee34ce3c06efe6477003bdfccb2f8c][0x5227f6…cb2f8c]]）：从 Binance 14 收币，后来砸山寨币；Tether 冻结的 11.75 亿 USDT 就在这里。
+- 黑客 RFQ 钱包（[[https://etherscan.io/address/0x9749292d74fd460982d0912ea9515ea24736c762][0x974929…36c762]]）：走 RFQ 卖 3.25 亿 USDT 换 ETH。
+- 黑客 DEX 钱包（[[https://etherscan.io/address/0x77edef23fbd05921c26fe29fcc3a65e14d2ac3eb][0x77edef…2ac3eb]]、[[https://etherscan.io/address/0x7aa4d3029e4c6a8e916300014ad95b6d6c03bfd1][0x7aa4d3…03bfd1]]、0x0ddf）：在 DEX 上用 1.5 亿 USDT 买 ETH。
+- 冷钱包 A–D（见文末表格）：收币后从没转出，合计约 430,737 ETH。
+
 * 时间轴（UTC+8，10 月 30 日）
 
-- 04:24：Binance 14 向 0x5227 转出 16.15 亿 USDT、16.7 万 ETH。
-- 04:33 / 04:48：0x9749 给 Permit2、1inch v6 开了 USDT 无限授权。
-- 04:34–04:49：0x9749 走 RFQ 卖出 3.25 亿 USDT，换回 122,316 ETH；DEX 溢价从 0 拉到 +38%。
-- 04:38：0x5227 向 0x8532 转出 195,460 ETH。
+- 04:24：Binance 14 向黑客主钱包转出 16.15 亿 USDT、16.7 万 ETH。
+- 04:33 / 04:48：黑客 RFQ 钱包给 Permit2、1inch v6 开了 USDT 无限授权。
+- 04:34–04:49：黑客 RFQ 钱包卖出 3.25 亿 USDT，换回 122,316 ETH；DEX 溢价从 0 拉到 +38%。
+- 04:38：黑客主钱包向冷钱包 A 转出 195,460 ETH。
 - 04:57–05:00：黑客往 Aave 存了 6,000 万 USDT，借出 19,762 WETH。
-- 05:04–05:09：0x77edef、0x7aa4 在 DEX 买入，1.5 亿 USDT 换到 52,517 ETH。
+- 05:04–05:09：黑客 DEX 钱包买入，1.5 亿 USDT 换到 52,517 ETH。
 - 05:47：Aave 一笔交易冻结主要资产、把 LTV 设为 0，这时价差已经基本没了。
-- 05:47：0x9749 向 0xc887 转出 122,310 ETH。
-- 09:17–11:32：0x5227 走 Uniswap V3 Router 抛售被盗山寨币（backrun 和夹子集中在这一段）。
+- 05:47：黑客 RFQ 钱包向冷钱包 B 转出 122,310 ETH。
+- 09:17–11:32：黑客主钱包走 Uniswap V3 Router 抛售被盗山寨币（backrun 和夹子集中在这一段）。
 - 20:26：Aave 解冻；USDC/USDT 的 LTV 到现在还是 0。
 
 * 谁赚到了钱
@@ -315,8 +322,8 @@ Chainlink 没有比 CEX 偏高或偏低，而是贴着 CEX 走：全部 38 次�
 
 | 卖方 | USDT | 换得 ETH | 均价 | 相对 Chainlink 的损失 |
 |---+---+---+---+---|
-| 0x9749…（9 笔 RFQ 成交） | 325.0M | 122,316 | 2,657 | $45.9M |
-| 0x0ddf / 0x77edef / 0x7aa4（5 笔 DEX） | 150.0M | 52,517 | 2,856 | $31.7M |
+| 黑客 RFQ 钱包（9 笔 RFQ 成交） | 325.0M | 122,316 | 2,657 | $45.9M |
+| 黑客 DEX 钱包（5 笔 DEX 成交） | 150.0M | 52,517 | 2,856 | $31.7M |
 | 合计 | 475M | 174,833 |  | ≈ $77.6M |
 
 价差被 RFQ solver、builder（约 1,751 ETH 贿赂）、把 ETH 卖回 DEX 的套利者分走，LP 也从中赚手续费。价格先被拉高，又被套利者压回去；一来一回，LP 库存基本没动。
@@ -329,14 +336,14 @@ Chainlink 没有比 CEX 偏高或偏低，而是贴着 CEX 走：全部 38 次�
 
 | 地址 | ETH | 来源 |
 |---+---+---|
-| [[https://etherscan.io/address/0x8532fa14acaf483729c449b8458aeddb900543d4][0x8532fa…0543d4]] | 197,460 | 0x5227 转入（块 26300842 起） |
-| [[https://etherscan.io/address/0xc887af690e0301cd4edbbce8f8d31b4ec65b286a][0xc887af…5b286a]] | 137,602 | 0x9749 卖 USDT 所得 + 0x7f9dc988 |
-| [[https://etherscan.io/address/0x897c80d1a9729e94460e2bd93178bd5215158df3][0x897c80…158df3]] | 78,415 | 黑客链终点 |
-| [[https://etherscan.io/address/0x03b0ee5d82990cff1bda48651ac3e436d1a020ea][0x03b0ee…a020ea]] | 17,260 | 0x5227 转入（块 26303416） |
+| 冷钱包 A [[https://etherscan.io/address/0x8532fa14acaf483729c449b8458aeddb900543d4][0x8532fa…0543d4]] | 197,460 | 黑客主钱包转入（块 26300842 起） |
+| 冷钱包 B [[https://etherscan.io/address/0xc887af690e0301cd4edbbce8f8d31b4ec65b286a][0xc887af…5b286a]] | 137,602 | 黑客 RFQ 钱包卖 USDT 所得 + 0x7f9dc988 |
+| 冷钱包 C [[https://etherscan.io/address/0x897c80d1a9729e94460e2bd93178bd5215158df3][0x897c80…158df3]] | 78,415 | 黑客链终点 |
+| 冷钱包 D [[https://etherscan.io/address/0x03b0ee5d82990cff1bda48651ac3e436d1a020ea][0x03b0ee…a020ea]] | 17,260 | 黑客主钱包转入（块 26303416） |
 
 | 被冻结地址 | USDT |
 |---+---|
-| [[https://etherscan.io/address/0x5227f603c1ee34ce3c06efe6477003bdfccb2f8c][0x5227f6…cb2f8c]] | 1,175,464,713 |
+| 黑客主钱包 [[https://etherscan.io/address/0x5227f603c1ee34ce3c06efe6477003bdfccb2f8c][0x5227f6…cb2f8c]] | 1,175,464,713 |
 | [[https://etherscan.io/address/0xaa246bf639586a6ba46762d378ce50ca4fc654a0][0xaa246b…c654a0]] | 174,999,872 |
 | [[https://etherscan.io/address/0xb171ca86f82070282138352ff7111b494060c8c3][0xb171ca…60c8c3]] | 30,000,000 |
 

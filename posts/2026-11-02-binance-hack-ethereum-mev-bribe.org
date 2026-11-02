@@ -21,17 +21,24 @@ The attacker had to move fast: Tether could freeze its USDT at any moment. It bo
 
 All earnings here are net profit, after the tip paid to the block builder.
 
+* The hacker's addresses
+
+- *Main wallet* ([[https://etherscan.io/address/0x5227f603c1ee34ce3c06efe6477003bdfccb2f8c][0x5227f6…cb2f8c]]): received the coins from Binance 14 and later dumped the altcoins; the 1.175B USDT Tether froze sits here.
+- *RFQ wallet* ([[https://etherscan.io/address/0x9749292d74fd460982d0912ea9515ea24736c762][0x974929…36c762]]): sold 325M USDT for ETH through RFQ.
+- *DEX wallets* ([[https://etherscan.io/address/0x77edef23fbd05921c26fe29fcc3a65e14d2ac3eb][0x77edef…2ac3eb]], [[https://etherscan.io/address/0x7aa4d3029e4c6a8e916300014ad95b6d6c03bfd1][0x7aa4d3…03bfd1]], 0x0ddf): bought ETH on DEXs with 150M USDT.
+- *Cold wallets A–D* (table at the end): received ETH and never sent anything out; about 430,737 ETH in total.
+
 * Timeline (UTC+8, October 30)
 
-- 04:24: Binance 14 sends 0x5227 1.615B USDT and 167k ETH.
-- 04:33 / 04:48: 0x9749 gives Permit2 and 1inch v6 unlimited USDT approvals.
-- 04:34–04:49: 0x9749 sells 325M USDT for 122,316 ETH through RFQ; the DEX premium goes from 0 to +38%.
-- 04:38: 0x5227 sends 195,460 ETH to 0x8532.
+- 04:24: Binance 14 sends the hacker's main wallet 1.615B USDT and 167k ETH.
+- 04:33 / 04:48: the RFQ wallet gives Permit2 and 1inch v6 unlimited USDT approvals.
+- 04:34–04:49: the RFQ wallet sells 325M USDT for 122,316 ETH through RFQ; the DEX premium goes from 0 to +38%.
+- 04:38: the main wallet sends 195,460 ETH to cold wallet A.
 - 04:57–05:00: the hacker deposits 60M USDT on Aave and borrows 19,762 WETH.
-- 05:04–05:09: 0x77edef and 0x7aa4 buy on DEXs: 150M USDT for 52,517 ETH.
+- 05:04–05:09: the DEX wallets buy on DEXs: 150M USDT for 52,517 ETH.
 - 05:47: Aave freezes its main assets and sets LTV to 0 in one transaction; the spread is mostly gone by then.
-- 05:47: 0x9749 sends 122,310 ETH to 0xc887.
-- 09:17–11:32: 0x5227 dumps stolen altcoins through the Uniswap V3 Router (where backruns and sandwiches cluster).
+- 05:47: the RFQ wallet sends 122,310 ETH to cold wallet B.
+- 09:17–11:32: the main wallet dumps stolen altcoins through the Uniswap V3 Router (where backruns and sandwiches cluster).
 - 20:26: Aave unfreezes; USDC/USDT LTV stays at 0.
 
 * Who made money
@@ -315,8 +322,8 @@ At 05:47 one transaction froze 11 Aave assets and set the LTV of 5 collateral as
 
 | Seller | USDT | ETH received | Avg price | Loss vs Chainlink |
 |---+---+---+---+---|
-| 0x9749… (9 RFQ fills) | 325.0M | 122,316 | 2,657 | $45.9M |
-| 0x0ddf / 0x77edef / 0x7aa4 (5 DEX trades) | 150.0M | 52,517 | 2,856 | $31.7M |
+| RFQ wallet (9 RFQ fills) | 325.0M | 122,316 | 2,657 | $45.9M |
+| DEX wallets (5 DEX trades) | 150.0M | 52,517 | 2,856 | $31.7M |
 | Total | 475M | 174,833 |  | ≈ $77.6M |
 
 The gap went to RFQ solvers, builders (about 1,751 ETH in bribes), arbitrageurs who sold ETH back into the DEXs, and LP fees. Prices were pushed up, then arbitraged back down, so LP inventory ended roughly flat.
@@ -329,14 +336,14 @@ The gap went to RFQ solvers, builders (about 1,751 ETH in bribes), arbitrageurs 
 
 | Address | ETH | Source |
 |---+---+---|
-| [[https://etherscan.io/address/0x8532fa14acaf483729c449b8458aeddb900543d4][0x8532fa…0543d4]] | 197,460 | From 0x5227 (from block 26300842) |
-| [[https://etherscan.io/address/0xc887af690e0301cd4edbbce8f8d31b4ec65b286a][0xc887af…5b286a]] | 137,602 | Proceeds of 0x9749's USDT sales + 0x7f9dc988 |
-| [[https://etherscan.io/address/0x897c80d1a9729e94460e2bd93178bd5215158df3][0x897c80…158df3]] | 78,415 | End of the hacker's chain |
-| [[https://etherscan.io/address/0x03b0ee5d82990cff1bda48651ac3e436d1a020ea][0x03b0ee…a020ea]] | 17,260 | From 0x5227 (block 26303416) |
+| Cold wallet A [[https://etherscan.io/address/0x8532fa14acaf483729c449b8458aeddb900543d4][0x8532fa…0543d4]] | 197,460 | From the main wallet (from block 26300842) |
+| Cold wallet B [[https://etherscan.io/address/0xc887af690e0301cd4edbbce8f8d31b4ec65b286a][0xc887af…5b286a]] | 137,602 | Proceeds of the RFQ wallet's USDT sales + 0x7f9dc988 |
+| Cold wallet C [[https://etherscan.io/address/0x897c80d1a9729e94460e2bd93178bd5215158df3][0x897c80…158df3]] | 78,415 | End of the hacker's chain |
+| Cold wallet D [[https://etherscan.io/address/0x03b0ee5d82990cff1bda48651ac3e436d1a020ea][0x03b0ee…a020ea]] | 17,260 | From the main wallet (block 26303416) |
 
 | Frozen address | USDT |
 |---+---|
-| [[https://etherscan.io/address/0x5227f603c1ee34ce3c06efe6477003bdfccb2f8c][0x5227f6…cb2f8c]] | 1,175,464,713 |
+| Main wallet [[https://etherscan.io/address/0x5227f603c1ee34ce3c06efe6477003bdfccb2f8c][0x5227f6…cb2f8c]] | 1,175,464,713 |
 | [[https://etherscan.io/address/0xaa246bf639586a6ba46762d378ce50ca4fc654a0][0xaa246b…c654a0]] | 174,999,872 |
 | [[https://etherscan.io/address/0xb171ca86f82070282138352ff7111b494060c8c3][0xb171ca…60c8c3]] | 30,000,000 |
 
