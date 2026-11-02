@@ -4,6 +4,7 @@
 #+DESCRIPTION: 关于编程与技术的技术博客
 #+OPTIONS: author:nil toc:nil num:nil
 
+- [[file:2026-11-02-binance-hack-eth-mev-cn.org][60 亿美元黑客案后：套利上限 7760 万美元，付 1070 ETH 贿赂]]
 - [[file:2026-10-26-bnb-new-l1-fast-ordering-late-results-cn.org][BNB New L1：排序很快，结果很慢]]
 - [[file:2026-02-12-block-builder-buildernet-1-cn.org][Block Builder 深度解析：Ethereum BuilderNet（一）]]
 - [[file:2024-10-02-babylon-cn.org][什么是 Babylon？]]
