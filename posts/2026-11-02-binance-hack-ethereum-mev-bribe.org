@@ -24,7 +24,7 @@ All earnings here are net profit, after the tip paid to the block builder.
 * The hacker's addresses
 
 - *Main wallet* ([[https://etherscan.io/address/0x5227f603c1ee34ce3c06efe6477003bdfccb2f8c][0x5227f6…cb2f8c]]): received the coins from Binance 14 and passed them on to the wallets below; later dumped the altcoins. The 1.175B USDT Tether froze sits here.
-- *RFQ wallet* ([[https://etherscan.io/address/0x9749292d74fd460982d0912ea9515ea24736c762][0x974929…36c762]]): received 500M USDT, sold 325M for ETH through RFQ, and sent the remaining 175M to an address that is now frozen.
+- *RFQ wallet* ([[https://etherscan.io/address/0x9749292d74fd460982d0912ea9515ea24736c762][0x974929…36c762]]): received 500M USDT, sold 325M for ETH through RFQ; the remaining 175M went via [[https://etherscan.io/address/0x811f15855476156ebf86ba3b84fafb8ceaa4e84c][0x811f15…a4e84c]] to [[https://etherscan.io/address/0xaa246bf639586a6ba46762d378ce50ca4fc654a0][0xaa246b…c654a0]], where Tether froze it.
 - *Aave wallet* ([[https://etherscan.io/address/0x8d53903625b8e839b9df4bd28b0efb1cd6b8639a][0x8d5390…b8639a]]): deposited 60M USDT on Aave and borrowed 19,762 WETH.
 - *DEX wallets* ([[https://etherscan.io/address/0x0ddf0480016e6bcb2c1f5d190d221fba1320697e][0x0ddf04…20697e]], [[https://etherscan.io/address/0x77edef23fbd05921c26fe29fcc3a65e14d2ac3eb][0x77edef…2ac3eb]], [[https://etherscan.io/address/0x7aa4d3029e4c6a8e916300014ad95b6d6c03bfd1][0x7aa4d3…03bfd1]]): bought 38,129 ETH on DEXs with 110M USDT.
 - *Cold wallets A–D* (table at the end): received ETH and never sent anything out; about 430,737 ETH in total.
